@@ -18,8 +18,7 @@ struct CompanyEditView: View {
         _name      = State(initialValue: company.name       ?? "")
         _myPageURL = State(initialValue: company.myPageURL  ?? "")
         _loginID   = State(initialValue: company.loginID    ?? "")
-        let key    = company.id?.uuidString ?? ""
-        _password  = State(initialValue: KeychainManager.shared.loadPassword(for: key) ?? "")
+        _password  = State(initialValue: "")
     }
 
     var body: some View {
@@ -51,9 +50,9 @@ struct CompanyEditView: View {
                     HStack {
                         Group {
                             if showPassword {
-                                TextField("パスワード", text: $password)
+                                TextField("変更する場合のみ入力", text: $password)
                             } else {
-                                SecureField("パスワード", text: $password)
+                                SecureField("変更する場合のみ入力", text: $password)
                             }
                         }
                         .autocorrectionDisabled()
@@ -66,6 +65,16 @@ struct CompanyEditView: View {
                                 .foregroundStyle(.secondary)
                         }
                         .buttonStyle(.borderless)
+                    }
+
+                    if let key = company.id?.uuidString,
+                       KeychainManager.shared.loadPassword(for: key) != nil {
+                        Button(role: .destructive) {
+                            KeychainManager.shared.deletePassword(for: key)
+                            dismiss()
+                        } label: {
+                            Label("パスワードを削除", systemImage: "trash")
+                        }
                     }
                 } header: {
                     Text("パスワード（Keychain保存）")
@@ -104,11 +113,10 @@ struct CompanyEditView: View {
 
         if let key = company.id?.uuidString {
             let trimmedPW = password.trimmingCharacters(in: .whitespaces)
-            if trimmedPW.isEmpty {
-                KeychainManager.shared.deletePassword(for: key)
-            } else {
+            if !trimmedPW.isEmpty {
                 KeychainManager.shared.savePassword(trimmedPW, for: key)
             }
+            // 空の場合は既存パスワードを維持（削除しない）
         }
 
         try? context.save()

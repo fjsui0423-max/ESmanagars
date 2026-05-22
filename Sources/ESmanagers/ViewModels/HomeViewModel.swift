@@ -58,6 +58,17 @@ final class HomeViewModel: ObservableObject {
         saveContext()
     }
 
+    // MARK: - Drag & Drop: 既存フォルダへ移動
+
+    /// sourceID の企業を既存の industry に紐付ける。
+    func moveCompany(sourceID: UUID, to industry: Industry) {
+        let req = Company.fetchRequest()
+        req.predicate = NSPredicate(format: "id == %@", sourceID as NSUUID)
+        guard let source = (try? context.fetch(req))?.first else { return }
+        source.industry = industry
+        saveContext()
+    }
+
     // MARK: - Private
 
     private func saveContext() {

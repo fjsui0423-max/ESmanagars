@@ -55,17 +55,18 @@ struct CalendarTaskView: View {
 
     private var taskList: some View {
         List(viewModel.filteredBoxes) { box in
-            NavigationLink {
-                if let company = box.company {
-                    CompanyDetailView(company: company)
-                } else {
-                    Text("企業が見つかりません").foregroundStyle(.secondary)
+            if let company = box.company {
+                NavigationLink(value: company) {
+                    taskRow(box)
                 }
-            } label: {
+            } else {
                 taskRow(box)
             }
         }
         .listStyle(.insetGrouped)
+        .navigationDestination(for: Company.self) { company in
+            CompanyDetailView(company: company)
+        }
     }
 
     private func taskRow(_ box: ESBox) -> some View {

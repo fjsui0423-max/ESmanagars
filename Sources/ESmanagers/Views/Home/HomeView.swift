@@ -28,12 +28,15 @@ struct HomeView: View {
     @State private var showAddIndustryAlert = false
     @State private var newItemName          = ""
 
-    // MARK: - ドラッグ&ドロップ用ステート
+    // MARK: - ドラッグ&ドロップ用ステート（企業同士）
     @State private var dropTargetedID:       UUID?
     @State private var pendingSourceID:      UUID?
     @State private var pendingTargetCompany: Company?
     @State private var showFolderNameAlert   = false
     @State private var newFolderName         = ""
+
+    // MARK: - ドラッグ&ドロップ用ステート（既存フォルダ）
+    @State private var folderDropTargetedID: UUID?
 
     init(context: NSManagedObjectContext) {
         _viewModel = StateObject(wrappedValue: HomeViewModel(context: context))
@@ -45,7 +48,7 @@ struct HomeView: View {
         ScrollView {
             LazyVGrid(columns: columns, spacing: 24) {
                 ForEach(industries) { industry in
-                    IndustryFolderView(industry: industry)
+                    industryFolderItem(industry)
                 }
                 ForEach(standaloneCompanies) { company in
                     companyGridItem(company)
@@ -112,6 +115,33 @@ struct HomeView: View {
         } message: {
             Text("ドラッグした2つの企業を同じフォルダにまとめます")
         }
+    }
+
+    // MARK: - Industry フォルダアイテム（ドロップ対応）
+
+    @ViewBuilder
+    private func industryFolderItem(_ industry: Industry) -> some View {
+        let isTargeted = folderDropTargetedID == industry.id
+
+        IndustryFolderView(industry: industry)
+            .overlay(alignment: .center) {
+                if isTargeted {
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .strokeBorder(Color.accentColor, lineWidth: 3)
+                        .allowsHitTesting(false)
+                }
+            }
+            .scaleEffect(isTargeted ? 1.08 : 1.0)
+            .animation(.spring(response: 0.25, dampingFraction: 0.7), value: isTargeted)
+            // 企業UUIDをドロップ → 既存フォルダに移動
+            .dropDestination(for: String.self) { items, _ in
+                guard let uuidString = items.first,
+                      let sourceID   = UUID(uuidString: uuidString) else { return false }
+                viewModel.moveCompany(sourceID: sourceID, to: industry)
+                return true
+            } isTargeted: { targeted in
+                folderDropTargetedID = targeted ? industry.id : nil
+            }
     }
 
     // MARK: - Company グリッドアイテム

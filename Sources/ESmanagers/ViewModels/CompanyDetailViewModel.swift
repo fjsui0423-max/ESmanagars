@@ -128,6 +128,7 @@ final class CompanyDetailViewModel: ObservableObject {
         box.deadlineAt = deadline
         box.company   = company
         try? context.save()
+        objectWillChange.send()
     }
 
     // MARK: - Toast
