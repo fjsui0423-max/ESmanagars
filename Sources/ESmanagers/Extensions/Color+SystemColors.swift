@@ -1,0 +1,26 @@
+import SwiftUI
+
+extension Color {
+    static var systemGroupedBackground: Color {
+        #if os(iOS)
+        Color(UIColor.systemGroupedBackground)
+        #else
+        Color(NSColor.windowBackgroundColor)
+        #endif
+    }
+
+    static var secondarySystemGroupedBackground: Color {
+        #if os(iOS)
+        Color(UIColor.secondarySystemGroupedBackground)
+        #else
+        Color(NSColor.controlBackgroundColor)
+        #endif
+    }
+}
+
+extension Optional where Wrapped == String {
+    var nilIfEmpty: String? {
+        guard let self, !self.isEmpty else { return nil }
+        return self
+    }
+}
