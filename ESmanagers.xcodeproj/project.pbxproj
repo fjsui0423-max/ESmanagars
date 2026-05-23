@@ -33,6 +33,7 @@
 		612ED5A823C902FB5DB2C121 /* AnalyticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31263F65BAC20236C33318A8 /* AnalyticsView.swift */; };
 		631C5F59FB46D487150E4789 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FA3DC91808FB99FC6979AD3 /* MainTabView.swift */; };
 		63D1DB562933D03E78142AAA /* TemplateListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9031691773D605160A86A8 /* TemplateListView.swift */; };
+		6A6108220794CA13B8961812 /* InterviewEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DFD5278061BC7B7DAE39DC6 /* InterviewEditView.swift */; };
 		6A618E8BC5D092867BD1BE90 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 427AB5C21F6454DBB363482F /* Assets.xcassets */; };
 		76E82218E335E2B936CA3B8B /* TemplateViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A0345751B86041869E93FB /* TemplateViewModel.swift */; };
 		981511E06F3E16AEDB57C109 /* KeychainManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6EE2B41E683507CC5013D50 /* KeychainManager.swift */; };
@@ -58,6 +59,7 @@
 		0F7DD61723ABECCF1D4AD250 /* InterviewCreateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterviewCreateView.swift; sourceTree = "<group>"; };
 		101F9224A2A0D6F46F8BA6AC /* IndustryFolderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IndustryFolderView.swift; sourceTree = "<group>"; };
 		281AAF9AF9312E3173F49D8D /* Interview+CoreData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Interview+CoreData.swift"; sourceTree = "<group>"; };
+		2DFD5278061BC7B7DAE39DC6 /* InterviewEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterviewEditView.swift; sourceTree = "<group>"; };
 		31263F65BAC20236C33318A8 /* AnalyticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsView.swift; sourceTree = "<group>"; };
 		36FCF031D8A97D1E07E0D16D /* ESVersion+CoreData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ESVersion+CoreData.swift"; sourceTree = "<group>"; };
 		37B107A3088C97080992F9D3 /* CoreDataModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataModel.swift; sourceTree = "<group>"; };
@@ -182,6 +184,7 @@
 				3B03E9E561B185D86899E90C /* ESQuestionCreateView.swift */,
 				C2272AF2B200329969169D87 /* ESQuestionEditView.swift */,
 				0F7DD61723ABECCF1D4AD250 /* InterviewCreateView.swift */,
+				2DFD5278061BC7B7DAE39DC6 /* InterviewEditView.swift */,
 			);
 			path = CompanyDetail;
 			sourceTree = "<group>";
@@ -386,6 +389,7 @@
 				C57E47A6FC9842CB4CC98C33 /* IndustryFolderView.swift in Sources */,
 				FEBE3D2BC663F01D7D1F0AA1 /* Interview+CoreData.swift in Sources */,
 				BA564EDBBD3EFD209C675FE8 /* InterviewCreateView.swift in Sources */,
+				6A6108220794CA13B8961812 /* InterviewEditView.swift in Sources */,
 				981511E06F3E16AEDB57C109 /* KeychainManager.swift in Sources */,
 				631C5F59FB46D487150E4789 /* MainTabView.swift in Sources */,
 				B0E36D6B6F8D7142C09EF8AD /* NotificationManager.swift in Sources */,

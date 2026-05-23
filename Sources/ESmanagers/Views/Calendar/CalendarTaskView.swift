@@ -10,6 +10,88 @@ struct CalendarTaskContainerView: View {
     }
 }
 
+// MARK: - Day Cell
+
+private struct DayCell: View {
+    let date: Date
+    let isSelected: Bool
+    let isToday: Bool
+    let isCurrentMonth: Bool
+    let boxes: [ESBox]
+    let interviews: [Interview]
+    let onTap: () -> Void
+
+    private var dayNumber: Int { Calendar.current.component(.day, from: date) }
+    private var weekday: Int   { Calendar.current.component(.weekday, from: date) }
+
+    private var dayTextColor: Color {
+        if isSelected        { return .white }
+        if !isCurrentMonth   { return Color.secondary.opacity(0.4) }
+        if weekday == 1      { return .red }
+        if weekday == 7      { return .blue }
+        return .primary
+    }
+
+    var body: some View {
+        VStack(spacing: 2) {
+            dayCircle
+            taskLabels
+            Spacer(minLength: 0)
+        }
+        .frame(maxWidth: .infinity)
+        .frame(height: 80)
+        .padding(.horizontal, 1)
+        .contentShape(Rectangle())
+        .onTapGesture { onTap() }
+    }
+
+    private var dayCircle: some View {
+        ZStack {
+            if isSelected {
+                Circle()
+                    .fill(Color.accentColor)
+                    .frame(width: 26, height: 26)
+            } else if isToday {
+                Circle()
+                    .stroke(Color.accentColor, lineWidth: 1.5)
+                    .frame(width: 26, height: 26)
+            }
+            Text("\(dayNumber)")
+                .font(.system(size: 13, weight: isSelected ? .semibold : .regular))
+                .foregroundStyle(dayTextColor)
+        }
+        .frame(height: 27)
+    }
+
+    @ViewBuilder
+    private var taskLabels: some View {
+        ForEach(Array(boxes.prefix(2))) { box in
+            Text("ES:\(box.company?.name ?? "")")
+                .font(.system(size: 9))
+                .lineLimit(1)
+                .truncationMode(.tail)
+                .padding(.horizontal, 3)
+                .padding(.vertical, 1)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color.blue.opacity(0.15))
+                .foregroundStyle(Color.blue)
+                .cornerRadius(2)
+        }
+        ForEach(Array(interviews.prefix(2))) { interview in
+            Text("面:\(interview.company?.name ?? "")")
+                .font(.system(size: 9))
+                .lineLimit(1)
+                .truncationMode(.tail)
+                .padding(.horizontal, 3)
+                .padding(.vertical, 1)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color.red.opacity(0.15))
+                .foregroundStyle(Color.red)
+                .cornerRadius(2)
+        }
+    }
+}
+
 // MARK: - Main view
 
 struct CalendarTaskView: View {
@@ -24,19 +106,22 @@ struct CalendarTaskView: View {
         )
     }
 
+    private let weekdays = ["日", "月", "火", "水", "木", "金", "土"]
+    private let columns  = Array(repeating: GridItem(.flexible(), spacing: 0), count: 7)
+
+    private static let monthFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.locale     = Locale(identifier: "ja_JP")
+        f.dateFormat = "yyyy年M月"
+        return f
+    }()
+
     var body: some View {
         VStack(spacing: 0) {
-            DatePicker(
-                "日付を選択",
-                selection: $viewModel.selectedDate,
-                displayedComponents: .date
-            )
-            .datePickerStyle(.graphical)
-            .padding(.horizontal, 8)
-            .padding(.bottom, 4)
-
+            calendarHeader
+            weekdayHeader
+            calendarGrid
             Divider()
-
             if viewModel.isEmpty {
                 emptyState
             } else {
@@ -49,6 +134,77 @@ struct CalendarTaskView: View {
         .navigationBarTitleDisplayMode(.inline)
         #endif
         .onAppear { viewModel.fetch() }
+    }
+
+    // MARK: - Calendar header
+
+    private var calendarHeader: some View {
+        HStack {
+            Button {
+                withAnimation(.easeInOut(duration: 0.2)) { viewModel.moveToPreviousMonth() }
+            } label: {
+                Image(systemName: "chevron.left")
+                    .font(.system(size: 15, weight: .semibold))
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 10)
+            }
+
+            Spacer()
+
+            Text(Self.monthFormatter.string(from: viewModel.currentMonth))
+                .font(.headline)
+
+            Spacer()
+
+            Button {
+                withAnimation(.easeInOut(duration: 0.2)) { viewModel.moveToNextMonth() }
+            } label: {
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 15, weight: .semibold))
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 10)
+            }
+        }
+    }
+
+    // MARK: - Weekday header
+
+    private var weekdayHeader: some View {
+        HStack(spacing: 0) {
+            ForEach(weekdays, id: \.self) { day in
+                Text(day)
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(
+                        day == "日" ? Color.red :
+                        day == "土" ? Color.blue :
+                        Color.secondary
+                    )
+                    .frame(maxWidth: .infinity)
+            }
+        }
+        .padding(.top, 4)
+        .padding(.bottom, 6)
+        .padding(.horizontal, 4)
+    }
+
+    // MARK: - Calendar grid
+
+    private var calendarGrid: some View {
+        LazyVGrid(columns: columns, spacing: 0) {
+            ForEach(viewModel.calendarDates, id: \.self) { date in
+                DayCell(
+                    date: date,
+                    isSelected: viewModel.isSelected(date),
+                    isToday: viewModel.isToday(date),
+                    isCurrentMonth: viewModel.isCurrentMonth(date),
+                    boxes: viewModel.boxes(for: date),
+                    interviews: viewModel.interviews(for: date),
+                    onTap: { viewModel.selectedDate = date }
+                )
+            }
+        }
+        .padding(.horizontal, 4)
+        .padding(.bottom, 4)
     }
 
     // MARK: - Task list
@@ -75,7 +231,7 @@ struct CalendarTaskView: View {
 
             if !viewModel.filteredInterviews.isEmpty {
                 Section {
-                    ForEach(viewModel.filteredInterviews, id: \.objectID) { interview in
+                    ForEach(viewModel.filteredInterviews) { interview in
                         if let company = interview.company {
                             NavigationLink(value: company) {
                                 interviewRow(interview)
@@ -100,7 +256,9 @@ struct CalendarTaskView: View {
     // MARK: - ES BOX row
 
     private func esBoxRow(_ box: ESBox) -> some View {
-        HStack(spacing: 12) {
+        let status = box.status ?? "進行中"
+        let active = status == "未着手" || status == "進行中"
+        return HStack(spacing: 12) {
             Image(systemName: "doc.text.fill")
                 .font(.system(size: 18))
                 .foregroundStyle(.blue)
@@ -116,7 +274,6 @@ struct CalendarTaskView: View {
 
             Spacer()
 
-            let status = box.status ?? "進行中"
             Text(status)
                 .font(.caption.weight(.semibold))
                 .padding(.horizontal, 8)
@@ -126,6 +283,7 @@ struct CalendarTaskView: View {
                 .clipShape(Capsule())
         }
         .padding(.vertical, 4)
+        .opacity(active ? 1.0 : 0.5)
     }
 
     // MARK: - Interview row
@@ -139,7 +297,9 @@ struct CalendarTaskView: View {
     }()
 
     private func interviewRow(_ interview: Interview) -> some View {
-        HStack(spacing: 12) {
+        let status = interview.status ?? "予定"
+        let active = status == "予定"
+        return HStack(spacing: 12) {
             Image(systemName: "person.2.fill")
                 .font(.system(size: 18))
                 .foregroundStyle(.red)
@@ -168,7 +328,6 @@ struct CalendarTaskView: View {
 
             Spacer()
 
-            let status = interview.status ?? "予定"
             Text(status)
                 .font(.caption.weight(.semibold))
                 .padding(.horizontal, 8)
@@ -178,6 +337,7 @@ struct CalendarTaskView: View {
                 .clipShape(Capsule())
         }
         .padding(.vertical, 4)
+        .opacity(active ? 1.0 : 0.5)
     }
 
     // MARK: - Empty state

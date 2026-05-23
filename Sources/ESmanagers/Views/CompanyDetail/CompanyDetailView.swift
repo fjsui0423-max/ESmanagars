@@ -7,9 +7,11 @@ struct CompanyDetailView: View {
 
     @StateObject private var viewModel: CompanyDetailViewModel
 
-    @State private var showEditSheet       = false
-    @State private var showESBoxCreate     = false
-    @State private var showInterviewCreate = false
+    @State private var showEditSheet        = false
+    @State private var showESBoxCreate      = false
+    @State private var showInterviewCreate  = false
+    @State private var editingInterview:    Interview? = nil
+    @State private var showEditInterview    = false
 
     init(company: Company) {
         _viewModel = StateObject(wrappedValue: CompanyDetailViewModel(company: company))
@@ -52,6 +54,14 @@ struct CompanyDetailView: View {
         .sheet(isPresented: $showInterviewCreate) {
             InterviewCreateView { stage, startAt, mode in
                 viewModel.addInterview(stage: stage, startAt: startAt, mode: mode, in: context)
+            }
+        }
+        // 面接編集シート
+        .sheet(isPresented: $showEditInterview) {
+            if let interview = editingInterview {
+                InterviewEditView(interview: interview) { stage, startAt, mode in
+                    viewModel.updateInterview(interview, stage: stage, startAt: startAt, mode: mode, in: context)
+                }
             }
         }
     }
@@ -386,7 +396,15 @@ struct CompanyDetailView: View {
                 emptyInterviewView
             } else {
                 ForEach(viewModel.interviewsArray, id: \.objectID) { interview in
-                    interviewCard(interview)
+                    InterviewCard(
+                        interview:      interview,
+                        onEdit: {
+                            editingInterview = interview
+                            showEditInterview = true
+                        },
+                        onDelete:       { viewModel.deleteInterview(interview, in: context) },
+                        onStatusChange: { viewModel.updateInterviewStatus(interview, status: $0, in: context) }
+                    )
                 }
             }
         }
@@ -409,87 +427,6 @@ struct CompanyDetailView: View {
         .padding(.vertical, 44)
         .background(Color.secondarySystemGroupedBackground)
         .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-    }
-
-    private static let interviewDateFormatter: DateFormatter = {
-        let f = DateFormatter()
-        f.locale    = Locale(identifier: "ja_JP")
-        f.dateStyle = .medium
-        f.timeStyle = .short
-        return f
-    }()
-
-    private func interviewCard(_ interview: Interview) -> some View {
-        HStack(spacing: 0) {
-            let status = interview.status ?? "予定"
-            RoundedRectangle(cornerRadius: 2)
-                .fill(status.interviewStatusColor)
-                .frame(width: 4)
-                .padding(.vertical, 4)
-
-            HStack(spacing: 12) {
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(interview.stage ?? "未定")
-                        .font(.subheadline.weight(.semibold))
-
-                    if let d = interview.startAt {
-                        Label(Self.interviewDateFormatter.string(from: d), systemImage: "clock")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-
-                    Text(interview.mode ?? "未定")
-                        .font(.caption.weight(.medium))
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 2)
-                        .background(Color.accentColor.opacity(0.1))
-                        .foregroundStyle(Color.accentColor)
-                        .clipShape(Capsule())
-                }
-
-                Spacer()
-
-                interviewStatusMenu(interview)
-            }
-            .padding(.vertical, 14)
-            .padding(.horizontal, 14)
-        }
-        .background(Color.secondarySystemGroupedBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-        .contextMenu {
-            Button(role: .destructive) {
-                viewModel.deleteInterview(interview, in: context)
-            } label: {
-                Label("削除", systemImage: "trash")
-            }
-        }
-    }
-
-    private static let interviewStatuses = ["予定", "通過", "落選", "辞退"]
-
-    private func interviewStatusMenu(_ interview: Interview) -> some View {
-        let current = interview.status ?? "予定"
-        return Menu {
-            ForEach(Self.interviewStatuses, id: \.self) { s in
-                Button {
-                    viewModel.updateInterviewStatus(interview, status: s, in: context)
-                } label: {
-                    if s == current {
-                        Label(s, systemImage: "checkmark")
-                    } else {
-                        Text(s)
-                    }
-                }
-            }
-        } label: {
-            Text(current)
-                .font(.caption.weight(.semibold))
-                .padding(.horizontal, 10)
-                .padding(.vertical, 5)
-                .background(current.interviewStatusColor.opacity(0.12))
-                .foregroundStyle(current.interviewStatusColor)
-                .clipShape(Capsule())
-        }
     }
 
     // MARK: - Toolbar placement
@@ -560,6 +497,109 @@ struct ESBoxCard: View {
 
     private var statusColor: Color {
         (esBox.status ?? "未着手").esBoxStatusColor
+    }
+}
+
+// MARK: - Interview Card
+
+struct InterviewCard: View {
+    @ObservedObject var interview: Interview
+
+    let onEdit:         () -> Void
+    let onDelete:       () -> Void
+    let onStatusChange: (String) -> Void
+
+    private static let statuses = ["予定", "通過", "落選", "辞退"]
+
+    private static let dateFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.locale    = Locale(identifier: "ja_JP")
+        f.dateStyle = .medium
+        f.timeStyle = .short
+        return f
+    }()
+
+    var body: some View {
+        let status = interview.status ?? "予定"
+        HStack(spacing: 0) {
+            RoundedRectangle(cornerRadius: 2)
+                .fill(status.interviewStatusColor)
+                .frame(width: 4)
+                .padding(.vertical, 4)
+
+            HStack(spacing: 12) {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(interview.stage ?? "未定")
+                        .font(.subheadline.weight(.semibold))
+
+                    if let d = interview.startAt {
+                        Label(Self.dateFormatter.string(from: d), systemImage: "clock")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+
+                    Text(interview.mode ?? "未定")
+                        .font(.caption.weight(.medium))
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 2)
+                        .background(Color.accentColor.opacity(0.1))
+                        .foregroundStyle(Color.accentColor)
+                        .clipShape(Capsule())
+                }
+
+                Spacer()
+
+                Button(action: onEdit) {
+                    Image(systemName: "pencil.circle")
+                        .font(.system(size: 20))
+                        .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
+
+                statusMenuView(current: status)
+            }
+            .padding(.vertical, 14)
+            .padding(.horizontal, 14)
+        }
+        .background(Color.secondarySystemGroupedBackground)
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .contextMenu {
+            Button { onEdit() } label: {
+                Label("編集", systemImage: "pencil")
+            }
+            Divider()
+            Button(role: .destructive, action: onDelete) {
+                Label("削除", systemImage: "trash")
+            }
+        }
+    }
+
+    private func statusMenuView(current: String) -> some View {
+        Menu {
+            ForEach(Self.statuses, id: \.self) { s in
+                Button {
+                    onStatusChange(s)
+                } label: {
+                    if s == current {
+                        Label(s, systemImage: "checkmark")
+                    } else {
+                        Text(s)
+                    }
+                }
+            }
+        } label: {
+            HStack(spacing: 4) {
+                Text(current)
+                    .font(.caption.weight(.semibold))
+                Image(systemName: "chevron.up.chevron.down")
+                    .font(.system(size: 9, weight: .semibold))
+            }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 5)
+            .background(current.interviewStatusColor.opacity(0.12))
+            .foregroundStyle(current.interviewStatusColor)
+            .clipShape(Capsule())
+        }
     }
 }
 

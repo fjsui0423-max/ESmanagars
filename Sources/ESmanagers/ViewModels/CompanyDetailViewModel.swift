@@ -137,6 +137,19 @@ final class CompanyDetailViewModel: ObservableObject {
         objectWillChange.send()
     }
 
+    func updateInterview(
+        _ interview: Interview,
+        stage: String, startAt: Date, mode: String,
+        in context: NSManagedObjectContext
+    ) {
+        interview.stage   = stage
+        interview.startAt = startAt
+        interview.mode    = mode
+        try? context.save()
+        NotificationManager.shared.scheduleReminders(for: interview)
+        objectWillChange.send()
+    }
+
     func updateInterviewStatus(_ interview: Interview, status: String, in context: NSManagedObjectContext) {
         interview.status = status
         try? context.save()
