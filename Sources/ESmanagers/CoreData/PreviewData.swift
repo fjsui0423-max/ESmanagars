@@ -6,14 +6,14 @@ enum PreviewData {
         let finance = Industry.create(name: "金融・保険", sortOrder: 1, in: context)
         let consul  = Industry.create(name: "コンサル",   sortOrder: 2, in: context)
 
-        let apple = Company.create(name: "Apple",      myPageURL: "https://apple.com",     loginID: "dev@example.com", industry: tech,    in: context)
-                   Company.create(name: "Google",     myPageURL: "https://careers.google", industry: tech,    in: context)
-                   Company.create(name: "ソフトバンク", myPageURL: "https://softbank.jp",   industry: tech,    in: context)
-                   Company.create(name: "DeNA",       myPageURL: "https://dena.com",       industry: tech,    in: context)
-                   Company.create(name: "三菱UFJ",    myPageURL: "https://mufg.jp",        industry: finance, in: context)
-                   Company.create(name: "野村証券",    myPageURL: "https://nomura.com",     industry: finance, in: context)
-                   Company.create(name: "マッキンゼー", myPageURL: "https://mckinsey.com",  industry: consul,  in: context)
-                   Company.create(name: "リクルート",  myPageURL: "https://recruit.co.jp",  in: context)
+        let apple    = Company.create(name: "Apple",      myPageURL: "https://apple.com",     loginID: "dev@example.com", industry: tech,    in: context)
+        let google   = Company.create(name: "Google",     myPageURL: "https://careers.google", industry: tech,    in: context)
+        let softbank = Company.create(name: "ソフトバンク", myPageURL: "https://softbank.jp",   industry: tech,    in: context)
+        let dena     = Company.create(name: "DeNA",       myPageURL: "https://dena.com",       industry: tech,    in: context)
+        let mufg     = Company.create(name: "三菱UFJ",    myPageURL: "https://mufg.jp",        industry: finance, in: context)
+                       Company.create(name: "野村証券",    myPageURL: "https://nomura.com",     industry: finance, in: context)
+                       Company.create(name: "マッキンゼー", myPageURL: "https://mckinsey.com",  industry: consul,  in: context)
+                       Company.create(name: "リクルート",  myPageURL: "https://recruit.co.jp",  in: context)
 
         // Keychain にプレビュー用パスワード
         if let key = apple.id?.uuidString {
@@ -63,6 +63,38 @@ enum PreviewData {
         let v2 = ESVersion(context: context)
         v2.id = UUID(); v2.savedAnswer = "改善版：大学3年間、プログラミングサークルの代表として活動。チームをまとめ学内ハッカソンで優勝を達成しました。"
         v2.createdAt = hours(-2); v2.esQuestion = q1
+
+        // MARK: - Interviews（分析・カレンダープレビュー用）
+
+        func interview(_ stage: String, _ status: String, _ company: Company, _ offsetDays: Int) {
+            let i = Interview.create(stage: stage, startAt: days(offsetDays), mode: "オンライン", company: company, in: context)
+            i.status = status
+        }
+
+        // Apple: 1次通過 → 2次通過 → 最終予定（今日 +3時間）
+        interview("1次面接", "通過",  apple,   -21)
+        interview("2次面接", "通過",  apple,   -14)
+        let appleF = Interview.create(stage: "最終面接", startAt: hours(3), mode: "対面", company: apple, in: context)
+        appleF.status = "予定"   // カレンダー今日表示にも使用
+
+        // Google: カジュアル通過 → 1次落選
+        interview("カジュアル面談", "通過", google,  -30)
+        interview("1次面接",       "落選", google,  -18)
+
+        // ソフトバンク: 1次通過 → 2次通過 → 3次落選
+        interview("1次面接", "通過", softbank, -40)
+        interview("2次面接", "通過", softbank, -28)
+        interview("3次面接", "落選", softbank, -10)
+
+        // DeNA: 1次通過 → 2次通過 → 最終通過
+        interview("1次面接", "通過", dena, -60)
+        interview("2次面接", "通過", dena, -45)
+        interview("最終面接", "通過", dena, -35)
+
+        // 三菱UFJ: カジュアル通過 → 1次予定
+        interview("カジュアル面談", "通過", mufg, -5)
+        let mufgI = Interview.create(stage: "1次面接", startAt: days(7), mode: "対面", company: mufg, in: context)
+        mufgI.status = "予定"
 
         // MARK: - Template
         let t1 = Template(context: context)

@@ -124,12 +124,14 @@ final class CompanyDetailViewModel: ObservableObject {
     // MARK: - Interview
 
     func addInterview(stage: String, startAt: Date, mode: String, in context: NSManagedObjectContext) {
-        Interview.create(stage: stage, startAt: startAt, mode: mode, company: company, in: context)
+        let interview = Interview.create(stage: stage, startAt: startAt, mode: mode, company: company, in: context)
         try? context.save()
+        NotificationManager.shared.scheduleReminders(for: interview)
         objectWillChange.send()
     }
 
     func deleteInterview(_ interview: Interview, in context: NSManagedObjectContext) {
+        NotificationManager.shared.cancelReminders(for: interview)
         context.delete(interview)
         try? context.save()
         objectWillChange.send()

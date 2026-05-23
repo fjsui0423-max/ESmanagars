@@ -27,6 +27,14 @@ struct MainTabView: View {
                 Label("テンプレート", systemImage: "doc.text.fill")
             }
 
+            // MARK: 分析
+            NavigationStack {
+                AnalyticsContainerView()
+            }
+            .tabItem {
+                Label("分析", systemImage: "chart.bar.xaxis")
+            }
+
             // MARK: 設定
             NavigationStack {
                 SettingsContainerView()
@@ -34,6 +42,9 @@ struct MainTabView: View {
             .tabItem {
                 Label("設定", systemImage: "gearshape.fill")
             }
+        }
+        .onAppear {
+            Task { await NotificationManager.shared.requestAuthorization() }
         }
     }
 }
