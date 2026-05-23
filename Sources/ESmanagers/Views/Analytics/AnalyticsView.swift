@@ -257,7 +257,7 @@ struct AnalyticsView: View {
                 if viewModel.interviewModeFilter != "全て" {
                     Text(viewModel.interviewModeFilter)
                         .font(.caption.weight(.semibold))
-                        .foregroundStyle(.accentColor)
+                        .foregroundStyle(Color.accentColor)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 3)
                         .background(Color.accentColor.opacity(0.1))
