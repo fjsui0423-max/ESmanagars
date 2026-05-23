@@ -147,33 +147,103 @@ struct AnalyticsView: View {
 
     private var esStatsCard: some View {
         let s = viewModel.esStats
-        return statsCard(
-            title: "ES提出状況",
-            systemImage: "doc.text.fill",
-            accentColor: .blue,
-            total: s.total,
-            subtitle: s.passRate.map { "通過率 \(Int($0 * 100))%（結果確定分）" }
-        ) {
-            GeometryReader { geo in
-                HStack(spacing: 0) {
-                    barSegment(color: .secondary.opacity(0.25), rate: s.inProgressRate, width: geo.size.width)
-                    barSegment(color: .teal,                    rate: s.submittedRate,  width: geo.size.width)
-                    barSegment(color: .orange,                  rate: s.overdueRate,    width: geo.size.width)
-                    barSegment(color: .green,                   rate: s.passedRate,     width: geo.size.width)
-                    barSegment(color: .red,                     rate: s.failedRate,     width: geo.size.width)
-                }
-                .clipShape(Capsule())
+        return VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .center) {
+                Label("ES提出状況", systemImage: "doc.text.fill")
+                    .font(.headline)
+                    .foregroundStyle(Color.blue)
+                Spacer()
+                Text("\(s.total)件")
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 3)
+                    .background(Color.secondary.opacity(0.1))
+                    .clipShape(Capsule())
             }
-            .frame(height: 22)
 
-            HStack(spacing: 8) {
-                if s.inProgress > 0 { countBadge(s.inProgress, "進行中", .secondary) }
-                if s.submitted  > 0 { countBadge(s.submitted,  "提出済み", .teal) }
-                if s.overdue    > 0 { countBadge(s.overdue,    "提出遅れ", .orange) }
-                if s.passed     > 0 { countBadge(s.passed,     "合格",    .green) }
-                if s.failed     > 0 { countBadge(s.failed,     "落選",    .red) }
+            HStack(alignment: .top, spacing: 0) {
+                // Left panel — submission rate
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("ES提出率")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+
+                    GeometryReader { geo in
+                        ZStack(alignment: .leading) {
+                            Capsule().fill(Color.secondary.opacity(0.15))
+                            Capsule().fill(Color.blue)
+                                .frame(width: max(0, geo.size.width * CGFloat(s.submissionRate)))
+                        }
+                    }
+                    .frame(height: 22)
+
+                    Text("\(Int(s.submissionRate * 100))%")
+                        .font(.system(size: 28, weight: .bold, design: .rounded))
+                        .foregroundStyle(Color.blue)
+
+                    Text("提出 \(s.submittedCount) / \(s.total)件")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+
+                    if s.overdue > 0 {
+                        countBadge(s.overdue, "提出遅れ", .orange)
+                    }
+                }
+                .frame(maxWidth: .infinity)
+
+                Divider().padding(.horizontal, 12)
+
+                // Right panel — pass rate
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("通過率（書類選考）")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+
+                    if s.submittedCount > 0 {
+                        GeometryReader { geo in
+                            HStack(spacing: 0) {
+                                barSegment(color: .green,                   rate: s.passRateBarPassed,  width: geo.size.width)
+                                barSegment(color: .red,                     rate: s.passRateBarFailed,  width: geo.size.width)
+                                barSegment(color: .secondary.opacity(0.25), rate: s.passRateBarPending, width: geo.size.width)
+                            }
+                            .clipShape(Capsule())
+                        }
+                        .frame(height: 22)
+
+                        if let rate = s.passRate {
+                            Text("\(Int(rate * 100))%")
+                                .font(.system(size: 28, weight: .bold, design: .rounded))
+                                .foregroundStyle(Color.green)
+                        } else {
+                            Text("—")
+                                .font(.system(size: 28, weight: .bold, design: .rounded))
+                                .foregroundStyle(.secondary)
+                        }
+
+                        HStack(spacing: 6) {
+                            if s.passed    > 0 { countBadge(s.passed,    "合格",    .green) }
+                            if s.failed    > 0 { countBadge(s.failed,    "落選",    .red) }
+                            if s.submitted > 0 { countBadge(s.submitted, "結果待ち", .secondary) }
+                        }
+                    } else {
+                        Capsule()
+                            .fill(Color.secondary.opacity(0.15))
+                            .frame(height: 22)
+                        Text("—")
+                            .font(.system(size: 28, weight: .bold, design: .rounded))
+                            .foregroundStyle(.secondary)
+                        Text("提出済みなし")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                .frame(maxWidth: .infinity)
             }
         }
+        .padding(16)
+        .background(Color.secondarySystemGroupedBackground)
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 
     // MARK: - Aptitude stats card

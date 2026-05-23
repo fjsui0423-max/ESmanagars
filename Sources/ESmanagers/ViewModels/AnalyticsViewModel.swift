@@ -13,21 +13,30 @@ struct SelectionSummaryData {
 struct ESStatsData {
     let total:      Int
     let inProgress: Int   // 未着手 + 進行中
-    let submitted:  Int   // 提出済み
-    let overdue:    Int   // 提出遅れ
+    let overdue:    Int   // 提出遅れ（期限切れ）
+    let submitted:  Int   // 提出済み（結果待ち）
     let passed:     Int   // 合格
     let failed:     Int   // 落選
 
-    var decidedCount:  Int    { passed + failed }
-    var passRate:      Double? { decidedCount > 0 ? Double(passed) / Double(decidedCount) : nil }
+    // MARK: 提出率 = (提出済み + 合格 + 落選) / 全ES数
+    var submittedCount:  Int    { submitted + passed + failed }
+    var submissionRate:  Double { total > 0 ? Double(submittedCount) / Double(total) : 0 }
 
-    var inProgressRate: Double { total > 0 ? Double(inProgress) / Double(total) : 0 }
-    var submittedRate:  Double { total > 0 ? Double(submitted)  / Double(total) : 0 }
-    var overdueRate:    Double { total > 0 ? Double(overdue)    / Double(total) : 0 }
-    var passedRate:     Double { total > 0 ? Double(passed)     / Double(total) : 0 }
-    var failedRate:     Double { total > 0 ? Double(failed)     / Double(total) : 0 }
+    // MARK: 通過率 = 合格 / (合格 + 落選)
+    var decidedCount: Int    { passed + failed }
+    var passRate:     Double? { decidedCount > 0 ? Double(passed) / Double(decidedCount) : nil }
 
-    static let empty = ESStatsData(total: 0, inProgress: 0, submitted: 0, overdue: 0, passed: 0, failed: 0)
+    // MARK: 提出率バー用（全ES中の比率）
+    var inProgressBarRate: Double { total > 0 ? Double(inProgress)    / Double(total) : 0 }
+    var overdueBarRate:    Double { total > 0 ? Double(overdue)       / Double(total) : 0 }
+    var submittedBarRate:  Double { total > 0 ? Double(submittedCount) / Double(total) : 0 }
+
+    // MARK: 通過率バー用（提出済みES中の比率）
+    var passRateBarPassed:  Double { submittedCount > 0 ? Double(passed)    / Double(submittedCount) : 0 }
+    var passRateBarFailed:  Double { submittedCount > 0 ? Double(failed)    / Double(submittedCount) : 0 }
+    var passRateBarPending: Double { submittedCount > 0 ? Double(submitted) / Double(submittedCount) : 0 }
+
+    static let empty = ESStatsData(total: 0, inProgress: 0, overdue: 0, submitted: 0, passed: 0, failed: 0)
 }
 
 struct AptitudeStatsData {
@@ -148,7 +157,7 @@ final class AnalyticsViewModel: ObservableObject {
         recompute()
     }
 
-    // MARK: - Recompute (called automatically on filter change)
+    // MARK: - Recompute
 
     func recompute() {
         // 1. Filter selections by category
@@ -198,7 +207,9 @@ final class AnalyticsViewModel: ObservableObject {
         }
         stageStats = result
 
-        // 5. ES stats (mode filter does not apply to ES)
+        // 5. ES stats
+        //    提出率の分子 = 提出済み + 合格 + 落選
+        //    通過率の分母 = 合格 + 落選（結果確定分のみ）
         let boxes = allBoxes.filter {
             guard let sid = $0.selection?.objectID else { return false }
             return selIDs.contains(sid)
@@ -206,13 +217,13 @@ final class AnalyticsViewModel: ObservableObject {
         esStats = ESStatsData(
             total:      boxes.count,
             inProgress: boxes.filter { ["未着手", "進行中"].contains($0.status ?? "") }.count,
-            submitted:  boxes.filter { $0.status == "提出済み" }.count,
             overdue:    boxes.filter { $0.status == "提出遅れ" }.count,
+            submitted:  boxes.filter { $0.status == "提出済み" }.count,
             passed:     boxes.filter { $0.status == "合格" }.count,
             failed:     boxes.filter { $0.status == "落選" }.count
         )
 
-        // 6. Aptitude stats (mode filter does not apply)
+        // 6. Aptitude stats
         let tests = allAptitudeTests.filter {
             guard let sid = $0.selection?.objectID else { return false }
             return selIDs.contains(sid)
