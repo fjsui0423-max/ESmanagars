@@ -22,10 +22,37 @@ final class SettingsViewModel: ObservableObject {
     @Published var alertTitle   = ""
     @Published var alertMessage = ""
 
+    // MARK: - Notification settings
+
+    @Published var isNotificationEnabled: Bool
+    @Published var notificationDaysBefore: Int
+    @Published var notificationHoursBefore: Int
+
     private let context: NSManagedObjectContext
 
     init(context: NSManagedObjectContext) {
         self.context = context
+        let d = UserDefaults.standard
+        isNotificationEnabled  = d.object(forKey: NotificationManager.Keys.isEnabled)    as? Bool ?? true
+        notificationDaysBefore  = d.object(forKey: NotificationManager.Keys.daysBefore)  as? Int  ?? 1
+        notificationHoursBefore = d.object(forKey: NotificationManager.Keys.hoursBefore) as? Int  ?? 1
+    }
+
+    // MARK: - Notification update
+
+    func onNotificationSettingChanged() {
+        let d = UserDefaults.standard
+        d.set(isNotificationEnabled,  forKey: NotificationManager.Keys.isEnabled)
+        d.set(notificationDaysBefore,  forKey: NotificationManager.Keys.daysBefore)
+        d.set(notificationHoursBefore, forKey: NotificationManager.Keys.hoursBefore)
+        rescheduleNotifications()
+    }
+
+    private func rescheduleNotifications() {
+        let req = Interview.fetchRequest()
+        req.predicate = NSPredicate(format: "startAt != nil")
+        let interviews = (try? context.fetch(req)) ?? []
+        NotificationManager.shared.rescheduleAllFutureInterviews(interviews: interviews)
     }
 
     // MARK: - Export

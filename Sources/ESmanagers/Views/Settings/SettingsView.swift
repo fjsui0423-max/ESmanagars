@@ -28,6 +28,7 @@ struct SettingsView: View {
 
     var body: some View {
         Form {
+            notificationSection
             dataManagementSection
             securityNoteSection
             appInfoSection
@@ -87,6 +88,40 @@ struct SettingsView: View {
     }
 
     // MARK: - Sections
+
+    private var notificationSection: some View {
+        Section {
+            Toggle("面接リマインド通知", isOn: $viewModel.isNotificationEnabled)
+                .onChange(of: viewModel.isNotificationEnabled) { _ in
+                    viewModel.onNotificationSettingChanged()
+                }
+
+            Picker("事前通知（日数）", selection: $viewModel.notificationDaysBefore) {
+                ForEach(0...7, id: \.self) { days in
+                    Text(days == 0 ? "通知しない" : "\(days)日前").tag(days)
+                }
+            }
+            .disabled(!viewModel.isNotificationEnabled)
+            .onChange(of: viewModel.notificationDaysBefore) { _ in
+                viewModel.onNotificationSettingChanged()
+            }
+
+            Picker("直前通知（時間）", selection: $viewModel.notificationHoursBefore) {
+                ForEach(0...24, id: \.self) { hours in
+                    Text(hours == 0 ? "通知しない" : "\(hours)時間前").tag(hours)
+                }
+            }
+            .disabled(!viewModel.isNotificationEnabled)
+            .onChange(of: viewModel.notificationHoursBefore) { _ in
+                viewModel.onNotificationSettingChanged()
+            }
+        } header: {
+            Text("通知設定")
+        } footer: {
+            Text("面接の開始時刻を基準に、指定した時間前にリマインド通知を送信します。")
+                .font(.footnote)
+        }
+    }
 
     private var dataManagementSection: some View {
         Section("データ管理") {

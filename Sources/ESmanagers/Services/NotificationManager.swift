@@ -3,7 +3,22 @@ import Foundation
 
 final class NotificationManager: @unchecked Sendable {
     static let shared = NotificationManager()
-    private init() {}
+
+    // MARK: - UserDefaults keys
+
+    enum Keys {
+        static let isEnabled    = "notificationIsEnabled"
+        static let daysBefore   = "notificationDaysBefore"
+        static let hoursBefore  = "notificationHoursBefore"
+    }
+
+    private init() {
+        UserDefaults.standard.register(defaults: [
+            Keys.isEnabled:   true,
+            Keys.daysBefore:  1,
+            Keys.hoursBefore: 1
+        ])
+    }
 
     private let center = UNUserNotificationCenter.current()
 
@@ -23,47 +38,72 @@ final class NotificationManager: @unchecked Sendable {
 
         cancelReminders(for: interview)
 
-        let now = Date()
+        let defaults = UserDefaults.standard
+        guard defaults.bool(forKey: Keys.isEnabled) else { return }
 
-        schedule(
-            id:       "\(id)-24h",
-            title:    "明日の面接リマインド",
-            body:     "【\(companyName)】\(stage)が明日 \(timeString(startAt)) から始まります",
-            fireDate: startAt.addingTimeInterval(-86_400),
-            after:    now
-        )
-        schedule(
-            id:       "\(id)-1h",
-            title:    "面接まで1時間",
-            body:     "【\(companyName)】\(stage)が1時間後から始まります",
-            fireDate: startAt.addingTimeInterval(-3_600),
-            after:    now
-        )
+        let daysBefore  = defaults.integer(forKey: Keys.daysBefore)
+        let hoursBefore = defaults.integer(forKey: Keys.hoursBefore)
+        let now         = Date()
+
+        if daysBefore > 0 {
+            let fireDate   = startAt.addingTimeInterval(-Double(daysBefore) * 86_400)
+            let titleLabel = daysBefore == 1 ? "明日" : "\(daysBefore)日前"
+            let bodyLabel  = daysBefore == 1 ? "明日" : "\(daysBefore)日後"
+            schedule(
+                id:       "\(id)-days",
+                title:    "\(titleLabel)の面接リマインド",
+                body:     "【\(companyName)】\(stage)が\(bodyLabel) \(timeString(startAt)) から始まります",
+                fireDate: fireDate,
+                after:    now
+            )
+        }
+
+        if hoursBefore > 0 {
+            let fireDate = startAt.addingTimeInterval(-Double(hoursBefore) * 3_600)
+            let hourText = "\(hoursBefore)時間"
+            schedule(
+                id:       "\(id)-hours",
+                title:    "面接まで\(hourText)",
+                body:     "【\(companyName)】\(stage)が\(hourText)後から始まります",
+                fireDate: fireDate,
+                after:    now
+            )
+        }
     }
 
     // MARK: - Cancel
 
     func cancelReminders(for interview: Interview) {
         guard let id = interview.id?.uuidString else { return }
+        // 旧形式（-24h / -1h）も合わせてキャンセルしマイグレーションに対応
         center.removePendingNotificationRequests(
-            withIdentifiers: ["\(id)-24h", "\(id)-1h"]
+            withIdentifiers: ["\(id)-days", "\(id)-hours", "\(id)-24h", "\(id)-1h"]
         )
+    }
+
+    // MARK: - Reschedule all future interviews
+
+    func rescheduleAllFutureInterviews(interviews: [Interview]) {
+        interviews.forEach { cancelReminders(for: $0) }
+        let now = Date()
+        interviews
+            .filter { ($0.startAt ?? .distantPast) > now && $0.status == "予定" }
+            .forEach { scheduleReminders(for: $0) }
     }
 
     // MARK: - Private
 
     private func schedule(id: String, title: String, body: String, fireDate: Date, after now: Date) {
         guard fireDate > now else { return }
-        let content       = UNMutableNotificationContent()
-        content.title     = title
-        content.body      = body
-        content.sound     = .default
-        let comps         = Calendar.current.dateComponents(
+        let content   = UNMutableNotificationContent()
+        content.title = title
+        content.body  = body
+        content.sound = .default
+        let comps     = Calendar.current.dateComponents(
             [.year, .month, .day, .hour, .minute], from: fireDate
         )
         let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: false)
-        let request = UNNotificationRequest(identifier: id, content: content, trigger: trigger)
-        center.add(request, withCompletionHandler: nil)
+        center.add(UNNotificationRequest(identifier: id, content: content, trigger: trigger), withCompletionHandler: nil)
     }
 
     private func timeString(_ date: Date) -> String {
