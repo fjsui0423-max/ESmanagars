@@ -42,6 +42,7 @@
 		DBAB4951597BFC3FD0E7827D /* ESBoxCreateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2E36B5460FB5B47B38BB2D /* ESBoxCreateView.swift */; };
 		E31194E96FBE175230141911 /* ESBox+CoreData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99B84C1DECC47658277E2D6F /* ESBox+CoreData.swift */; };
 		F03824974FFF1C291290DAB8 /* String+PaletteColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45C20EED052E2D3AC5C4DD5F /* String+PaletteColor.swift */; };
+		F18110E5C1A6EB811030AEA3 /* ESQuestionCreateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B03E9E561B185D86899E90C /* ESQuestionCreateView.swift */; };
 		F30D13ED930604BBDE20DDC3 /* CompanyIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 758124D760FEEBC3A5D9B35F /* CompanyIconView.swift */; };
 		F63AFE9804B12564D89E588F /* CompanyDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03B0844A6366B4903BB1F92D /* CompanyDetailView.swift */; };
 /* End PBXBuildFile section */
@@ -52,6 +53,7 @@
 		36FCF031D8A97D1E07E0D16D /* ESVersion+CoreData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ESVersion+CoreData.swift"; sourceTree = "<group>"; };
 		37B107A3088C97080992F9D3 /* CoreDataModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataModel.swift; sourceTree = "<group>"; };
 		39B29526F352AE5169753444 /* PersistenceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceController.swift; sourceTree = "<group>"; };
+		3B03E9E561B185D86899E90C /* ESQuestionCreateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ESQuestionCreateView.swift; sourceTree = "<group>"; };
 		3FA3DC91808FB99FC6979AD3 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
 		427AB5C21F6454DBB363482F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		44C8417DAE9CDFAA67E0200A /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
@@ -164,6 +166,7 @@
 				CE380D82CD948D7B3C51F7EF /* CompanyEditView.swift */,
 				6A2E36B5460FB5B47B38BB2D /* ESBoxCreateView.swift */,
 				95BB8B7AFF278E89C758E7BB /* ESBoxDetailView.swift */,
+				3B03E9E561B185D86899E90C /* ESQuestionCreateView.swift */,
 			);
 			path = CompanyDetail;
 			sourceTree = "<group>";
@@ -345,6 +348,7 @@
 				36B4B9EC63B0E69285BCB649 /* ESEditorView.swift in Sources */,
 				4E5DE96457B905CD160827FC /* ESEditorViewModel.swift in Sources */,
 				37C6B8EB71A74C9FC3CF94CD /* ESQuestion+CoreData.swift in Sources */,
+				F18110E5C1A6EB811030AEA3 /* ESQuestionCreateView.swift in Sources */,
 				408C3EEE5F6B4FB5883D940C /* ESVersion+CoreData.swift in Sources */,
 				06D948CE71C7C2CD245662E6 /* ESmanagersApp.swift in Sources */,
 				AEA735C7343108C7D07002BC /* HomeView.swift in Sources */,

@@ -2,9 +2,13 @@ import SwiftUI
 import CoreData
 
 struct ESBoxDetailView: View {
+    @Environment(\.managedObjectContext) private var context
+
     let esBox: ESBox
 
     @FetchRequest private var questions: FetchedResults<ESQuestion>
+
+    @State private var showAddQuestion = false
 
     private static let dateFormatter: DateFormatter = {
         let f = DateFormatter()
@@ -42,10 +46,45 @@ struct ESBoxDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         #endif
         .safeAreaInset(edge: .top) { deadlineBanner }
+        .toolbar {
+            ToolbarItem(placement: addButtonPlacement) {
+                Button {
+                    showAddQuestion = true
+                } label: {
+                    Image(systemName: "plus")
+                }
+            }
+        }
         // ESQuestion → ESEditorContainerView への遷移先登録
         .navigationDestination(for: ESQuestion.self) { question in
             ESEditorContainerView(question: question)
         }
+        .sheet(isPresented: $showAddQuestion) {
+            ESQuestionCreateView { text, max in
+                addQuestion(text: text, maxLength: max)
+            }
+        }
+    }
+
+    // MARK: - Add question
+
+    private func addQuestion(text: String, maxLength: Int16) {
+        let q = ESQuestion(context: context)
+        q.id           = UUID()
+        q.questionText = text
+        q.maxLength    = maxLength
+        q.currentAnswer = ""
+        q.sortOrder    = Int16(questions.count)
+        q.esBox        = esBox
+        try? context.save()
+    }
+
+    private var addButtonPlacement: ToolbarItemPlacement {
+        #if os(iOS)
+        .topBarTrailing
+        #else
+        .automatic
+        #endif
     }
 
     // MARK: - Deadline banner
@@ -105,15 +144,16 @@ struct ESBoxDetailView: View {
 
     private var emptyState: some View {
         VStack(spacing: 12) {
-            Image(systemName: "doc.text.magnifyingglass")
+            Image(systemName: "plus.circle.dashed")
                 .font(.system(size: 48))
                 .foregroundStyle(.tertiary)
             Text("設問がまだありません")
                 .font(.subheadline.weight(.medium))
                 .foregroundStyle(.secondary)
-            Text("設問はアプリ管理者が追加します")
+            Text("右上の ＋ ボタンから設問を追加してください")
                 .font(.caption)
                 .foregroundStyle(.tertiary)
+                .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding()
