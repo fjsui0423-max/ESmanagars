@@ -10,6 +10,7 @@
 		06D948CE71C7C2CD245662E6 /* ESmanagersApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4563B464B90AFF5700F197B0 /* ESmanagersApp.swift */; };
 		0C6AAD8A50443625760DEEDF /* TemplateEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8017266F46A9FA922A005DDA /* TemplateEditView.swift */; };
 		0F93C82F27998F018902FFA9 /* CompanyEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE380D82CD948D7B3C51F7EF /* CompanyEditView.swift */; };
+		11C89117CB5EE38C76440E94 /* ESQuestionEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2272AF2B200329969169D87 /* ESQuestionEditView.swift */; };
 		164DE19CCC6B6D7A6C1832DB /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527063305387C78A60A5EE3D /* HomeViewModel.swift */; };
 		21229DB83AA9FC7E1F4F5C9F /* CoreDataModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37B107A3088C97080992F9D3 /* CoreDataModel.swift */; };
 		25F4A7D86E8D90324963090B /* ESBoxDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95BB8B7AFF278E89C758E7BB /* ESBoxDetailView.swift */; };
@@ -35,6 +36,7 @@
 		981511E06F3E16AEDB57C109 /* KeychainManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6EE2B41E683507CC5013D50 /* KeychainManager.swift */; };
 		AD9EC801A6C5F283753BF3BC /* Template+CoreData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C54F37C3F9804EACA4DCD50 /* Template+CoreData.swift */; };
 		AEA735C7343108C7D07002BC /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1B86AE13C38EC533877B700 /* HomeView.swift */; };
+		BA564EDBBD3EFD209C675FE8 /* InterviewCreateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F7DD61723ABECCF1D4AD250 /* InterviewCreateView.swift */; };
 		BCB03C97A523353E898B6F30 /* CalendarTaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1DA0F532698FB0036F37B6C /* CalendarTaskView.swift */; };
 		C57E47A6FC9842CB4CC98C33 /* IndustryFolderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 101F9224A2A0D6F46F8BA6AC /* IndustryFolderView.swift */; };
 		D64DE7D2566CA296CF570ECB /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44C8417DAE9CDFAA67E0200A /* SettingsViewModel.swift */; };
@@ -45,11 +47,14 @@
 		F18110E5C1A6EB811030AEA3 /* ESQuestionCreateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B03E9E561B185D86899E90C /* ESQuestionCreateView.swift */; };
 		F30D13ED930604BBDE20DDC3 /* CompanyIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 758124D760FEEBC3A5D9B35F /* CompanyIconView.swift */; };
 		F63AFE9804B12564D89E588F /* CompanyDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03B0844A6366B4903BB1F92D /* CompanyDetailView.swift */; };
+		FEBE3D2BC663F01D7D1F0AA1 /* Interview+CoreData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 281AAF9AF9312E3173F49D8D /* Interview+CoreData.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		03B0844A6366B4903BB1F92D /* CompanyDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompanyDetailView.swift; sourceTree = "<group>"; };
+		0F7DD61723ABECCF1D4AD250 /* InterviewCreateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterviewCreateView.swift; sourceTree = "<group>"; };
 		101F9224A2A0D6F46F8BA6AC /* IndustryFolderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IndustryFolderView.swift; sourceTree = "<group>"; };
+		281AAF9AF9312E3173F49D8D /* Interview+CoreData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Interview+CoreData.swift"; sourceTree = "<group>"; };
 		36FCF031D8A97D1E07E0D16D /* ESVersion+CoreData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ESVersion+CoreData.swift"; sourceTree = "<group>"; };
 		37B107A3088C97080992F9D3 /* CoreDataModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataModel.swift; sourceTree = "<group>"; };
 		39B29526F352AE5169753444 /* PersistenceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceController.swift; sourceTree = "<group>"; };
@@ -77,6 +82,7 @@
 		B23FF4CDF34CB4396944FC7E /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		B9EDACBAC6F7C5368490814B /* CalendarTaskViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarTaskViewModel.swift; sourceTree = "<group>"; };
 		C1DA0F532698FB0036F37B6C /* CalendarTaskView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarTaskView.swift; sourceTree = "<group>"; };
+		C2272AF2B200329969169D87 /* ESQuestionEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ESQuestionEditView.swift; sourceTree = "<group>"; };
 		C4BFF7C1DE79E20BE228A45A /* BiometricAuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BiometricAuthManager.swift; sourceTree = "<group>"; };
 		C6A0345751B86041869E93FB /* TemplateViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemplateViewModel.swift; sourceTree = "<group>"; };
 		CE380D82CD948D7B3C51F7EF /* CompanyEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompanyEditView.swift; sourceTree = "<group>"; };
@@ -167,6 +173,8 @@
 				6A2E36B5460FB5B47B38BB2D /* ESBoxCreateView.swift */,
 				95BB8B7AFF278E89C758E7BB /* ESBoxDetailView.swift */,
 				3B03E9E561B185D86899E90C /* ESQuestionCreateView.swift */,
+				C2272AF2B200329969169D87 /* ESQuestionEditView.swift */,
+				0F7DD61723ABECCF1D4AD250 /* InterviewCreateView.swift */,
 			);
 			path = CompanyDetail;
 			sourceTree = "<group>";
@@ -179,6 +187,7 @@
 				5DFD87B286FC5EEDB71A2514 /* ESQuestion+CoreData.swift */,
 				36FCF031D8A97D1E07E0D16D /* ESVersion+CoreData.swift */,
 				E08DAA99035DA6B5DB030F95 /* Industry+CoreData.swift */,
+				281AAF9AF9312E3173F49D8D /* Interview+CoreData.swift */,
 				7C54F37C3F9804EACA4DCD50 /* Template+CoreData.swift */,
 			);
 			path = Entities;
@@ -349,12 +358,15 @@
 				4E5DE96457B905CD160827FC /* ESEditorViewModel.swift in Sources */,
 				37C6B8EB71A74C9FC3CF94CD /* ESQuestion+CoreData.swift in Sources */,
 				F18110E5C1A6EB811030AEA3 /* ESQuestionCreateView.swift in Sources */,
+				11C89117CB5EE38C76440E94 /* ESQuestionEditView.swift in Sources */,
 				408C3EEE5F6B4FB5883D940C /* ESVersion+CoreData.swift in Sources */,
 				06D948CE71C7C2CD245662E6 /* ESmanagersApp.swift in Sources */,
 				AEA735C7343108C7D07002BC /* HomeView.swift in Sources */,
 				164DE19CCC6B6D7A6C1832DB /* HomeViewModel.swift in Sources */,
 				4D3BF249E338A418D74A341E /* Industry+CoreData.swift in Sources */,
 				C57E47A6FC9842CB4CC98C33 /* IndustryFolderView.swift in Sources */,
+				FEBE3D2BC663F01D7D1F0AA1 /* Interview+CoreData.swift in Sources */,
+				BA564EDBBD3EFD209C675FE8 /* InterviewCreateView.swift in Sources */,
 				981511E06F3E16AEDB57C109 /* KeychainManager.swift in Sources */,
 				631C5F59FB46D487150E4789 /* MainTabView.swift in Sources */,
 				D6971557EC7D896119F4D8FC /* PersistenceController.swift in Sources */,

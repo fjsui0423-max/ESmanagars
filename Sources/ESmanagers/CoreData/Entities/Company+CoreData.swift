@@ -9,6 +9,7 @@ public final class Company: NSManagedObject, Identifiable {
     // loginPassword は Keychain 管理（KeychainManager を使用）
     @NSManaged public var industry: Industry?
     @NSManaged public var esBoxes: NSSet?
+    @NSManaged public var interviews: NSSet?
 
     @nonobjc public class func fetchRequest() -> NSFetchRequest<Company> {
         NSFetchRequest<Company>(entityName: "Company")

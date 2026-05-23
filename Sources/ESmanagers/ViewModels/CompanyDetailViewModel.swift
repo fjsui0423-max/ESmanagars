@@ -43,6 +43,11 @@ final class CompanyDetailViewModel: ObservableObject {
             .sorted { ($0.deadlineAt ?? .distantFuture) < ($1.deadlineAt ?? .distantFuture) }
     }
 
+    var interviewsArray: [Interview] {
+        (company.interviews?.allObjects as? [Interview] ?? [])
+            .sorted { ($0.startAt ?? .distantFuture) < ($1.startAt ?? .distantFuture) }
+    }
+
     var hasPassword: Bool {
         keychain.loadPassword(for: companyKey) != nil
     }
@@ -114,6 +119,26 @@ final class CompanyDetailViewModel: ObservableObject {
         UIPasteboard.general.string = pw
         #endif
         triggerToast("パスワードをコピーしました")
+    }
+
+    // MARK: - Interview
+
+    func addInterview(stage: String, startAt: Date, mode: String, in context: NSManagedObjectContext) {
+        Interview.create(stage: stage, startAt: startAt, mode: mode, company: company, in: context)
+        try? context.save()
+        objectWillChange.send()
+    }
+
+    func deleteInterview(_ interview: Interview, in context: NSManagedObjectContext) {
+        context.delete(interview)
+        try? context.save()
+        objectWillChange.send()
+    }
+
+    func updateInterviewStatus(_ interview: Interview, status: String, in context: NSManagedObjectContext) {
+        interview.status = status
+        try? context.save()
+        objectWillChange.send()
     }
 
     // MARK: - ESBox

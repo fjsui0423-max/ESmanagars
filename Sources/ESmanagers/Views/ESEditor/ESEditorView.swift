@@ -23,6 +23,7 @@ struct ESEditorView: View {
     @State private var isQuestionExpanded = false
     @State private var showTemplateSheet  = false
     @State private var showHistorySheet   = false
+    @State private var showEditQuestion   = false
 
     init(question: ESQuestion, context: NSManagedObjectContext) {
         _viewModel = StateObject(wrappedValue: ESEditorViewModel(question: question, context: context))
@@ -42,9 +43,21 @@ struct ESEditorView: View {
         #endif
         .toolbar {
             ToolbarItem(placement: trailingPlacement) { saveStateView }
+            ToolbarItem(placement: trailingPlacement) {
+                Button {
+                    showEditQuestion = true
+                } label: {
+                    Image(systemName: "pencil")
+                }
+            }
             #if os(iOS)
             ToolbarItemGroup(placement: .keyboard) { keyboardToolbarItems }
             #endif
+        }
+        .sheet(isPresented: $showEditQuestion) {
+            ESQuestionEditView(question: viewModel.question) { text, max in
+                viewModel.updateQuestion(text: text, maxLength: max)
+            }
         }
         .sheet(isPresented: $showTemplateSheet) {
             TemplatePickerView { content in

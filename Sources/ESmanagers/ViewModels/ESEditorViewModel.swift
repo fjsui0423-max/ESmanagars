@@ -89,6 +89,14 @@ final class ESEditorViewModel: ObservableObject {
         answer = version.savedAnswer ?? ""
     }
 
+    /// 設問文と文字数制限を更新して保存する
+    func updateQuestion(text: String, maxLength: Int16) {
+        question.questionText = text
+        question.maxLength    = maxLength
+        objectWillChange.send()
+        try? context.save()
+    }
+
     // MARK: - Private helpers
 
     private func performSave() {

@@ -37,7 +37,7 @@ struct CalendarTaskView: View {
 
             Divider()
 
-            if viewModel.filteredBoxes.isEmpty {
+            if viewModel.isEmpty {
                 emptyState
             } else {
                 taskList
@@ -54,13 +54,41 @@ struct CalendarTaskView: View {
     // MARK: - Task list
 
     private var taskList: some View {
-        List(viewModel.filteredBoxes) { box in
-            if let company = box.company {
-                NavigationLink(value: company) {
-                    taskRow(box)
+        List {
+            if !viewModel.filteredBoxes.isEmpty {
+                Section {
+                    ForEach(viewModel.filteredBoxes) { box in
+                        if let company = box.company {
+                            NavigationLink(value: company) {
+                                esBoxRow(box)
+                            }
+                        } else {
+                            esBoxRow(box)
+                        }
+                    }
+                } header: {
+                    Label("ES締切", systemImage: "doc.text.fill")
+                        .foregroundStyle(.blue)
+                        .font(.subheadline.weight(.semibold))
                 }
-            } else {
-                taskRow(box)
+            }
+
+            if !viewModel.filteredInterviews.isEmpty {
+                Section {
+                    ForEach(viewModel.filteredInterviews, id: \.objectID) { interview in
+                        if let company = interview.company {
+                            NavigationLink(value: company) {
+                                interviewRow(interview)
+                            }
+                        } else {
+                            interviewRow(interview)
+                        }
+                    }
+                } header: {
+                    Label("面接", systemImage: "person.2.fill")
+                        .foregroundStyle(.red)
+                        .font(.subheadline.weight(.semibold))
+                }
             }
         }
         .listStyle(.insetGrouped)
@@ -69,24 +97,85 @@ struct CalendarTaskView: View {
         }
     }
 
-    private func taskRow(_ box: ESBox) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(box.company?.name ?? "企業名不明")
-                .font(.subheadline.weight(.semibold))
-            HStack(spacing: 8) {
+    // MARK: - ES BOX row
+
+    private func esBoxRow(_ box: ESBox) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: "doc.text.fill")
+                .font(.system(size: 18))
+                .foregroundStyle(.blue)
+                .frame(width: 28)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(box.company?.name ?? "企業名不明")
+                    .font(.subheadline.weight(.semibold))
                 Text(box.title ?? "タイトルなし")
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                Spacer()
-                let status = box.status ?? "未着手"
-                Text(status)
-                    .font(.caption.weight(.semibold))
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 3)
-                    .background(status.esBoxStatusColor.opacity(0.12))
-                    .foregroundStyle(status.esBoxStatusColor)
-                    .clipShape(Capsule())
             }
+
+            Spacer()
+
+            let status = box.status ?? "進行中"
+            Text(status)
+                .font(.caption.weight(.semibold))
+                .padding(.horizontal, 8)
+                .padding(.vertical, 3)
+                .background(status.esBoxStatusColor.opacity(0.12))
+                .foregroundStyle(status.esBoxStatusColor)
+                .clipShape(Capsule())
+        }
+        .padding(.vertical, 4)
+    }
+
+    // MARK: - Interview row
+
+    private static let timeFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.locale     = Locale(identifier: "ja_JP")
+        f.dateStyle  = .none
+        f.timeStyle  = .short
+        return f
+    }()
+
+    private func interviewRow(_ interview: Interview) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: "person.2.fill")
+                .font(.system(size: 18))
+                .foregroundStyle(.red)
+                .frame(width: 28)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(interview.company?.name ?? "企業名不明")
+                    .font(.subheadline.weight(.semibold))
+                HStack(spacing: 6) {
+                    Text(interview.stage ?? "面接")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    if let d = interview.startAt {
+                        Text("・\(Self.timeFormatter.string(from: d))")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    Text(interview.mode ?? "")
+                        .font(.caption.weight(.medium))
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 1)
+                        .background(Color.secondary.opacity(0.12))
+                        .clipShape(Capsule())
+                }
+            }
+
+            Spacer()
+
+            let status = interview.status ?? "予定"
+            Text(status)
+                .font(.caption.weight(.semibold))
+                .padding(.horizontal, 8)
+                .padding(.vertical, 3)
+                .background(status.interviewStatusColor.opacity(0.12))
+                .foregroundStyle(status.interviewStatusColor)
+                .clipShape(Capsule())
         }
         .padding(.vertical, 4)
     }
@@ -98,7 +187,7 @@ struct CalendarTaskView: View {
             Image(systemName: "calendar.badge.checkmark")
                 .font(.system(size: 48))
                 .foregroundStyle(.tertiary)
-            Text("この日の締切タスクはありません")
+            Text("この日の予定はありません")
                 .font(.subheadline.weight(.medium))
                 .foregroundStyle(.secondary)
         }
@@ -113,7 +202,6 @@ struct CalendarTaskView: View {
 #Preview {
     let ctx = PersistenceController.preview.context
     return NavigationStack {
-        // 今日締切のデータ（PreviewData b4）が表示される
         CalendarTaskView(context: ctx)
     }
     .environment(\.managedObjectContext, ctx)

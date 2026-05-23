@@ -91,6 +91,17 @@ enum CoreDataModel {
             makeAttr("category", .stringAttributeType)
         ]
 
+        let interview = NSEntityDescription()
+        interview.name = "Interview"
+        interview.managedObjectClassName = "Interview"
+        interview.properties = [
+            makeAttr("id", .UUIDAttributeType),
+            makeAttr("stage", .stringAttributeType),
+            makeAttr("startAt", .dateAttributeType),
+            makeAttr("mode", .stringAttributeType),
+            makeAttr("status", .stringAttributeType)
+        ]
+
         // MARK: - Relationships
 
         // Industry <->> Company
@@ -125,7 +136,15 @@ enum CoreDataModel {
         esQuestion.properties += [questionToVersions]
         esVersion.properties  += [versionToQuestion]
 
-        model.entities = [industry, company, esBox, esQuestion, esVersion, template]
+        // Company <->> Interview
+        let companyToInterviews = makeRelationship(name: "interviews", destination: interview, toMany: true, deleteRule: .cascadeDeleteRule)
+        let interviewToCompany  = makeRelationship(name: "company",    destination: company,   toMany: false)
+        companyToInterviews.inverseRelationship = interviewToCompany
+        interviewToCompany.inverseRelationship  = companyToInterviews
+        company.properties   += [companyToInterviews]
+        interview.properties += [interviewToCompany]
+
+        model.entities = [industry, company, esBox, esQuestion, esVersion, template, interview]
         return model
     }
 }

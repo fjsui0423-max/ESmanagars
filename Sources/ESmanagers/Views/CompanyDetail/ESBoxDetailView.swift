@@ -4,7 +4,7 @@ import CoreData
 struct ESBoxDetailView: View {
     @Environment(\.managedObjectContext) private var context
 
-    let esBox: ESBox
+    @ObservedObject var esBox: ESBox
 
     @FetchRequest private var questions: FetchedResults<ESQuestion>
 
@@ -36,6 +36,7 @@ struct ESBoxDetailView: View {
                             questionRow(question)
                         }
                     }
+                    .onDelete(perform: deleteQuestions)
                 }
                 .listStyle(.insetGrouped)
             }
@@ -68,6 +69,11 @@ struct ESBoxDetailView: View {
 
     // MARK: - Add question
 
+    private func deleteQuestions(at offsets: IndexSet) {
+        offsets.map { questions[$0] }.forEach { context.delete($0) }
+        try? context.save()
+    }
+
     private func addQuestion(text: String, maxLength: Int16) {
         let q = ESQuestion(context: context)
         q.id           = UUID()
@@ -89,26 +95,50 @@ struct ESBoxDetailView: View {
 
     // MARK: - Deadline banner
 
-    @ViewBuilder
     private var deadlineBanner: some View {
-        if let deadline = esBox.deadlineAt {
-            HStack(spacing: 8) {
+        HStack(spacing: 8) {
+            if let deadline = esBox.deadlineAt {
                 Image(systemName: "calendar.badge.clock")
                 Text("締切：\(Self.dateFormatter.string(from: deadline))")
                     .font(.subheadline.weight(.medium))
-                Spacer()
-                let status = esBox.status ?? "未着手"
-                Text(status)
-                    .font(.caption.weight(.semibold))
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 4)
-                    .background(status.esBoxStatusColor.opacity(0.15))
-                    .foregroundStyle(status.esBoxStatusColor)
-                    .clipShape(Capsule())
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 10)
-            .background(.regularMaterial)
+            Spacer()
+            statusMenu
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 10)
+        .background(.regularMaterial)
+    }
+
+    private static let statuses = ["進行中", "提出済み", "合格", "落選"]
+
+    private var statusMenu: some View {
+        let current = esBox.status ?? "進行中"
+        return Menu {
+            ForEach(Self.statuses, id: \.self) { s in
+                Button {
+                    esBox.status = s
+                    try? context.save()
+                } label: {
+                    if s == current {
+                        Label(s, systemImage: "checkmark")
+                    } else {
+                        Text(s)
+                    }
+                }
+            }
+        } label: {
+            HStack(spacing: 4) {
+                Text(current)
+                    .font(.caption.weight(.semibold))
+                Image(systemName: "chevron.up.chevron.down")
+                    .font(.system(size: 9, weight: .semibold))
+            }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 4)
+            .background(current.esBoxStatusColor.opacity(0.15))
+            .foregroundStyle(current.esBoxStatusColor)
+            .clipShape(Capsule())
         }
     }
 

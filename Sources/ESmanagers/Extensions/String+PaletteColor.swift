@@ -1,14 +1,23 @@
 import SwiftUI
 
 extension String {
+    var interviewStatusColor: Color {
+        switch self {
+        case "予定": return .blue
+        case "通過": return .green
+        case "落選": return .red
+        case "辞退": return .orange
+        default:     return .gray
+        }
+    }
+
     var esBoxStatusColor: Color {
         switch self {
-        case "進行中":     return .blue
-        case "書類選考中": return .purple
-        case "提出済み":   return .orange
-        case "合格":       return .green
-        case "不合格", "辞退": return .red
-        default:           return .gray
+        case "進行中": return .blue
+        case "提出済み": return .orange
+        case "合格":   return .green
+        case "落選":   return .red
+        default:       return .gray
         }
     }
 

@@ -38,6 +38,12 @@ struct HomeView: View {
     // MARK: - ドラッグ&ドロップ用ステート（既存フォルダ）
     @State private var folderDropTargetedID: UUID?
 
+    // MARK: - 削除確認用ステート
+    @State private var pendingDeleteCompany:      Company?
+    @State private var pendingDeleteIndustry:     Industry?
+    @State private var showDeleteCompanyConfirm  = false
+    @State private var showDeleteIndustryConfirm = false
+
     init(context: NSManagedObjectContext) {
         _viewModel = StateObject(wrappedValue: HomeViewModel(context: context))
     }
@@ -45,6 +51,36 @@ struct HomeView: View {
     // MARK: - Body
 
     var body: some View {
+        mainContent
+            .alert(
+                "企業を削除",
+                isPresented: $showDeleteCompanyConfirm,
+                presenting: pendingDeleteCompany
+            ) { company in
+                Button("削除", role: .destructive) {
+                    viewModel.deleteCompany(company)
+                    pendingDeleteCompany = nil
+                }
+                Button("キャンセル", role: .cancel) { pendingDeleteCompany = nil }
+            } message: { company in
+                Text("「\(company.name ?? "")」を削除します。関連するESデータもすべて削除されます。この操作は取り消せません。")
+            }
+            .alert(
+                "フォルダを削除",
+                isPresented: $showDeleteIndustryConfirm,
+                presenting: pendingDeleteIndustry
+            ) { industry in
+                Button("削除", role: .destructive) {
+                    viewModel.deleteIndustry(industry)
+                    pendingDeleteIndustry = nil
+                }
+                Button("キャンセル", role: .cancel) { pendingDeleteIndustry = nil }
+            } message: { industry in
+                Text("「\(industry.name ?? "")」を削除します。フォルダ内の企業・関連するすべてのデータが削除されます。この操作は取り消せません。")
+            }
+    }
+
+    private var mainContent: some View {
         ScrollView {
             LazyVGrid(columns: columns, spacing: 24) {
                 ForEach(industries) { industry in
@@ -133,6 +169,14 @@ struct HomeView: View {
             }
             .scaleEffect(isTargeted ? 1.08 : 1.0)
             .animation(.spring(response: 0.25, dampingFraction: 0.7), value: isTargeted)
+            .contextMenu {
+                Button(role: .destructive) {
+                    pendingDeleteIndustry = industry
+                    showDeleteIndustryConfirm = true
+                } label: {
+                    Label("このフォルダを削除", systemImage: "trash")
+                }
+            }
             // 企業UUIDをドロップ → 既存フォルダに移動
             .dropDestination(for: String.self) { items, _ in
                 guard let uuidString = items.first,
@@ -163,6 +207,14 @@ struct HomeView: View {
                 .animation(.spring(response: 0.25, dampingFraction: 0.7), value: isTargeted)
         }
         .buttonStyle(.plain)
+        .contextMenu {
+            Button(role: .destructive) {
+                pendingDeleteCompany = company
+                showDeleteCompanyConfirm = true
+            } label: {
+                Label("この企業を削除", systemImage: "trash")
+            }
+        }
         // ドラッグ元: 企業UUIDを文字列として提供
         .draggable(company.id?.uuidString ?? "")
         // ドロップ先: 同企業へのドロップは無視、異なる企業でフォルダ作成

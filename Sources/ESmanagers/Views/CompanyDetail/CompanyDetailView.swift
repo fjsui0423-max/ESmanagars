@@ -7,8 +7,9 @@ struct CompanyDetailView: View {
 
     @StateObject private var viewModel: CompanyDetailViewModel
 
-    @State private var showEditSheet    = false
-    @State private var showESBoxCreate  = false
+    @State private var showEditSheet       = false
+    @State private var showESBoxCreate     = false
+    @State private var showInterviewCreate = false
 
     init(company: Company) {
         _viewModel = StateObject(wrappedValue: CompanyDetailViewModel(company: company))
@@ -47,6 +48,12 @@ struct CompanyDetailView: View {
                 viewModel.addESBox(title: title, deadline: deadline, in: context)
             }
         }
+        // 面接追加シート
+        .sheet(isPresented: $showInterviewCreate) {
+            InterviewCreateView { stage, startAt, mode in
+                viewModel.addInterview(stage: stage, startAt: startAt, mode: mode, in: context)
+            }
+        }
     }
 
     // MARK: - Scroll content
@@ -56,6 +63,7 @@ struct CompanyDetailView: View {
             VStack(alignment: .leading, spacing: 20) {
                 loginSupportCard
                 esBoxSection
+                interviewSection
             }
             .padding(16)
             .padding(.bottom, 20)
@@ -346,6 +354,144 @@ struct CompanyDetailView: View {
         .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
     }
 
+    // MARK: - Interview section
+
+    private var interviewSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .center) {
+                Text("面接予定")
+                    .font(.headline)
+
+                Text("\(viewModel.interviewsArray.count)件")
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 3)
+                    .background(Color.secondary.opacity(0.15))
+                    .clipShape(Capsule())
+
+                Spacer()
+
+                Button { showInterviewCreate = true } label: {
+                    Label("追加", systemImage: "plus.circle.fill")
+                        .font(.subheadline.weight(.medium))
+                }
+                .buttonStyle(.borderedProminent)
+                .buttonBorderShape(.capsule)
+                .controlSize(.small)
+                .tint(.red)
+            }
+
+            if viewModel.interviewsArray.isEmpty {
+                emptyInterviewView
+            } else {
+                ForEach(viewModel.interviewsArray, id: \.objectID) { interview in
+                    interviewCard(interview)
+                }
+            }
+        }
+    }
+
+    private var emptyInterviewView: some View {
+        VStack(spacing: 10) {
+            Image(systemName: "person.2")
+                .font(.system(size: 38))
+                .foregroundStyle(.tertiary)
+            Text("面接予定はまだありません")
+                .font(.subheadline.weight(.medium))
+                .foregroundStyle(.secondary)
+            Text("「追加」から面接の予定を登録してください")
+                .font(.caption)
+                .foregroundStyle(.tertiary)
+                .multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 44)
+        .background(Color.secondarySystemGroupedBackground)
+        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+    }
+
+    private static let interviewDateFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.locale    = Locale(identifier: "ja_JP")
+        f.dateStyle = .medium
+        f.timeStyle = .short
+        return f
+    }()
+
+    private func interviewCard(_ interview: Interview) -> some View {
+        HStack(spacing: 0) {
+            let status = interview.status ?? "予定"
+            RoundedRectangle(cornerRadius: 2)
+                .fill(status.interviewStatusColor)
+                .frame(width: 4)
+                .padding(.vertical, 4)
+
+            HStack(spacing: 12) {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(interview.stage ?? "未定")
+                        .font(.subheadline.weight(.semibold))
+
+                    if let d = interview.startAt {
+                        Label(Self.interviewDateFormatter.string(from: d), systemImage: "clock")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+
+                    Text(interview.mode ?? "未定")
+                        .font(.caption.weight(.medium))
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 2)
+                        .background(Color.accentColor.opacity(0.1))
+                        .foregroundStyle(Color.accentColor)
+                        .clipShape(Capsule())
+                }
+
+                Spacer()
+
+                interviewStatusMenu(interview)
+            }
+            .padding(.vertical, 14)
+            .padding(.horizontal, 14)
+        }
+        .background(Color.secondarySystemGroupedBackground)
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .contextMenu {
+            Button(role: .destructive) {
+                viewModel.deleteInterview(interview, in: context)
+            } label: {
+                Label("削除", systemImage: "trash")
+            }
+        }
+    }
+
+    private static let interviewStatuses = ["予定", "通過", "落選", "辞退"]
+
+    private func interviewStatusMenu(_ interview: Interview) -> some View {
+        let current = interview.status ?? "予定"
+        return Menu {
+            ForEach(Self.interviewStatuses, id: \.self) { s in
+                Button {
+                    viewModel.updateInterviewStatus(interview, status: s, in: context)
+                } label: {
+                    if s == current {
+                        Label(s, systemImage: "checkmark")
+                    } else {
+                        Text(s)
+                    }
+                }
+            }
+        } label: {
+            Text(current)
+                .font(.caption.weight(.semibold))
+                .padding(.horizontal, 10)
+                .padding(.vertical, 5)
+                .background(current.interviewStatusColor.opacity(0.12))
+                .foregroundStyle(current.interviewStatusColor)
+                .clipShape(Capsule())
+        }
+    }
+
     // MARK: - Toolbar placement
 
     private var editButtonPlacement: ToolbarItemPlacement {
@@ -360,7 +506,7 @@ struct CompanyDetailView: View {
 // MARK: - ES BOX Card（表示専用）
 
 struct ESBoxCard: View {
-    let esBox: ESBox
+    @ObservedObject var esBox: ESBox
 
     private static let dateFormatter: DateFormatter = {
         let f = DateFormatter()
