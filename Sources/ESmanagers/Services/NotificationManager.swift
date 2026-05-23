@@ -31,11 +31,11 @@ final class NotificationManager: @unchecked Sendable {
     // MARK: - Schedule
 
     func scheduleReminders(for interview: Interview) {
-        guard let id          = interview.id?.uuidString,
-              let startAt     = interview.startAt,
-              let stage       = interview.stage,
-              let companyName = interview.company?.name else { return }
+        guard let id      = interview.id?.uuidString,
+              let startAt = interview.startAt,
+              let stage   = interview.stage else { return }
 
+        let companyName = interview.selection?.company?.name ?? "企業名不明"
         cancelReminders(for: interview)
 
         let defaults = UserDefaults.standard
@@ -75,7 +75,6 @@ final class NotificationManager: @unchecked Sendable {
 
     func cancelReminders(for interview: Interview) {
         guard let id = interview.id?.uuidString else { return }
-        // 旧形式（-24h / -1h）も合わせてキャンセルしマイグレーションに対応
         center.removePendingNotificationRequests(
             withIdentifiers: ["\(id)-days", "\(id)-hours", "\(id)-24h", "\(id)-1h"]
         )
@@ -107,9 +106,8 @@ final class NotificationManager: @unchecked Sendable {
     }
 
     private func timeString(_ date: Date) -> String {
-        let f       = DateFormatter()
-        f.locale    = Locale(identifier: "ja_JP")
-        f.timeStyle = .short
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "ja_JP"); f.timeStyle = .short
         return f.string(from: date)
     }
 }

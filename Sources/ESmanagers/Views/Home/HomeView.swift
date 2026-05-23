@@ -109,6 +109,9 @@ struct HomeView: View {
         .navigationDestination(for: Company.self) { company in
             CompanyDetailView(company: company)
         }
+        .navigationDestination(for: Industry.self) { industry in
+            IndustryDetailView(industry: industry)
+        }
         // ---- + ボタン: 追加メニュー ----
         .confirmationDialog("追加する項目を選択", isPresented: $showAddMenu, titleVisibility: .visible) {
             Button("企業を追加")           { showAddCompanyAlert  = true }
@@ -159,33 +162,36 @@ struct HomeView: View {
     private func industryFolderItem(_ industry: Industry) -> some View {
         let isTargeted = folderDropTargetedID == industry.id
 
-        IndustryFolderView(industry: industry)
-            .overlay(alignment: .center) {
-                if isTargeted {
-                    RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        .strokeBorder(Color.accentColor, lineWidth: 3)
-                        .allowsHitTesting(false)
+        NavigationLink(value: industry) {
+            IndustryFolderView(industry: industry)
+                .overlay(alignment: .center) {
+                    if isTargeted {
+                        RoundedRectangle(cornerRadius: 16, style: .continuous)
+                            .strokeBorder(Color.accentColor, lineWidth: 3)
+                            .allowsHitTesting(false)
+                    }
                 }
+                .scaleEffect(isTargeted ? 1.08 : 1.0)
+                .animation(.spring(response: 0.25, dampingFraction: 0.7), value: isTargeted)
+        }
+        .buttonStyle(.plain)
+        .contextMenu {
+            Button(role: .destructive) {
+                pendingDeleteIndustry = industry
+                showDeleteIndustryConfirm = true
+            } label: {
+                Label("このフォルダを削除", systemImage: "trash")
             }
-            .scaleEffect(isTargeted ? 1.08 : 1.0)
-            .animation(.spring(response: 0.25, dampingFraction: 0.7), value: isTargeted)
-            .contextMenu {
-                Button(role: .destructive) {
-                    pendingDeleteIndustry = industry
-                    showDeleteIndustryConfirm = true
-                } label: {
-                    Label("このフォルダを削除", systemImage: "trash")
-                }
-            }
-            // 企業UUIDをドロップ → 既存フォルダに移動
-            .dropDestination(for: String.self) { items, _ in
-                guard let uuidString = items.first,
-                      let sourceID   = UUID(uuidString: uuidString) else { return false }
-                viewModel.moveCompany(sourceID: sourceID, to: industry)
-                return true
-            } isTargeted: { targeted in
-                folderDropTargetedID = targeted ? industry.id : nil
-            }
+        }
+        // 企業UUIDをドロップ → 既存フォルダに移動
+        .dropDestination(for: String.self) { items, _ in
+            guard let uuidString = items.first,
+                  let sourceID   = UUID(uuidString: uuidString) else { return false }
+            viewModel.moveCompany(sourceID: sourceID, to: industry)
+            return true
+        } isTargeted: { targeted in
+            folderDropTargetedID = targeted ? industry.id : nil
+        }
     }
 
     // MARK: - Company グリッドアイテム

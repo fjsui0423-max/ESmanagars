@@ -66,7 +66,7 @@ private struct DayCell: View {
     @ViewBuilder
     private var taskLabels: some View {
         ForEach(Array(boxes.prefix(2))) { box in
-            Text("ES:\(box.company?.name ?? "")")
+            Text("ES:\(box.selection?.company?.name ?? "")")
                 .font(.system(size: 9))
                 .lineLimit(1)
                 .truncationMode(.tail)
@@ -78,7 +78,7 @@ private struct DayCell: View {
                 .cornerRadius(2)
         }
         ForEach(Array(interviews.prefix(2))) { interview in
-            Text("面:\(interview.company?.name ?? "")")
+            Text("面:\(interview.selection?.company?.name ?? "")")
                 .font(.system(size: 9))
                 .lineLimit(1)
                 .truncationMode(.tail)
@@ -214,7 +214,7 @@ struct CalendarTaskView: View {
             if !viewModel.filteredBoxes.isEmpty {
                 Section {
                     ForEach(viewModel.filteredBoxes) { box in
-                        if let company = box.company {
+                        if let company = box.selection?.company {
                             NavigationLink(value: company) {
                                 esBoxRow(box)
                             }
@@ -232,7 +232,7 @@ struct CalendarTaskView: View {
             if !viewModel.filteredInterviews.isEmpty {
                 Section {
                     ForEach(viewModel.filteredInterviews) { interview in
-                        if let company = interview.company {
+                        if let company = interview.selection?.company {
                             NavigationLink(value: company) {
                                 interviewRow(interview)
                             }
@@ -265,7 +265,7 @@ struct CalendarTaskView: View {
                 .frame(width: 28)
 
             VStack(alignment: .leading, spacing: 4) {
-                Text(box.company?.name ?? "企業名不明")
+                Text(box.selection?.company?.name ?? "企業名不明")
                     .font(.subheadline.weight(.semibold))
                 Text(box.title ?? "タイトルなし")
                     .font(.caption)
@@ -306,7 +306,7 @@ struct CalendarTaskView: View {
                 .frame(width: 28)
 
             VStack(alignment: .leading, spacing: 4) {
-                Text(interview.company?.name ?? "企業名不明")
+                Text(interview.selection?.company?.name ?? "企業名不明")
                     .font(.subheadline.weight(.semibold))
                 HStack(spacing: 6) {
                     Text(interview.stage ?? "面接")

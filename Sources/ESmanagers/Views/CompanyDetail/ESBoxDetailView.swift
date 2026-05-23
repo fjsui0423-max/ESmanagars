@@ -110,7 +110,7 @@ struct ESBoxDetailView: View {
         .background(.regularMaterial)
     }
 
-    private static let statuses = ["進行中", "提出済み", "合格", "落選"]
+    private static let statuses = ["未着手", "進行中", "提出済み", "提出遅れ", "合格", "落選"]
 
     private var statusMenu: some View {
         let current = esBox.status ?? "進行中"

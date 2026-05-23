@@ -16,6 +16,14 @@ extension Color {
         Color(NSColor.controlBackgroundColor)
         #endif
     }
+
+    static var tertiarySystemGroupedBackground: Color {
+        #if os(iOS)
+        Color(UIColor.tertiarySystemGroupedBackground)
+        #else
+        Color(NSColor.underPageBackgroundColor)
+        #endif
+    }
 }
 
 extension Optional where Wrapped == String {

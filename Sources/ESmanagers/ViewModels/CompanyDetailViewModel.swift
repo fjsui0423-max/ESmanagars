@@ -38,14 +38,8 @@ final class CompanyDetailViewModel: ObservableObject {
         company.myPageURL.nilIfEmpty.flatMap { URL(string: $0) }
     }
 
-    var esBoxesArray: [ESBox] {
-        (company.esBoxes?.allObjects as? [ESBox] ?? [])
-            .sorted { ($0.deadlineAt ?? .distantFuture) < ($1.deadlineAt ?? .distantFuture) }
-    }
-
-    var interviewsArray: [Interview] {
-        (company.interviews?.allObjects as? [Interview] ?? [])
-            .sorted { ($0.startAt ?? .distantFuture) < ($1.startAt ?? .distantFuture) }
+    var selectionsArray: [Selection] {
+        company.selectionsArray
     }
 
     var hasPassword: Bool {
@@ -59,7 +53,7 @@ final class CompanyDetailViewModel: ObservableObject {
 
     var canTogglePassword: Bool { hasPassword }
 
-    // MARK: - Refresh（編集シート閉じた後に呼ぶ）
+    // MARK: - Refresh
 
     func refreshCompanyData() {
         isPasswordVisible = false
@@ -121,10 +115,92 @@ final class CompanyDetailViewModel: ObservableObject {
         triggerToast("パスワードをコピーしました")
     }
 
+    // MARK: - Selection
+
+    func addSelection(category: String, title: String, in context: NSManagedObjectContext) {
+        let sel = Selection(context: context)
+        sel.id       = UUID()
+        sel.category = category
+        sel.title    = title
+        sel.status   = "進行中"
+        sel.company  = company
+        try? context.save()
+        objectWillChange.send()
+    }
+
+    func deleteSelection(_ selection: Selection, in context: NSManagedObjectContext) {
+        selection.interviewsArray.forEach { NotificationManager.shared.cancelReminders(for: $0) }
+        context.delete(selection)
+        try? context.save()
+        objectWillChange.send()
+    }
+
+    func updateSelectionStatus(_ selection: Selection, status: String, in context: NSManagedObjectContext) {
+        selection.status = status
+        try? context.save()
+        objectWillChange.send()
+    }
+
+    // MARK: - ESBox
+
+    func addESBox(to selection: Selection, title: String, deadline: Date?, in context: NSManagedObjectContext) {
+        let trimmed = title.trimmingCharacters(in: .whitespaces)
+        guard !trimmed.isEmpty else { return }
+        let box = ESBox(context: context)
+        box.id         = UUID()
+        box.title      = trimmed
+        box.status     = "未着手"
+        box.deadlineAt = deadline
+        box.selection  = selection
+        try? context.save()
+        objectWillChange.send()
+    }
+
+    // MARK: - AptitudeTest
+
+    func addAptitudeTest(
+        to selection: Selection,
+        type: String, customType: String?,
+        deadline: Date?, status: String,
+        in context: NSManagedObjectContext
+    ) {
+        let test = AptitudeTest(context: context)
+        test.id         = UUID()
+        test.type       = type
+        test.customType = customType
+        test.deadlineAt = deadline
+        test.status     = status
+        test.selection  = selection
+        try? context.save()
+        objectWillChange.send()
+    }
+
+    func updateAptitudeTestStatus(_ test: AptitudeTest, status: String, in context: NSManagedObjectContext) {
+        test.status = status
+        try? context.save()
+        objectWillChange.send()
+    }
+
+    func deleteAptitudeTest(_ test: AptitudeTest, in context: NSManagedObjectContext) {
+        context.delete(test)
+        try? context.save()
+        objectWillChange.send()
+    }
+
     // MARK: - Interview
 
-    func addInterview(stage: String, startAt: Date, mode: String, in context: NSManagedObjectContext) {
-        let interview = Interview.create(stage: stage, startAt: startAt, mode: mode, company: company, in: context)
+    func addInterview(
+        to selection: Selection,
+        stage: String, startAt: Date, mode: String,
+        in context: NSManagedObjectContext
+    ) {
+        let interview = Interview(context: context)
+        interview.id        = UUID()
+        interview.stage     = stage
+        interview.startAt   = startAt
+        interview.mode      = mode
+        interview.status    = "予定"
+        interview.selection = selection
         try? context.save()
         NotificationManager.shared.scheduleReminders(for: interview)
         objectWillChange.send()
@@ -152,21 +228,6 @@ final class CompanyDetailViewModel: ObservableObject {
 
     func updateInterviewStatus(_ interview: Interview, status: String, in context: NSManagedObjectContext) {
         interview.status = status
-        try? context.save()
-        objectWillChange.send()
-    }
-
-    // MARK: - ESBox
-
-    func addESBox(title: String, deadline: Date?, in context: NSManagedObjectContext) {
-        let trimmed = title.trimmingCharacters(in: .whitespaces)
-        guard !trimmed.isEmpty else { return }
-        let box = ESBox(context: context)
-        box.id        = UUID()
-        box.title     = trimmed
-        box.status    = "未着手"
-        box.deadlineAt = deadline
-        box.company   = company
         try? context.save()
         objectWillChange.send()
     }

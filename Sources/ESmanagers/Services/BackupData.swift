@@ -12,7 +12,7 @@ struct BackupData: Codable {
     let templates: [TemplateDTO]
 }
 
-// MARK: - DTOs (パスワードは含めない)
+// MARK: - DTOs（パスワードは含めない）
 
 struct IndustryDTO: Codable {
     let id: UUID
@@ -26,7 +26,17 @@ struct CompanyDTO: Codable {
     let name: String
     let myPageURL: String?
     let loginID: String?
+    let selections: [SelectionDTO]
+}
+
+struct SelectionDTO: Codable {
+    let id: UUID
+    let category: String?
+    let title: String?
+    let status: String?
     let esBoxes: [ESBoxDTO]
+    let aptitudeTests: [AptitudeTestDTO]
+    let interviews: [InterviewDTO]
 }
 
 struct ESBoxDTO: Codable {
@@ -52,6 +62,22 @@ struct ESVersionDTO: Codable {
     let createdAt: Date?
 }
 
+struct AptitudeTestDTO: Codable {
+    let id: UUID
+    let type: String?
+    let customType: String?
+    let deadlineAt: Date?
+    let status: String?
+}
+
+struct InterviewDTO: Codable {
+    let id: UUID
+    let stage: String?
+    let startAt: Date?
+    let mode: String?
+    let status: String?
+}
+
 struct TemplateDTO: Codable {
     let id: UUID
     let title: String?
@@ -74,14 +100,26 @@ extension Industry {
 
 extension Company {
     var dto: CompanyDTO {
-        let boxes = (esBoxes?.allObjects as? [ESBox] ?? [])
-            .sorted { ($0.deadlineAt ?? .distantPast) < ($1.deadlineAt ?? .distantPast) }
-        return CompanyDTO(
+        CompanyDTO(
             id: id ?? UUID(),
             name: name ?? "",
             myPageURL: myPageURL,
             loginID: loginID,
-            esBoxes: boxes.map(\.dto)
+            selections: selectionsArray.map(\.dto)
+        )
+    }
+}
+
+extension Selection {
+    var dto: SelectionDTO {
+        SelectionDTO(
+            id: id ?? UUID(),
+            category: category,
+            title: title,
+            status: status,
+            esBoxes: esBoxesArray.map(\.dto),
+            aptitudeTests: aptitudeTestsArray.map(\.dto),
+            interviews: interviewsArray.map(\.dto)
         )
     }
 }
@@ -121,6 +159,30 @@ extension ESVersion {
     }
 }
 
+extension AptitudeTest {
+    var dto: AptitudeTestDTO {
+        AptitudeTestDTO(
+            id: id ?? UUID(),
+            type: type,
+            customType: customType,
+            deadlineAt: deadlineAt,
+            status: status
+        )
+    }
+}
+
+extension Interview {
+    var dto: InterviewDTO {
+        InterviewDTO(
+            id: id ?? UUID(),
+            stage: stage,
+            startAt: startAt,
+            mode: mode,
+            status: status
+        )
+    }
+}
+
 extension Template {
     var dto: TemplateDTO {
         TemplateDTO(
@@ -139,9 +201,7 @@ struct JSONDocument: FileDocument {
 
     var data: Data
 
-    init(data: Data) {
-        self.data = data
-    }
+    init(data: Data) { self.data = data }
 
     init(configuration: ReadConfiguration) throws {
         guard let data = configuration.file.regularFileContents else {

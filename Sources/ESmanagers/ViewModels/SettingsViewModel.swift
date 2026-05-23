@@ -123,7 +123,11 @@ final class SettingsViewModel: ObservableObject {
 
     /// 依存順（子→親）でフェッチ削除し、@FetchRequest への変更通知を保証する。
     private func deleteAllData() throws {
-        let entityNames = ["ESVersion", "ESQuestion", "ESBox", "Company", "Industry", "Template"]
+        let entityNames = [
+            "ESVersion", "ESQuestion", "ESBox",
+            "AptitudeTest", "Interview", "Selection",
+            "Company", "Industry", "Template"
+        ]
         for name in entityNames {
             let req = NSFetchRequest<NSManagedObject>(entityName: name)
             let objects = try context.fetch(req)
@@ -160,30 +164,59 @@ final class SettingsViewModel: ObservableObject {
         company.loginID   = dto.loginID
         company.industry  = industry
 
-        for boxDTO in dto.esBoxes {
-            let box = ESBox(context: context)
-            box.id         = boxDTO.id
-            box.title      = boxDTO.title
-            box.deadlineAt = boxDTO.deadlineAt
-            box.status     = boxDTO.status
-            box.company    = company
+        for selDTO in dto.selections {
+            let sel = Selection(context: context)
+            sel.id       = selDTO.id
+            sel.category = selDTO.category
+            sel.title    = selDTO.title
+            sel.status   = selDTO.status
+            sel.company  = company
 
-            for questionDTO in boxDTO.questions {
-                let q = ESQuestion(context: context)
-                q.id            = questionDTO.id
-                q.questionText  = questionDTO.questionText
-                q.maxLength     = questionDTO.maxLength
-                q.currentAnswer = questionDTO.currentAnswer
-                q.sortOrder     = questionDTO.sortOrder
-                q.esBox         = box
+            for boxDTO in selDTO.esBoxes {
+                let box = ESBox(context: context)
+                box.id         = boxDTO.id
+                box.title      = boxDTO.title
+                box.deadlineAt = boxDTO.deadlineAt
+                box.status     = boxDTO.status
+                box.selection  = sel
 
-                for versionDTO in questionDTO.versions {
-                    let v = ESVersion(context: context)
-                    v.id          = versionDTO.id
-                    v.savedAnswer = versionDTO.savedAnswer
-                    v.createdAt   = versionDTO.createdAt
-                    v.esQuestion  = q
+                for questionDTO in boxDTO.questions {
+                    let q = ESQuestion(context: context)
+                    q.id            = questionDTO.id
+                    q.questionText  = questionDTO.questionText
+                    q.maxLength     = questionDTO.maxLength
+                    q.currentAnswer = questionDTO.currentAnswer
+                    q.sortOrder     = questionDTO.sortOrder
+                    q.esBox         = box
+
+                    for versionDTO in questionDTO.versions {
+                        let v = ESVersion(context: context)
+                        v.id          = versionDTO.id
+                        v.savedAnswer = versionDTO.savedAnswer
+                        v.createdAt   = versionDTO.createdAt
+                        v.esQuestion  = q
+                    }
                 }
+            }
+
+            for testDTO in selDTO.aptitudeTests {
+                let t = AptitudeTest(context: context)
+                t.id         = testDTO.id
+                t.type       = testDTO.type
+                t.customType = testDTO.customType
+                t.deadlineAt = testDTO.deadlineAt
+                t.status     = testDTO.status
+                t.selection  = sel
+            }
+
+            for intDTO in selDTO.interviews {
+                let i = Interview(context: context)
+                i.id        = intDTO.id
+                i.stage     = intDTO.stage
+                i.startAt   = intDTO.startAt
+                i.mode      = intDTO.mode
+                i.status    = intDTO.status
+                i.selection = sel
             }
         }
     }
