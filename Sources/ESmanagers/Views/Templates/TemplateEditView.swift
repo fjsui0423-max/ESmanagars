@@ -26,6 +26,7 @@ struct TemplateEditView: View {
     @State private var selectedCategory: String
     @State private var newCategoryText: String = ""
     @State private var isAddingNewCategory: Bool
+    @FocusState private var isContentFocused: Bool
 
     init(template: Template?, context: NSManagedObjectContext) {
         self.template = template
@@ -56,6 +57,7 @@ struct TemplateEditView: View {
                                 .allowsHitTesting(false)
                         }
                         TextEditor(text: $content)
+                            .focused($isContentFocused)
                             .scrollContentBackground(.hidden)
                             .frame(minHeight: 200)
                     }
@@ -83,6 +85,16 @@ struct TemplateEditView: View {
                         .fontWeight(.semibold)
                         .disabled(!canSave)
                 }
+                #if os(iOS)
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    Button {
+                        isContentFocused = false
+                    } label: {
+                        Image(systemName: "keyboard.chevron.compact.down")
+                    }
+                }
+                #endif
             }
         }
     }
