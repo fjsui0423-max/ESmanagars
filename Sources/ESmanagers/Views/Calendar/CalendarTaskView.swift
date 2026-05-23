@@ -13,22 +13,23 @@ struct CalendarTaskContainerView: View {
 // MARK: - Day Cell
 
 private struct DayCell: View {
-    let date: Date
-    let isSelected: Bool
-    let isToday: Bool
+    let date:          Date
+    let isSelected:    Bool
+    let isToday:       Bool
     let isCurrentMonth: Bool
-    let boxes: [ESBox]
-    let interviews: [Interview]
-    let onTap: () -> Void
+    let boxes:         [ESBox]
+    let aptitudeTests: [AptitudeTest]
+    let interviews:    [Interview]
+    let onTap:         () -> Void
 
-    private var dayNumber: Int { Calendar.current.component(.day, from: date) }
-    private var weekday: Int   { Calendar.current.component(.weekday, from: date) }
+    private var dayNumber: Int { Calendar.current.component(.day,     from: date) }
+    private var weekday:   Int { Calendar.current.component(.weekday, from: date) }
 
     private var dayTextColor: Color {
-        if isSelected        { return .white }
-        if !isCurrentMonth   { return Color.secondary.opacity(0.4) }
-        if weekday == 1      { return .red }
-        if weekday == 7      { return .blue }
+        if isSelected      { return .white }
+        if !isCurrentMonth { return Color.secondary.opacity(0.4) }
+        if weekday == 1    { return .red }
+        if weekday == 7    { return .blue }
         return .primary
     }
 
@@ -65,7 +66,7 @@ private struct DayCell: View {
 
     @ViewBuilder
     private var taskLabels: some View {
-        ForEach(Array(boxes.prefix(2))) { box in
+        ForEach(Array(boxes.prefix(1))) { box in
             Text("ES:\(box.selection?.company?.name ?? "")")
                 .font(.system(size: 9))
                 .lineLimit(1)
@@ -77,7 +78,19 @@ private struct DayCell: View {
                 .foregroundStyle(Color.blue)
                 .cornerRadius(2)
         }
-        ForEach(Array(interviews.prefix(2))) { interview in
+        ForEach(Array(aptitudeTests.prefix(1))) { test in
+            Text("適:\(test.selection?.company?.name ?? "")")
+                .font(.system(size: 9))
+                .lineLimit(1)
+                .truncationMode(.tail)
+                .padding(.horizontal, 3)
+                .padding(.vertical, 1)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color.orange.opacity(0.15))
+                .foregroundStyle(Color.orange)
+                .cornerRadius(2)
+        }
+        ForEach(Array(interviews.prefix(1))) { interview in
             Text("面:\(interview.selection?.company?.name ?? "")")
                 .font(.system(size: 9))
                 .lineLimit(1)
@@ -193,13 +206,14 @@ struct CalendarTaskView: View {
         LazyVGrid(columns: columns, spacing: 0) {
             ForEach(viewModel.calendarDates, id: \.self) { date in
                 DayCell(
-                    date: date,
-                    isSelected: viewModel.isSelected(date),
-                    isToday: viewModel.isToday(date),
+                    date:          date,
+                    isSelected:    viewModel.isSelected(date),
+                    isToday:       viewModel.isToday(date),
                     isCurrentMonth: viewModel.isCurrentMonth(date),
-                    boxes: viewModel.boxes(for: date),
-                    interviews: viewModel.interviews(for: date),
-                    onTap: { viewModel.selectedDate = date }
+                    boxes:         viewModel.boxes(for: date),
+                    aptitudeTests: viewModel.aptitudeTests(for: date),
+                    interviews:    viewModel.interviews(for: date),
+                    onTap:         { viewModel.selectedDate = date }
                 )
             }
         }
@@ -215,9 +229,7 @@ struct CalendarTaskView: View {
                 Section {
                     ForEach(viewModel.filteredBoxes) { box in
                         if let company = box.selection?.company {
-                            NavigationLink(value: company) {
-                                esBoxRow(box)
-                            }
+                            NavigationLink(value: company) { esBoxRow(box) }
                         } else {
                             esBoxRow(box)
                         }
@@ -229,13 +241,27 @@ struct CalendarTaskView: View {
                 }
             }
 
+            if !viewModel.filteredAptitudeTests.isEmpty {
+                Section {
+                    ForEach(viewModel.filteredAptitudeTests) { test in
+                        if let company = test.selection?.company {
+                            NavigationLink(value: company) { aptitudeTestRow(test) }
+                        } else {
+                            aptitudeTestRow(test)
+                        }
+                    }
+                } header: {
+                    Label("適性検査締切", systemImage: "checkmark.circle.fill")
+                        .foregroundStyle(.orange)
+                        .font(.subheadline.weight(.semibold))
+                }
+            }
+
             if !viewModel.filteredInterviews.isEmpty {
                 Section {
                     ForEach(viewModel.filteredInterviews) { interview in
                         if let company = interview.selection?.company {
-                            NavigationLink(value: company) {
-                                interviewRow(interview)
-                            }
+                            NavigationLink(value: company) { interviewRow(interview) }
                         } else {
                             interviewRow(interview)
                         }
@@ -256,7 +282,7 @@ struct CalendarTaskView: View {
     // MARK: - ES BOX row
 
     private func esBoxRow(_ box: ESBox) -> some View {
-        let status = box.status ?? "進行中"
+        let status = box.status ?? "未着手"
         let active = status == "未着手" || status == "進行中"
         return HStack(spacing: 12) {
             Image(systemName: "doc.text.fill")
@@ -286,13 +312,46 @@ struct CalendarTaskView: View {
         .opacity(active ? 1.0 : 0.5)
     }
 
+    // MARK: - AptitudeTest row
+
+    private func aptitudeTestRow(_ test: AptitudeTest) -> some View {
+        let status = test.status ?? "未受験"
+        let active = status == "未受験" || status == "受験済み"
+        return HStack(spacing: 12) {
+            Image(systemName: "checkmark.circle.fill")
+                .font(.system(size: 18))
+                .foregroundStyle(.orange)
+                .frame(width: 28)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(test.selection?.company?.name ?? "企業名不明")
+                    .font(.subheadline.weight(.semibold))
+                Text(test.displayType)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Spacer()
+
+            Text(status)
+                .font(.caption.weight(.semibold))
+                .padding(.horizontal, 8)
+                .padding(.vertical, 3)
+                .background(status.aptitudeStatusColor.opacity(0.12))
+                .foregroundStyle(status.aptitudeStatusColor)
+                .clipShape(Capsule())
+        }
+        .padding(.vertical, 4)
+        .opacity(active ? 1.0 : 0.5)
+    }
+
     // MARK: - Interview row
 
     private static let timeFormatter: DateFormatter = {
         let f = DateFormatter()
-        f.locale     = Locale(identifier: "ja_JP")
-        f.dateStyle  = .none
-        f.timeStyle  = .short
+        f.locale    = Locale(identifier: "ja_JP")
+        f.dateStyle = .none
+        f.timeStyle = .short
         return f
     }()
 
@@ -317,12 +376,14 @@ struct CalendarTaskView: View {
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
-                    Text(interview.mode ?? "")
-                        .font(.caption.weight(.medium))
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 1)
-                        .background(Color.secondary.opacity(0.12))
-                        .clipShape(Capsule())
+                    if let mode = interview.mode, !mode.isEmpty {
+                        Text(mode)
+                            .font(.caption.weight(.medium))
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 1)
+                            .background(Color.secondary.opacity(0.12))
+                            .clipShape(Capsule())
+                    }
                 }
             }
 

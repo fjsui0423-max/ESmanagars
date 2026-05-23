@@ -22,12 +22,22 @@ struct AnalyticsView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 16) {
-                if viewModel.totalInterviews == 0 {
+                if viewModel.isNoData {
                     emptyState
                 } else {
                     summaryCard
-                    chartSection
-                    legendCard
+                    if viewModel.esStats.total > 0 {
+                        esStatsCard
+                    }
+                    if viewModel.aptitudeStats.total > 0 {
+                        aptitudeStatsCard
+                    }
+                    if !viewModel.stageStats.isEmpty {
+                        interviewSection
+                        legendCard
+                    } else if viewModel.totalInterviews == 0 && !viewModel.isNoData {
+                        noInterviewPlaceholder
+                    }
                 }
             }
             .padding(16)
@@ -38,90 +48,240 @@ struct AnalyticsView: View {
         #if os(iOS)
         .navigationBarTitleDisplayMode(.large)
         #endif
+        .safeAreaInset(edge: .top, spacing: 0) {
+            filterStrip
+        }
         .onAppear { viewModel.fetch() }
+    }
+
+    // MARK: - Filter strip
+
+    private var filterStrip: some View {
+        VStack(spacing: 8) {
+            Picker("カテゴリ", selection: $viewModel.selectionCategoryFilter) {
+                ForEach(AnalyticsViewModel.categoryFilters, id: \.self) { Text($0) }
+            }
+            .pickerStyle(.segmented)
+
+            HStack(spacing: 8) {
+                Image(systemName: "person.2")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                Picker("形式", selection: $viewModel.interviewModeFilter) {
+                    ForEach(AnalyticsViewModel.modeFilters, id: \.self) { Text($0) }
+                }
+                .pickerStyle(.segmented)
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 10)
+        .background(.regularMaterial)
+        .overlay(alignment: .bottom) { Divider() }
     }
 
     // MARK: - Summary card
 
     private var summaryCard: some View {
         HStack(spacing: 0) {
-            // 総面接数
-            VStack(alignment: .leading, spacing: 4) {
-                Text("総面接数")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                Text("\(viewModel.totalInterviews)")
-                    .font(.system(size: 40, weight: .bold, design: .rounded))
-                    .foregroundStyle(.primary)
-                Text("件")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
+            kpiCell(
+                value: "\(viewModel.selectionSummary.total)",
+                unit: "件",
+                label: "総選考数",
+                color: .primary
+            )
 
-            Divider()
-                .frame(height: 60)
-                .padding(.horizontal, 16)
+            Divider().frame(height: 56).padding(.horizontal, 4)
 
-            // 通過率
-            VStack(alignment: .trailing, spacing: 4) {
-                Text(viewModel.hasAnyResult ? "通過率" : "結果待ち")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                if viewModel.hasAnyResult {
-                    Text("\(Int(viewModel.overallPassRate * 100))")
-                        .font(.system(size: 40, weight: .bold, design: .rounded))
-                        .foregroundStyle(viewModel.overallPassRate >= 0.5 ? Color.green : Color.red)
-                    Text("%（結果確定分）")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                } else {
-                    Text("—")
-                        .font(.system(size: 40, weight: .bold, design: .rounded))
-                        .foregroundStyle(.tertiary)
-                    Text("面接進行中")
-                        .font(.caption)
-                        .foregroundStyle(.tertiary)
-                }
-            }
-            .frame(maxWidth: .infinity, alignment: .trailing)
+            kpiCell(
+                value: "\(viewModel.selectionSummary.achieved)",
+                unit: "件",
+                label: viewModel.summaryAchievedLabel,
+                color: viewModel.selectionSummary.achieved > 0 ? .green : .secondary
+            )
+
+            Divider().frame(height: 56).padding(.horizontal, 4)
+
+            kpiCell(
+                value: viewModel.selectionSummary.total > 0
+                    ? "\(Int(viewModel.selectionSummary.rate * 100))"
+                    : "—",
+                unit: viewModel.selectionSummary.total > 0 ? "%" : "",
+                label: viewModel.summaryRateLabel,
+                color: rateColor(viewModel.selectionSummary.rate,
+                                 hasData: viewModel.selectionSummary.total > 0)
+            )
         }
-        .padding(20)
+        .padding(.vertical, 20)
+        .padding(.horizontal, 12)
         .background(Color.secondarySystemGroupedBackground)
         .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
     }
 
-    // MARK: - Chart section
-
-    private var chartSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("ステージ別結果")
-                .font(.headline)
-                .padding(.horizontal, 4)
-
-            VStack(spacing: 10) {
-                ForEach(viewModel.stageStats) { stats in
-                    stageRow(stats)
+    private func kpiCell(value: String, unit: String, label: String, color: Color) -> some View {
+        VStack(spacing: 2) {
+            HStack(alignment: .lastTextBaseline, spacing: 2) {
+                Text(value)
+                    .font(.system(size: 34, weight: .bold, design: .rounded))
+                    .foregroundStyle(color)
+                if !unit.isEmpty {
+                    Text(unit)
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(color.opacity(0.7))
                 }
+            }
+            Text(label)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    private func rateColor(_ rate: Double, hasData: Bool) -> Color {
+        guard hasData else { return .secondary }
+        if rate >= 0.5 { return .green }
+        if rate >= 0.25 { return .orange }
+        return .red
+    }
+
+    // MARK: - ES stats card
+
+    private var esStatsCard: some View {
+        let s = viewModel.esStats
+        return statsCard(
+            title: "ES提出状況",
+            systemImage: "doc.text.fill",
+            accentColor: .blue,
+            total: s.total,
+            subtitle: s.passRate.map { "通過率 \(Int($0 * 100))%（結果確定分）" }
+        ) {
+            GeometryReader { geo in
+                HStack(spacing: 0) {
+                    barSegment(color: .secondary.opacity(0.25), rate: s.inProgressRate, width: geo.size.width)
+                    barSegment(color: .teal,                    rate: s.submittedRate,  width: geo.size.width)
+                    barSegment(color: .orange,                  rate: s.overdueRate,    width: geo.size.width)
+                    barSegment(color: .green,                   rate: s.passedRate,     width: geo.size.width)
+                    barSegment(color: .red,                     rate: s.failedRate,     width: geo.size.width)
+                }
+                .clipShape(Capsule())
+            }
+            .frame(height: 22)
+
+            HStack(spacing: 8) {
+                if s.inProgress > 0 { countBadge(s.inProgress, "進行中", .secondary) }
+                if s.submitted  > 0 { countBadge(s.submitted,  "提出済み", .teal) }
+                if s.overdue    > 0 { countBadge(s.overdue,    "提出遅れ", .orange) }
+                if s.passed     > 0 { countBadge(s.passed,     "合格",    .green) }
+                if s.failed     > 0 { countBadge(s.failed,     "落選",    .red) }
+            }
+        }
+    }
+
+    // MARK: - Aptitude stats card
+
+    private var aptitudeStatsCard: some View {
+        let s = viewModel.aptitudeStats
+        return statsCard(
+            title: "適性検査",
+            systemImage: "checkmark.circle.fill",
+            accentColor: .orange,
+            total: s.total,
+            subtitle: s.passRate.map { "合格率 \(Int($0 * 100))%（結果確定分）" }
+        ) {
+            GeometryReader { geo in
+                HStack(spacing: 0) {
+                    barSegment(color: .secondary.opacity(0.25), rate: s.untakenRate, width: geo.size.width)
+                    barSegment(color: .blue,                    rate: s.takenRate,   width: geo.size.width)
+                    barSegment(color: .green,                   rate: s.passedRate,  width: geo.size.width)
+                    barSegment(color: .red,                     rate: s.failedRate,  width: geo.size.width)
+                }
+                .clipShape(Capsule())
+            }
+            .frame(height: 22)
+
+            HStack(spacing: 8) {
+                if s.untaken > 0 { countBadge(s.untaken, "未受験",  .secondary) }
+                if s.taken   > 0 { countBadge(s.taken,   "受験済み", .blue) }
+                if s.passed  > 0 { countBadge(s.passed,  "合格",    .green) }
+                if s.failed  > 0 { countBadge(s.failed,  "落選",    .red) }
+            }
+        }
+    }
+
+    // MARK: - Shared stats card shell
+
+    private func statsCard<Content: View>(
+        title: String,
+        systemImage: String,
+        accentColor: Color,
+        total: Int,
+        subtitle: String?,
+        @ViewBuilder content: () -> Content
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .center) {
+                Label(title, systemImage: systemImage)
+                    .font(.headline)
+                    .foregroundStyle(accentColor)
+                Spacer()
+                Text("\(total)件")
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 3)
+                    .background(Color.secondary.opacity(0.1))
+                    .clipShape(Capsule())
+            }
+
+            content()
+
+            if let subtitle {
+                Text(subtitle)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding(16)
+        .background(Color.secondarySystemGroupedBackground)
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+    }
+
+    // MARK: - Interview section
+
+    private var interviewSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Text("面接ステージ別")
+                    .font(.headline)
+                    .padding(.horizontal, 4)
+                Spacer()
+                if viewModel.interviewModeFilter != "全て" {
+                    Text(viewModel.interviewModeFilter)
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.accentColor)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 3)
+                        .background(Color.accentColor.opacity(0.1))
+                        .clipShape(Capsule())
+                }
+            }
+
+            ForEach(viewModel.stageStats) { stats in
+                stageRow(stats)
             }
         }
     }
 
     private func stageRow(_ stats: StageStats) -> some View {
         VStack(alignment: .leading, spacing: 10) {
-            // Header row
             HStack(alignment: .center, spacing: 8) {
                 Text(stats.stage)
                     .font(.subheadline.weight(.semibold))
-
                 if let rate = stats.resultPassRate {
                     Text("通過率 \(Int(rate * 100))%")
                         .font(.caption.weight(.medium))
                         .foregroundStyle(.secondary)
                 }
-
                 Spacer()
-
                 Text("\(stats.total)件")
                     .font(.caption.weight(.medium))
                     .foregroundStyle(.secondary)
@@ -131,60 +291,27 @@ struct AnalyticsView: View {
                     .clipShape(Capsule())
             }
 
-            // Stacked bar
             GeometryReader { geo in
                 HStack(spacing: 0) {
-                    if stats.passed > 0 {
-                        Color.green
-                            .frame(width: geo.size.width * CGFloat(stats.passRate))
-                    }
-                    if stats.failed > 0 {
-                        Color.red
-                            .frame(width: geo.size.width * CGFloat(stats.failRate))
-                    }
-                    if stats.withdrawn > 0 {
-                        Color.orange
-                            .frame(width: geo.size.width * CGFloat(stats.withdrawRate))
-                    }
-                    if stats.scheduled > 0 {
-                        Color.secondary.opacity(0.2)
-                            .frame(width: geo.size.width * CGFloat(stats.scheduledRate))
-                    }
+                    barSegment(color: .green,                    rate: stats.passRate,      width: geo.size.width)
+                    barSegment(color: .red,                      rate: stats.failRate,      width: geo.size.width)
+                    barSegment(color: .orange,                   rate: stats.withdrawRate,  width: geo.size.width)
+                    barSegment(color: .secondary.opacity(0.2),   rate: stats.scheduledRate, width: geo.size.width)
                 }
                 .clipShape(Capsule())
             }
-            .frame(height: 24)
+            .frame(height: 22)
 
-            // Count badges
             HStack(spacing: 8) {
-                if stats.passed > 0 {
-                    countBadge(count: stats.passed, label: "通過", color: .green)
-                }
-                if stats.failed > 0 {
-                    countBadge(count: stats.failed, label: "落選", color: .red)
-                }
-                if stats.withdrawn > 0 {
-                    countBadge(count: stats.withdrawn, label: "辞退", color: .orange)
-                }
-                if stats.scheduled > 0 {
-                    countBadge(count: stats.scheduled, label: "予定", color: .secondary)
-                }
+                if stats.passed    > 0 { countBadge(stats.passed,    "通過", .green) }
+                if stats.failed    > 0 { countBadge(stats.failed,    "落選", .red) }
+                if stats.withdrawn > 0 { countBadge(stats.withdrawn, "辞退", .orange) }
+                if stats.scheduled > 0 { countBadge(stats.scheduled, "予定", .secondary) }
             }
         }
         .padding(16)
         .background(Color.secondarySystemGroupedBackground)
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-    }
-
-    private func countBadge(count: Int, label: String, color: Color) -> some View {
-        HStack(spacing: 4) {
-            Circle()
-                .fill(color)
-                .frame(width: 7, height: 7)
-            Text("\(label) \(count)件")
-                .font(.caption.weight(.medium))
-                .foregroundStyle(.secondary)
-        }
     }
 
     // MARK: - Legend
@@ -213,6 +340,24 @@ struct AnalyticsView: View {
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
 
+    // MARK: - No interview placeholder
+
+    private var noInterviewPlaceholder: some View {
+        VStack(spacing: 8) {
+            Image(systemName: "person.2.slash")
+                .font(.system(size: 32))
+                .foregroundStyle(.tertiary)
+            Text("このフィルタ条件では面接データがありません")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 32)
+        .background(Color.secondarySystemGroupedBackground)
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+    }
+
     // MARK: - Empty state
 
     private var emptyState: some View {
@@ -220,16 +365,34 @@ struct AnalyticsView: View {
             Image(systemName: "chart.bar.xaxis")
                 .font(.system(size: 52))
                 .foregroundStyle(.tertiary)
-            Text("まだ面接データがありません")
+            Text("まだデータがありません")
                 .font(.subheadline.weight(.medium))
                 .foregroundStyle(.secondary)
-            Text("企業詳細から面接を登録すると\n通過・落選の傾向を分析できます")
+            Text("企業詳細から選考・面接を登録すると\n通過・内定の傾向を分析できます")
                 .font(.caption)
                 .foregroundStyle(.tertiary)
                 .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 80)
+    }
+
+    // MARK: - Shared helpers
+
+    @ViewBuilder
+    private func barSegment(color: Color, rate: Double, width: CGFloat) -> some View {
+        if rate > 0 {
+            color.frame(width: width * CGFloat(rate))
+        }
+    }
+
+    private func countBadge(_ count: Int, _ label: String, _ color: Color) -> some View {
+        HStack(spacing: 4) {
+            Circle().fill(color).frame(width: 7, height: 7)
+            Text("\(label) \(count)件")
+                .font(.caption.weight(.medium))
+                .foregroundStyle(.secondary)
+        }
     }
 }
 
