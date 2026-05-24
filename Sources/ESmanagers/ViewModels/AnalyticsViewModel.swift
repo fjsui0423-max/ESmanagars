@@ -12,8 +12,8 @@ struct SelectionSummaryData {
 
 struct ESStatsData {
     // 5 mutually exclusive categories — sum equals total
-    let submitted:     Int   // status ∈ {提出済み, 合格, 落選}
-    let submittedLate: Int   // status == 提出遅れ
+    let submitted:     Int   // status ∈ {提出済み, 合格, 落選}  ← 期限内提出
+    let submittedLate: Int   // status == 提出遅れ               ← 期限後提出
     let expired:       Int   // status ∈ {未着手, 進行中} & deadlineAt < now
     let notSubmitted:  Int   // status ∈ {未着手, 進行中} & deadlineAt ≥ now
     let noDeadline:    Int   // status ∈ {未着手, 進行中} & deadlineAt == nil
@@ -23,10 +23,11 @@ struct ESStatsData {
     let failed: Int   // status == 落選
 
     var total:          Int { submitted + submittedLate + expired + notSubmitted + noDeadline }
-    var totalSubmitted: Int { submitted + submittedLate }
+    var totalSubmitted: Int { submitted }   // 期限内提出のみ（提出遅れは除外）
     var waitingCount:   Int { submitted - passed - failed }   // 提出済みのみ（結果待ち）
 
-    var submissionRate: Double { total > 0 ? Double(totalSubmitted) / Double(total) : 0 }
+    // 提出率 = 期限内提出 / 全ES（提出遅れを分子から除外した厳しい基準）
+    var submissionRate: Double { total > 0 ? Double(submitted) / Double(total) : 0 }
 
     // MARK: 通過率 = 合格 / (合格 + 落選)  ※結果確定分のみ
     var resultCount: Int    { passed + failed }
@@ -220,7 +221,7 @@ final class AnalyticsViewModel: ObservableObject {
         }
         stageStats = result
 
-        // 5. ES stats — 5 mutually exclusive categories, sum == total
+        // 5. ES stats — 4 mutually exclusive categories, sum == total
         let boxes = allBoxes.filter {
             guard let sid = $0.selection?.objectID else { return false }
             return selIDs.contains(sid)

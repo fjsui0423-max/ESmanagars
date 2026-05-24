@@ -181,7 +181,7 @@ struct AnalyticsView: View {
                         .font(.system(size: 28, weight: .bold, design: .rounded))
                         .foregroundStyle(Color.blue)
 
-                    Text("提出 \(s.totalSubmitted) / \(s.total)件")
+                    Text("期限内提出: \(s.totalSubmitted)件")
                         .font(.caption)
                         .foregroundStyle(.secondary)
 
@@ -203,7 +203,7 @@ struct AnalyticsView: View {
                             .font(.caption.weight(.semibold))
                             .foregroundStyle(.secondary)
                         Spacer()
-                        Text("提出: \(s.totalSubmitted)件")
+                        Text("期限内提出: \(s.totalSubmitted)件")
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                     }
@@ -251,9 +251,10 @@ struct AnalyticsView: View {
 
     private func esUnsubmittedDetail(_ s: ESStatsData) -> String? {
         let parts: [String] = [
-            s.notSubmitted > 0 ? "未提出: \(s.notSubmitted)件" : nil,
-            s.expired      > 0 ? "期限切れ: \(s.expired)件"   : nil,
-            s.noDeadline   > 0 ? "期限未設定: \(s.noDeadline)件" : nil,
+            s.submittedLate > 0 ? "提出遅れ: \(s.submittedLate)件" : nil,
+            s.notSubmitted  > 0 ? "未提出: \(s.notSubmitted)件"    : nil,
+            s.expired       > 0 ? "期限切れ: \(s.expired)件"       : nil,
+            s.noDeadline    > 0 ? "期限未設定: \(s.noDeadline)件"  : nil,
         ].compactMap { $0 }
         return parts.isEmpty ? nil : parts.joined(separator: " / ")
     }
