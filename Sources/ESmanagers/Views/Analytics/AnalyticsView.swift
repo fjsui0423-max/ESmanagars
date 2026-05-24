@@ -199,7 +199,7 @@ struct AnalyticsView: View {
                 // Right panel — pass rate (結果確定分のみ)
                 VStack(alignment: .leading, spacing: 8) {
                     HStack {
-                        Text("通過率（書類選考）")
+                        Text("通過率")
                             .font(.caption.weight(.semibold))
                             .foregroundStyle(.secondary)
                         Spacer()
@@ -364,7 +364,7 @@ struct AnalyticsView: View {
                         .foregroundStyle(.secondary)
                 }
                 Spacer()
-                Text("\(stats.total)件")
+                Text("受験: \(stats.takenCount)件")
                     .font(.caption.weight(.medium))
                     .foregroundStyle(.secondary)
                     .padding(.horizontal, 8)
@@ -373,22 +373,34 @@ struct AnalyticsView: View {
                     .clipShape(Capsule())
             }
 
-            GeometryReader { geo in
-                HStack(spacing: 0) {
-                    barSegment(color: .green,                    rate: stats.passRate,      width: geo.size.width)
-                    barSegment(color: .red,                      rate: stats.failRate,      width: geo.size.width)
-                    barSegment(color: .orange,                   rate: stats.withdrawRate,  width: geo.size.width)
-                    barSegment(color: .secondary.opacity(0.2),   rate: stats.scheduledRate, width: geo.size.width)
+            if stats.takenCount > 0 {
+                GeometryReader { geo in
+                    HStack(spacing: 0) {
+                        barSegment(color: .green,  rate: stats.passRateBar,     width: geo.size.width)
+                        barSegment(color: .red,    rate: stats.failRateBar,     width: geo.size.width)
+                        barSegment(color: .orange, rate: stats.withdrawRateBar, width: geo.size.width)
+                    }
+                    .clipShape(Capsule())
                 }
-                .clipShape(Capsule())
+                .frame(height: 22)
+            } else {
+                Capsule()
+                    .fill(Color.secondary.opacity(0.15))
+                    .frame(height: 22)
             }
-            .frame(height: 22)
 
-            HStack(spacing: 8) {
-                if stats.passed    > 0 { countBadge(stats.passed,    "通過", .green) }
-                if stats.failed    > 0 { countBadge(stats.failed,    "落選", .red) }
-                if stats.withdrawn > 0 { countBadge(stats.withdrawn, "辞退", .orange) }
-                if stats.scheduled > 0 { countBadge(stats.scheduled, "予定", .secondary) }
+            if stats.passed > 0 || stats.failed > 0 || stats.withdrawn > 0 {
+                HStack(spacing: 8) {
+                    if stats.passed    > 0 { countBadge(stats.passed,    "通過", .green) }
+                    if stats.failed    > 0 { countBadge(stats.failed,    "落選", .red) }
+                    if stats.withdrawn > 0 { countBadge(stats.withdrawn, "辞退", .orange) }
+                }
+            }
+
+            if stats.scheduled > 0 {
+                Text("※ 予定: \(stats.scheduled)件")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
         }
         .padding(16)
@@ -401,8 +413,7 @@ struct AnalyticsView: View {
     private var legendCard: some View {
         HStack(spacing: 0) {
             ForEach(
-                [("通過", Color.green), ("落選", Color.red),
-                 ("辞退", Color.orange), ("予定", Color.secondary.opacity(0.5))],
+                [("通過", Color.green), ("落選", Color.red), ("辞退", Color.orange)],
                 id: \.0
             ) { label, color in
                 HStack(spacing: 5) {

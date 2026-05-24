@@ -76,10 +76,13 @@ struct StageStats: Identifiable {
     let withdrawn: Int   // 辞退
     let scheduled: Int   // 予定
 
-    var passRate:      Double { total > 0 ? Double(passed)    / Double(total) : 0 }
-    var failRate:      Double { total > 0 ? Double(failed)    / Double(total) : 0 }
-    var withdrawRate:  Double { total > 0 ? Double(withdrawn) / Double(total) : 0 }
-    var scheduledRate: Double { total > 0 ? Double(scheduled) / Double(total) : 0 }
+    // 結果確定数（バーの分母）
+    var takenCount: Int { passed + failed + withdrawn }
+
+    // バー用（takenCount中の比率）
+    var passRateBar:     Double { takenCount > 0 ? Double(passed)    / Double(takenCount) : 0 }
+    var failRateBar:     Double { takenCount > 0 ? Double(failed)    / Double(takenCount) : 0 }
+    var withdrawRateBar: Double { takenCount > 0 ? Double(withdrawn) / Double(takenCount) : 0 }
 
     var resultPassRate: Double? {
         let decided = passed + failed
