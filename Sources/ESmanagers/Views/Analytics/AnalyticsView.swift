@@ -194,37 +194,29 @@ struct AnalyticsView: View {
 
                 Divider().padding(.horizontal, 12)
 
-                // Right panel — pass rate
+                // Right panel — pass rate (結果確定分のみ)
                 VStack(alignment: .leading, spacing: 8) {
                     Text("通過率（書類選考）")
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(.secondary)
 
-                    if s.submittedCount > 0 {
+                    if s.resultCount > 0 {
                         GeometryReader { geo in
                             HStack(spacing: 0) {
-                                barSegment(color: .green,                   rate: s.passRateBarPassed,  width: geo.size.width)
-                                barSegment(color: .red,                     rate: s.passRateBarFailed,  width: geo.size.width)
-                                barSegment(color: .secondary.opacity(0.25), rate: s.passRateBarPending, width: geo.size.width)
+                                barSegment(color: .green, rate: s.passRateBarPassed, width: geo.size.width)
+                                barSegment(color: .red,   rate: s.passRateBarFailed, width: geo.size.width)
                             }
                             .clipShape(Capsule())
                         }
                         .frame(height: 22)
 
-                        if let rate = s.passRate {
-                            Text("\(Int(rate * 100))%")
-                                .font(.system(size: 28, weight: .bold, design: .rounded))
-                                .foregroundStyle(Color.green)
-                        } else {
-                            Text("—")
-                                .font(.system(size: 28, weight: .bold, design: .rounded))
-                                .foregroundStyle(.secondary)
-                        }
+                        Text("\(Int(s.passRate * 100))%")
+                            .font(.system(size: 28, weight: .bold, design: .rounded))
+                            .foregroundStyle(Color.green)
 
                         HStack(spacing: 6) {
-                            if s.passed    > 0 { countBadge(s.passed,    "合格",    .green) }
-                            if s.failed    > 0 { countBadge(s.failed,    "落選",    .red) }
-                            if s.submitted > 0 { countBadge(s.submitted, "結果待ち", .secondary) }
+                            if s.passed > 0 { countBadge(s.passed, "合格", .green) }
+                            if s.failed > 0 { countBadge(s.failed, "落選", .red) }
                         }
                     } else {
                         Capsule()
@@ -233,7 +225,10 @@ struct AnalyticsView: View {
                         Text("—")
                             .font(.system(size: 28, weight: .bold, design: .rounded))
                             .foregroundStyle(.secondary)
-                        Text("提出済みなし")
+                    }
+
+                    if s.waitingCount > 0 {
+                        Text("※ 結果待ち: \(s.waitingCount)件")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }

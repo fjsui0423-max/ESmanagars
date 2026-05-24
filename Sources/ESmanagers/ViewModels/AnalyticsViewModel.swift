@@ -22,19 +22,19 @@ struct ESStatsData {
     var submittedCount:  Int    { submitted + passed + failed }
     var submissionRate:  Double { total > 0 ? Double(submittedCount) / Double(total) : 0 }
 
-    // MARK: 通過率 = 合格 / (合格 + 落選)
-    var decidedCount: Int    { passed + failed }
-    var passRate:     Double? { decidedCount > 0 ? Double(passed) / Double(decidedCount) : nil }
+    // MARK: 通過率 = 合格 / (合格 + 落選)  ※結果確定分のみ
+    var resultCount:  Int    { passed + failed }
+    var waitingCount: Int    { submitted }
+    var passRate:     Double { resultCount > 0 ? Double(passed) / Double(resultCount) : 0 }
 
     // MARK: 提出率バー用（全ES中の比率）
     var inProgressBarRate: Double { total > 0 ? Double(inProgress)    / Double(total) : 0 }
     var overdueBarRate:    Double { total > 0 ? Double(overdue)       / Double(total) : 0 }
     var submittedBarRate:  Double { total > 0 ? Double(submittedCount) / Double(total) : 0 }
 
-    // MARK: 通過率バー用（提出済みES中の比率）
-    var passRateBarPassed:  Double { submittedCount > 0 ? Double(passed)    / Double(submittedCount) : 0 }
-    var passRateBarFailed:  Double { submittedCount > 0 ? Double(failed)    / Double(submittedCount) : 0 }
-    var passRateBarPending: Double { submittedCount > 0 ? Double(submitted) / Double(submittedCount) : 0 }
+    // MARK: 通過率バー用（resultCount中の比率）
+    var passRateBarPassed: Double { resultCount > 0 ? Double(passed) / Double(resultCount) : 0 }
+    var passRateBarFailed: Double { resultCount > 0 ? Double(failed) / Double(resultCount) : 0 }
 
     static let empty = ESStatsData(total: 0, inProgress: 0, overdue: 0, submitted: 0, passed: 0, failed: 0)
 }
