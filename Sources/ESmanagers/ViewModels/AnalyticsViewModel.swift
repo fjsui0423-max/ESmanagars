@@ -11,32 +11,42 @@ struct SelectionSummaryData {
 }
 
 struct ESStatsData {
-    let total:      Int
-    let inProgress: Int   // 未着手 + 進行中
-    let overdue:    Int   // 提出遅れ（期限切れ）
-    let submitted:  Int   // 提出済み（結果待ち）
-    let passed:     Int   // 合格
-    let failed:     Int   // 落選
+    // 5 mutually exclusive categories — sum equals total
+    let submitted:     Int   // status ∈ {提出済み, 合格, 落選}
+    let submittedLate: Int   // status == 提出遅れ
+    let expired:       Int   // status ∈ {未着手, 進行中} & deadlineAt < now
+    let notSubmitted:  Int   // status ∈ {未着手, 進行中} & deadlineAt ≥ now
+    let noDeadline:    Int   // status ∈ {未着手, 進行中} & deadlineAt == nil
 
-    // MARK: 提出率 = (提出済み + 合格 + 落選) / 全ES数
-    var submittedCount:  Int    { submitted + passed + failed }
-    var submissionRate:  Double { total > 0 ? Double(submittedCount) / Double(total) : 0 }
+    // Subset of submitted — for pass rate
+    let passed: Int   // status == 合格
+    let failed: Int   // status == 落選
+
+    var total:          Int { submitted + submittedLate + expired + notSubmitted + noDeadline }
+    var totalSubmitted: Int { submitted + submittedLate }
+    var waitingCount:   Int { submitted - passed - failed }   // 提出済みのみ（結果待ち）
+
+    var submissionRate: Double { total > 0 ? Double(totalSubmitted) / Double(total) : 0 }
 
     // MARK: 通過率 = 合格 / (合格 + 落選)  ※結果確定分のみ
-    var resultCount:  Int    { passed + failed }
-    var waitingCount: Int    { submitted }
-    var passRate:     Double { resultCount > 0 ? Double(passed) / Double(resultCount) : 0 }
+    var resultCount: Int    { passed + failed }
+    var passRate:    Double { resultCount > 0 ? Double(passed) / Double(resultCount) : 0 }
 
     // MARK: 提出率バー用（全ES中の比率）
-    var inProgressBarRate: Double { total > 0 ? Double(inProgress)    / Double(total) : 0 }
-    var overdueBarRate:    Double { total > 0 ? Double(overdue)       / Double(total) : 0 }
-    var submittedBarRate:  Double { total > 0 ? Double(submittedCount) / Double(total) : 0 }
+    var submittedBarRate:     Double { total > 0 ? Double(submitted)     / Double(total) : 0 }
+    var submittedLateBarRate: Double { total > 0 ? Double(submittedLate) / Double(total) : 0 }
+    var noDeadlineBarRate:    Double { total > 0 ? Double(noDeadline)    / Double(total) : 0 }
+    var notSubmittedBarRate:  Double { total > 0 ? Double(notSubmitted)  / Double(total) : 0 }
+    var expiredBarRate:       Double { total > 0 ? Double(expired)       / Double(total) : 0 }
 
     // MARK: 通過率バー用（resultCount中の比率）
     var passRateBarPassed: Double { resultCount > 0 ? Double(passed) / Double(resultCount) : 0 }
     var passRateBarFailed: Double { resultCount > 0 ? Double(failed) / Double(resultCount) : 0 }
 
-    static let empty = ESStatsData(total: 0, inProgress: 0, overdue: 0, submitted: 0, passed: 0, failed: 0)
+    static let empty = ESStatsData(
+        submitted: 0, submittedLate: 0, expired: 0, notSubmitted: 0, noDeadline: 0,
+        passed: 0, failed: 0
+    )
 }
 
 struct AptitudeStatsData {
@@ -207,20 +217,21 @@ final class AnalyticsViewModel: ObservableObject {
         }
         stageStats = result
 
-        // 5. ES stats
-        //    提出率の分子 = 提出済み + 合格 + 落選
-        //    通過率の分母 = 合格 + 落選（結果確定分のみ）
+        // 5. ES stats — 5 mutually exclusive categories, sum == total
         let boxes = allBoxes.filter {
             guard let sid = $0.selection?.objectID else { return false }
             return selIDs.contains(sid)
         }
+        let now = Date()
+        let unsubmittedBoxes = boxes.filter { ["未着手", "進行中"].contains($0.status ?? "") }
         esStats = ESStatsData(
-            total:      boxes.count,
-            inProgress: boxes.filter { ["未着手", "進行中"].contains($0.status ?? "") }.count,
-            overdue:    boxes.filter { $0.status == "提出遅れ" }.count,
-            submitted:  boxes.filter { $0.status == "提出済み" }.count,
-            passed:     boxes.filter { $0.status == "合格" }.count,
-            failed:     boxes.filter { $0.status == "落選" }.count
+            submitted:     boxes.filter { ["提出済み", "合格", "落選"].contains($0.status ?? "") }.count,
+            submittedLate: boxes.filter { $0.status == "提出遅れ" }.count,
+            expired:       unsubmittedBoxes.filter { b in b.deadlineAt.map { $0 < now }  ?? false }.count,
+            notSubmitted:  unsubmittedBoxes.filter { b in b.deadlineAt.map { $0 >= now } ?? false }.count,
+            noDeadline:    unsubmittedBoxes.filter { $0.deadlineAt == nil }.count,
+            passed:        boxes.filter { $0.status == "合格" }.count,
+            failed:        boxes.filter { $0.status == "落選" }.count
         )
 
         // 6. Aptitude stats

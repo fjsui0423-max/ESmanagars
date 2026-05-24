@@ -148,33 +148,32 @@ struct AnalyticsView: View {
     private var esStatsCard: some View {
         let s = viewModel.esStats
         return VStack(alignment: .leading, spacing: 12) {
-            HStack(alignment: .center) {
-                Label("ES提出状況", systemImage: "doc.text.fill")
-                    .font(.headline)
-                    .foregroundStyle(Color.blue)
-                Spacer()
-                Text("\(s.total)件")
-                    .font(.caption.weight(.medium))
-                    .foregroundStyle(.secondary)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 3)
-                    .background(Color.secondary.opacity(0.1))
-                    .clipShape(Capsule())
-            }
+            Label("ES提出状況", systemImage: "doc.text.fill")
+                .font(.headline)
+                .foregroundStyle(Color.blue)
 
             HStack(alignment: .top, spacing: 0) {
-                // Left panel — submission rate
+                // Left panel — submission rate (5-segment bar)
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("ES提出率")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(.secondary)
+                    HStack {
+                        Text("ES提出率")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                        Text("全ES: \(s.total)件")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
 
                     GeometryReader { geo in
-                        ZStack(alignment: .leading) {
-                            Capsule().fill(Color.secondary.opacity(0.15))
-                            Capsule().fill(Color.blue)
-                                .frame(width: max(0, geo.size.width * CGFloat(s.submissionRate)))
+                        HStack(spacing: 0) {
+                            barSegment(color: .blue,              rate: s.submittedBarRate,     width: geo.size.width)
+                            barSegment(color: .orange,            rate: s.submittedLateBarRate, width: geo.size.width)
+                            barSegment(color: .gray.opacity(0.2), rate: s.noDeadlineBarRate,    width: geo.size.width)
+                            barSegment(color: .gray.opacity(0.4), rate: s.notSubmittedBarRate,  width: geo.size.width)
+                            barSegment(color: .red,               rate: s.expiredBarRate,       width: geo.size.width)
                         }
+                        .clipShape(Capsule())
                     }
                     .frame(height: 22)
 
@@ -182,12 +181,15 @@ struct AnalyticsView: View {
                         .font(.system(size: 28, weight: .bold, design: .rounded))
                         .foregroundStyle(Color.blue)
 
-                    Text("提出 \(s.submittedCount) / \(s.total)件")
+                    Text("提出 \(s.totalSubmitted) / \(s.total)件")
                         .font(.caption)
                         .foregroundStyle(.secondary)
 
-                    if s.overdue > 0 {
-                        countBadge(s.overdue, "提出遅れ", .orange)
+                    if let detail = esUnsubmittedDetail(s) {
+                        Text(detail)
+                            .font(.caption2)
+                            .foregroundStyle(.tertiary)
+                            .fixedSize(horizontal: false, vertical: true)
                     }
                 }
                 .frame(maxWidth: .infinity)
@@ -196,9 +198,15 @@ struct AnalyticsView: View {
 
                 // Right panel — pass rate (結果確定分のみ)
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("通過率（書類選考）")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(.secondary)
+                    HStack {
+                        Text("通過率（書類選考）")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                        Text("提出: \(s.totalSubmitted)件")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
 
                     if s.resultCount > 0 {
                         GeometryReader { geo in
@@ -239,6 +247,15 @@ struct AnalyticsView: View {
         .padding(16)
         .background(Color.secondarySystemGroupedBackground)
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+    }
+
+    private func esUnsubmittedDetail(_ s: ESStatsData) -> String? {
+        let parts: [String] = [
+            s.notSubmitted > 0 ? "未提出: \(s.notSubmitted)件" : nil,
+            s.expired      > 0 ? "期限切れ: \(s.expired)件"   : nil,
+            s.noDeadline   > 0 ? "期限未設定: \(s.noDeadline)件" : nil,
+        ].compactMap { $0 }
+        return parts.isEmpty ? nil : parts.joined(separator: " / ")
     }
 
     // MARK: - Aptitude stats card
