@@ -125,6 +125,10 @@ struct CompanyDetailView: View {
                 .tint(Color.accentColor)
             }
 
+            Text("※ マイページボタンをタップするとログインIDをコピーして採用サイトを開きます")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
             urlSection
             Divider()
             loginIDSection

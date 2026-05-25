@@ -145,7 +145,7 @@ struct SettingsView: View {
     }
 
     private var aiSection: some View {
-        Section("AI連携") {
+        Section("外部AI活用（プロンプト生成）") {
             NavigationLink {
                 AIExportContainerView()
             } label: {

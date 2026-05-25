@@ -137,7 +137,7 @@ struct AIExportView: View {
             exportSection
             howToSection
         }
-        .navigationTitle("AI連携")
+        .navigationTitle("外部AI活用（プロンプト生成）")
         .navigationBarTitleDisplayMode(.large)
         // ① ファイル共有シート
         .sheet(isPresented: $showShare, onDismiss: {

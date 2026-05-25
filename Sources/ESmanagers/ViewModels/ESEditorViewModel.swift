@@ -103,6 +103,9 @@ final class ESEditorViewModel: ObservableObject {
         guard question.currentAnswer != answer else { return }
         saveState = .saving
         question.currentAnswer = answer
+        if let box = question.esBox, box.status == "未着手" {
+            box.status = "進行中"
+        }
         try? context.save()
         saveState = .saved
 

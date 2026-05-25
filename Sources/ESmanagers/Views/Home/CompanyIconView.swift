@@ -27,7 +27,8 @@ struct CompanyIconView: View {
             Text(company.name ?? "")
                 .font(.system(size: 10, weight: .medium))
                 .foregroundStyle(.primary)
-                .lineLimit(2)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
                 .multilineTextAlignment(.center)
                 .frame(width: iconSize)
         }

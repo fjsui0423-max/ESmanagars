@@ -63,15 +63,18 @@ struct AnalyticsView: View {
             }
             .pickerStyle(.segmented)
 
-            HStack(spacing: 8) {
-                Image(systemName: "person.2")
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(.secondary)
-                Picker("形式", selection: $viewModel.interviewModeFilter) {
-                    ForEach(AnalyticsViewModel.modeFilters, id: \.self) { Text($0) }
+            Picker("形式", selection: $viewModel.interviewModeFilter) {
+                ForEach(AnalyticsViewModel.modeFilters, id: \.self) { mode in
+                    if mode == "オンライン" {
+                        Label(mode, systemImage: "video").tag(mode)
+                    } else if mode == "対面" {
+                        Label(mode, systemImage: "person.2").tag(mode)
+                    } else {
+                        Text(mode).tag(mode)
+                    }
                 }
-                .pickerStyle(.segmented)
             }
+            .pickerStyle(.segmented)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 10)

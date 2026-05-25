@@ -57,6 +57,7 @@ struct CompanyEditView: View {
                         }
                         .autocorrectionDisabled()
                         .textInputAutocapitalization(.never)
+                        .textContentType(.oneTimeCode)
 
                         Button {
                             showPassword.toggle()
@@ -77,7 +78,7 @@ struct CompanyEditView: View {
                         }
                     }
                 } header: {
-                    Text("パスワード（Keychain保存）")
+                    Text("パスワード")
                 } footer: {
                     Label(
                         "パスワードはデバイスのKeychainに保存され、バックアップには含まれません。",
