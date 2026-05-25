@@ -50,6 +50,19 @@ struct ESStatsData {
     )
 }
 
+struct AptitudeTypeStats: Identifiable {
+    let id         = UUID()
+    let typeName:  String
+    let total:     Int
+    let untaken:   Int
+    let taken:     Int
+    let passed:    Int
+    let failed:    Int
+
+    var decidedCount: Int     { passed + failed }
+    var passRate:     Double? { decidedCount > 0 ? Double(passed) / Double(decidedCount) : nil }
+}
+
 struct AptitudeStatsData {
     let total:   Int
     let untaken: Int   // 未受験
@@ -110,8 +123,9 @@ final class AnalyticsViewModel: ObservableObject {
 
     @Published var selectionSummary: SelectionSummaryData = .empty
     @Published var esStats:          ESStatsData          = .empty
-    @Published var aptitudeStats:    AptitudeStatsData    = .empty
-    @Published var stageStats:       [StageStats]         = []
+    @Published var aptitudeStats:     AptitudeStatsData    = .empty
+    @Published var aptitudeTypeStats: [AptitudeTypeStats]  = []
+    @Published var stageStats:        [StageStats]          = []
     @Published var totalInterviews:  Int                  = 0
 
     // MARK: - Constants
@@ -250,6 +264,18 @@ final class AnalyticsViewModel: ObservableObject {
             passed:  tests.filter { $0.status == "合格" }.count,
             failed:  tests.filter { $0.status == "落選" }.count
         )
+        aptitudeTypeStats = Dictionary(grouping: tests, by: { $0.displayType })
+            .map { typeName, group in
+                AptitudeTypeStats(
+                    typeName: typeName,
+                    total:    group.count,
+                    untaken:  group.filter { $0.status == "未受験"  }.count,
+                    taken:    group.filter { $0.status == "受験済み" }.count,
+                    passed:   group.filter { $0.status == "合格"    }.count,
+                    failed:   group.filter { $0.status == "落選"    }.count
+                )
+            }
+            .sorted { $0.total > $1.total }
     }
 
     // MARK: - Private

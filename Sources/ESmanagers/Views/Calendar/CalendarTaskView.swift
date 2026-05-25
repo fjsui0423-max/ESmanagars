@@ -13,14 +13,14 @@ struct CalendarTaskContainerView: View {
 // MARK: - Day Cell
 
 private struct DayCell: View {
-    let date:          Date
-    let isSelected:    Bool
-    let isToday:       Bool
+    let date:           Date
+    let isSelected:     Bool
+    let isToday:        Bool
     let isCurrentMonth: Bool
-    let boxes:         [ESBox]
-    let aptitudeTests: [AptitudeTest]
-    let interviews:    [Interview]
-    let onTap:         () -> Void
+    let boxes:          [ESBox]
+    let aptitudeTests:  [AptitudeTest]
+    let interviews:     [Interview]
+    let onTap:          () -> Void
 
     private var dayNumber: Int { Calendar.current.component(.day,     from: date) }
     private var weekday:   Int { Calendar.current.component(.weekday, from: date) }
@@ -130,15 +130,18 @@ struct CalendarTaskView: View {
     }()
 
     var body: some View {
-        VStack(spacing: 0) {
-            calendarHeader
-            weekdayHeader
-            calendarGrid
-            Divider()
-            if viewModel.isEmpty {
-                emptyState
-            } else {
-                taskList
+        // カレンダーとタスクリストを一体でスクロール
+        ScrollView {
+            VStack(spacing: 0) {
+                calendarHeader
+                weekdayHeader
+                calendarGrid
+                Divider()
+                if viewModel.isEmpty {
+                    emptyState
+                } else {
+                    taskSections
+                }
             }
         }
         .background(Color.systemGroupedBackground.ignoresSafeArea())
@@ -146,6 +149,9 @@ struct CalendarTaskView: View {
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
+        .navigationDestination(for: Company.self) { company in
+            CompanyDetailView(company: company)
+        }
         .onAppear { viewModel.fetch() }
     }
 
@@ -206,14 +212,14 @@ struct CalendarTaskView: View {
         LazyVGrid(columns: columns, spacing: 0) {
             ForEach(viewModel.calendarDates, id: \.self) { date in
                 DayCell(
-                    date:          date,
-                    isSelected:    viewModel.isSelected(date),
-                    isToday:       viewModel.isToday(date),
+                    date:           date,
+                    isSelected:     viewModel.isSelected(date),
+                    isToday:        viewModel.isToday(date),
                     isCurrentMonth: viewModel.isCurrentMonth(date),
-                    boxes:         viewModel.boxes(for: date),
-                    aptitudeTests: viewModel.aptitudeTests(for: date),
-                    interviews:    viewModel.interviews(for: date),
-                    onTap:         { viewModel.selectedDate = date }
+                    boxes:          viewModel.boxes(for: date),
+                    aptitudeTests:  viewModel.aptitudeTests(for: date),
+                    interviews:     viewModel.interviews(for: date),
+                    onTap:          { viewModel.selectedDate = date }
                 )
             }
         }
@@ -221,61 +227,90 @@ struct CalendarTaskView: View {
         .padding(.bottom, 4)
     }
 
-    // MARK: - Task list
+    // MARK: - Task sections (全体スクロールに統合)
 
-    private var taskList: some View {
-        List {
+    private var taskSections: some View {
+        VStack(alignment: .leading, spacing: 0) {
             if !viewModel.filteredBoxes.isEmpty {
-                Section {
-                    ForEach(viewModel.filteredBoxes) { box in
-                        if let company = box.selection?.company {
-                            NavigationLink(value: company) { esBoxRow(box) }
-                        } else {
-                            esBoxRow(box)
+                taskSectionLabel("ES締切", icon: "doc.text.fill", color: .blue)
+                taskGroup {
+                    let items = viewModel.filteredBoxes
+                    ForEach(0 ..< items.count, id: \.self) { i in
+                        taskNavigationRow(company: items[i].selection?.company) {
+                            esBoxRow(items[i])
+                        }
+                        if i < items.count - 1 {
+                            Divider().padding(.leading, 54)
                         }
                     }
-                } header: {
-                    Label("ES締切", systemImage: "doc.text.fill")
-                        .foregroundStyle(.blue)
-                        .font(.subheadline.weight(.semibold))
                 }
             }
 
             if !viewModel.filteredAptitudeTests.isEmpty {
-                Section {
-                    ForEach(viewModel.filteredAptitudeTests) { test in
-                        if let company = test.selection?.company {
-                            NavigationLink(value: company) { aptitudeTestRow(test) }
-                        } else {
-                            aptitudeTestRow(test)
+                taskSectionLabel("適性検査締切", icon: "checkmark.circle.fill", color: .orange)
+                taskGroup {
+                    let items = viewModel.filteredAptitudeTests
+                    ForEach(0 ..< items.count, id: \.self) { i in
+                        taskNavigationRow(company: items[i].selection?.company) {
+                            aptitudeTestRow(items[i])
+                        }
+                        if i < items.count - 1 {
+                            Divider().padding(.leading, 54)
                         }
                     }
-                } header: {
-                    Label("適性検査締切", systemImage: "checkmark.circle.fill")
-                        .foregroundStyle(.orange)
-                        .font(.subheadline.weight(.semibold))
                 }
             }
 
             if !viewModel.filteredInterviews.isEmpty {
-                Section {
-                    ForEach(viewModel.filteredInterviews) { interview in
-                        if let company = interview.selection?.company {
-                            NavigationLink(value: company) { interviewRow(interview) }
-                        } else {
-                            interviewRow(interview)
+                taskSectionLabel("面接", icon: "person.2.fill", color: .red)
+                taskGroup {
+                    let items = viewModel.filteredInterviews
+                    ForEach(0 ..< items.count, id: \.self) { i in
+                        taskNavigationRow(company: items[i].selection?.company) {
+                            interviewRow(items[i])
+                        }
+                        if i < items.count - 1 {
+                            Divider().padding(.leading, 54)
                         }
                     }
-                } header: {
-                    Label("面接", systemImage: "person.2.fill")
-                        .foregroundStyle(.red)
-                        .font(.subheadline.weight(.semibold))
                 }
             }
         }
-        .listStyle(.insetGrouped)
-        .navigationDestination(for: Company.self) { company in
-            CompanyDetailView(company: company)
+        .padding(.top, 4)
+        .padding(.bottom, 32)
+    }
+
+    // MARK: - Task section helpers
+
+    private func taskSectionLabel(_ title: String, icon: String, color: Color) -> some View {
+        Label(title, systemImage: icon)
+            .foregroundStyle(color)
+            .font(.subheadline.weight(.semibold))
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 20)
+            .padding(.top, 16)
+            .padding(.bottom, 6)
+    }
+
+    private func taskGroup<Content: View>(@ViewBuilder content: () -> Content) -> some View {
+        VStack(spacing: 0) {
+            content()
+        }
+        .background(Color.secondarySystemGroupedBackground)
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .padding(.horizontal, 16)
+    }
+
+    @ViewBuilder
+    private func taskNavigationRow<Content: View>(
+        company: Company?,
+        @ViewBuilder content: () -> Content
+    ) -> some View {
+        if let company {
+            NavigationLink(value: company) { content() }
+                .buttonStyle(.plain)
+        } else {
+            content()
         }
     }
 
@@ -308,7 +343,8 @@ struct CalendarTaskView: View {
                 .foregroundStyle(status.esBoxStatusColor)
                 .clipShape(Capsule())
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, 10)
+        .padding(.horizontal, 14)
         .opacity(active ? 1.0 : 0.5)
     }
 
@@ -341,7 +377,8 @@ struct CalendarTaskView: View {
                 .foregroundStyle(status.aptitudeStatusColor)
                 .clipShape(Capsule())
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, 10)
+        .padding(.horizontal, 14)
         .opacity(active ? 1.0 : 0.5)
     }
 
@@ -397,7 +434,8 @@ struct CalendarTaskView: View {
                 .foregroundStyle(status.interviewStatusColor)
                 .clipShape(Capsule())
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, 10)
+        .padding(.horizontal, 14)
         .opacity(active ? 1.0 : 0.5)
     }
 
@@ -412,8 +450,8 @@ struct CalendarTaskView: View {
                 .font(.subheadline.weight(.medium))
                 .foregroundStyle(.secondary)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .padding()
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 56)
     }
 }
 

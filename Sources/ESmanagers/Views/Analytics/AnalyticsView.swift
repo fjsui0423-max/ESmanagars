@@ -14,33 +14,23 @@ struct AnalyticsContainerView: View {
 
 struct AnalyticsView: View {
     @StateObject private var viewModel: AnalyticsViewModel
+    @State private var showAptitudeDetail = false
 
     init(context: NSManagedObjectContext) {
         _viewModel = StateObject(wrappedValue: AnalyticsViewModel(context: context))
     }
 
     var body: some View {
+        // LazyVStack + pinnedViews でフィルターバーをスティッキーにする
+        // → safeAreaInset と異なり初期表示時にカードが隠れない
         ScrollView {
-            VStack(spacing: 16) {
-                if viewModel.isNoData {
-                    emptyState
-                } else {
-                    summaryCard
-                    if viewModel.esStats.total > 0 {
-                        esStatsCard
-                    }
-                    if viewModel.aptitudeStats.total > 0 {
-                        aptitudeStatsCard
-                    }
-                    if !viewModel.stageStats.isEmpty {
-                        interviewSection
-                        legendCard
-                    } else if viewModel.totalInterviews == 0 && !viewModel.isNoData {
-                        noInterviewPlaceholder
-                    }
+            LazyVStack(spacing: 16, pinnedViews: .sectionHeaders) {
+                Section {
+                    contentItems
+                } header: {
+                    filterStrip
                 }
             }
-            .padding(16)
             .padding(.bottom, 20)
         }
         .background(Color.systemGroupedBackground.ignoresSafeArea())
@@ -48,10 +38,55 @@ struct AnalyticsView: View {
         #if os(iOS)
         .navigationBarTitleDisplayMode(.large)
         #endif
-        .safeAreaInset(edge: .top, spacing: 0) {
-            filterStrip
-        }
         .onAppear { viewModel.fetch() }
+        .sheet(isPresented: $showAptitudeDetail) {
+            AptitudeDetailAnalyticsView(
+                stats:     viewModel.aptitudeStats,
+                typeStats: viewModel.aptitudeTypeStats
+            )
+        }
+    }
+
+    // MARK: - Content items
+
+    @ViewBuilder
+    private var contentItems: some View {
+        if viewModel.isNoData {
+            emptyState
+                .padding(.horizontal, 16)
+        } else {
+            summaryCard
+                .padding(.horizontal, 16)
+
+            if viewModel.esStats.total > 0 {
+                esStatsCard
+                    .padding(.horizontal, 16)
+            }
+
+            if viewModel.aptitudeStats.total > 0 {
+                Button { showAptitudeDetail = true } label: {
+                    aptitudeStatsCard
+                        .overlay(alignment: .topTrailing) {
+                            Image(systemName: "chevron.right")
+                                .font(.caption.weight(.bold))
+                                .foregroundStyle(.tertiary)
+                                .padding(16)
+                        }
+                }
+                .buttonStyle(.plain)
+                .padding(.horizontal, 16)
+            }
+
+            if !viewModel.stageStats.isEmpty {
+                interviewSection
+                    .padding(.horizontal, 16)
+                legendCard
+                    .padding(.horizontal, 16)
+            } else if viewModel.totalInterviews == 0 && !viewModel.isNoData {
+                noInterviewPlaceholder
+                    .padding(.horizontal, 16)
+            }
+        }
     }
 
     // MARK: - Filter strip
@@ -156,7 +191,7 @@ struct AnalyticsView: View {
                 .foregroundStyle(Color.blue)
 
             HStack(alignment: .top, spacing: 0) {
-                // Left panel — submission rate (5-segment bar)
+                // Left panel — submission rate
                 VStack(alignment: .leading, spacing: 8) {
                     HStack {
                         Text("ES提出率")
@@ -199,7 +234,7 @@ struct AnalyticsView: View {
 
                 Divider().padding(.horizontal, 12)
 
-                // Right panel — pass rate (結果確定分のみ)
+                // Right panel — pass rate
                 VStack(alignment: .leading, spacing: 8) {
                     HStack {
                         Text("通過率")
@@ -290,6 +325,10 @@ struct AnalyticsView: View {
                 if s.passed  > 0 { countBadge(s.passed,  "合格",    .green) }
                 if s.failed  > 0 { countBadge(s.failed,  "落選",    .red) }
             }
+
+            Text("タップして種類別詳細を見る")
+                .font(.caption2)
+                .foregroundStyle(.tertiary)
         }
     }
 
@@ -487,6 +526,115 @@ struct AnalyticsView: View {
         HStack(spacing: 4) {
             Circle().fill(color).frame(width: 7, height: 7)
             Text("\(label) \(count)件")
+                .font(.caption.weight(.medium))
+                .foregroundStyle(.secondary)
+        }
+    }
+}
+
+// MARK: - Aptitude Detail View
+
+struct AptitudeDetailAnalyticsView: View {
+    @Environment(\.dismiss) private var dismiss
+    let stats:     AptitudeStatsData
+    let typeStats: [AptitudeTypeStats]
+
+    var body: some View {
+        NavigationStack {
+            List {
+                summarySection
+                if !typeStats.isEmpty {
+                    typeSection
+                }
+            }
+            .listStyle(.insetGrouped)
+            .navigationTitle("適性検査 詳細")
+            #if os(iOS)
+            .navigationBarTitleDisplayMode(.inline)
+            #endif
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("閉じる") { dismiss() }
+                }
+            }
+        }
+    }
+
+    // MARK: - Summary section
+
+    private var summarySection: some View {
+        Section("全体サマリー") {
+            summaryRow("受検数",  value: stats.total,   color: .primary)
+            summaryRow("未受験",  value: stats.untaken, color: .secondary)
+            summaryRow("受験済み", value: stats.taken,   color: .blue)
+            summaryRow("合格",    value: stats.passed,  color: .green)
+            summaryRow("落選",    value: stats.failed,  color: .red)
+            if let rate = stats.passRate {
+                HStack {
+                    Text("合格率（結果確定分）")
+                        .font(.subheadline)
+                    Spacer()
+                    Text("\(Int(rate * 100))%")
+                        .font(.subheadline.weight(.bold))
+                        .foregroundStyle(rate >= 0.5 ? .green : rate >= 0.25 ? .orange : .red)
+                }
+            }
+        }
+    }
+
+    // MARK: - Type breakdown section
+
+    private var typeSection: some View {
+        Section("種類別") {
+            ForEach(typeStats) { ts in
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack {
+                        Text(ts.typeName)
+                            .font(.subheadline.weight(.semibold))
+                        Spacer()
+                        Text("\(ts.total)件")
+                            .font(.caption.weight(.medium))
+                            .foregroundStyle(.secondary)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 3)
+                            .background(Color.secondary.opacity(0.1))
+                            .clipShape(Capsule())
+                    }
+
+                    HStack(spacing: 8) {
+                        if ts.untaken > 0 { typeBadge(ts.untaken, "未受験",  .secondary) }
+                        if ts.taken   > 0 { typeBadge(ts.taken,   "受験済み", .blue) }
+                        if ts.passed  > 0 { typeBadge(ts.passed,  "合格",    .green) }
+                        if ts.failed  > 0 { typeBadge(ts.failed,  "落選",    .red) }
+                    }
+
+                    if let rate = ts.passRate {
+                        Text("合格率: \(Int(rate * 100))%")
+                            .font(.caption.weight(.medium))
+                            .foregroundStyle(rate >= 0.5 ? .green : rate >= 0.25 ? .orange : .red)
+                    }
+                }
+                .padding(.vertical, 4)
+            }
+        }
+    }
+
+    // MARK: - Helpers
+
+    private func summaryRow(_ label: String, value: Int, color: Color) -> some View {
+        HStack {
+            Text(label).font(.subheadline)
+            Spacer()
+            Text("\(value)件")
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(color)
+        }
+    }
+
+    private func typeBadge(_ count: Int, _ label: String, _ color: Color) -> some View {
+        HStack(spacing: 4) {
+            Circle().fill(color).frame(width: 6, height: 6)
+            Text("\(label) \(count)")
                 .font(.caption.weight(.medium))
                 .foregroundStyle(.secondary)
         }
