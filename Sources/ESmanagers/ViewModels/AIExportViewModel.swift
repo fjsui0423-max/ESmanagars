@@ -14,15 +14,16 @@ final class AIExportViewModel: ObservableObject {
     // MARK: - AI Prompt
 
     let aiPrompt: String = """
-    添付したファイルは、私が過去に作成・提出したエントリーシート（ES）の設問と回答の記録です。
+    あなたはプロのキャリアコンサルタントであり、私の専属のエントリーシート（ES）作成アシスタントです。
 
-    このデータを読み込み、以下の点を分析・学習してください。
+    添付したテキストファイルには、私が過去に作成し、実際の企業の選考に提出したESの設問と回答の履歴データがまとめられています。
 
-    1. 私のこれまでの経験やエピソード（学生時代・アルバイト・課外活動など）
-    2. 私の強み、価値観、人柄
-    3. 私の文章の書き方、トーン、表現の癖
+    まずはこの添付ファイルを注意深く読み込み、私の「経験（学生時代に力を入れたことなど）」「強み」「価値観」、および「文章のトーンや構成力」を深く学習・分析してください。
 
-    分析が完了したら「学習が完了しました。新しい設問を入力してください。」と返答してください。その後、私が新しい企業の設問を入力したときに、この過去のデータを参考にした最適な回答案を提案し、文章のブラッシュアップをサポートしてください。
+    今後の会話では、私が新しく指定する企業の設問に対して、この過去の経験や成功パターンを最大限に活かした最適な回答案の作成、構成の提案、または私が書いた文章のブラッシュアップを行ってください。
+    一般的な就活のテンプレートに当てはめるのではなく、「私ならではの具体的なエピソード」をファイルから適切に引き出し、説得力のある回答を構築することがあなたの最も重要な役割です。
+
+    ファイルの読み込みと分析が完了したら、私のアピールポイントの要約を箇条書きで短く提示した上で、「過去のESデータの読み込みと分析が完了しました。次に作成したい企業の名前と、新しい設問（文字数制限など）を教えてください。」と返答し、私からの次の指示を待機してください。
     """
 
     // MARK: - Init
@@ -36,7 +37,7 @@ final class AIExportViewModel: ObservableObject {
     func generateESDataFile() -> URL? {
         let boxes    = fetchBoxes()
         let markdown = buildMarkdown(from: boxes)
-        let fileName = onlyPassed ? "ES_Data_Passed.md" : "ES_Data_All.md"
+        let fileName = onlyPassed ? "My_ES_Data_Passed.md" : "My_ES_Data_All.md"
         let url      = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
         do {
             try markdown.write(to: url, atomically: true, encoding: .utf8)
@@ -63,25 +64,8 @@ final class AIExportViewModel: ObservableObject {
     }
 
     private func buildMarkdown(from boxes: [ESBox]) -> String {
-        let fmt = DateFormatter()
-        fmt.locale    = Locale(identifier: "ja_JP")
-        fmt.dateStyle = .medium
-        fmt.timeStyle = .short
-
-        var lines: [String] = [
-            "# 過去のエントリーシート（ES）データ",
-            "",
-            "- エクスポート日時: \(fmt.string(from: Date()))",
-            "- 抽出条件: \(onlyPassed ? "合格ESのみ（内定・インターン参加・ES通過）" : "提出済みES全件")",
-            "- 件数: \(boxes.count)件",
-            "",
-            "---",
-            "",
-        ]
-
         guard !boxes.isEmpty else {
-            lines.append("※ 条件に合うESデータがありませんでした。")
-            return lines.joined(separator: "\n")
+            return "※ 条件に合うESデータがありませんでした。"
         }
 
         let sorted = boxes.sorted {
@@ -91,51 +75,40 @@ final class AIExportViewModel: ObservableObject {
             return ($0.selection?.title ?? "") < ($1.selection?.title ?? "")
         }
 
-        var lastCompany:   String? = nil
-        var lastSelection: String? = nil
+        var blocks: [String] = []
 
         for box in sorted {
             let company   = box.selection?.company?.name ?? "不明"
-            let selTitle  = box.selection?.title    ?? "選考"
-            let selCat    = box.selection?.category ?? ""
-            let boxTitle  = box.title  ?? "ES"
-            let boxStatus = box.status ?? ""
+            let selCat    = box.selection?.category      ?? ""
+            let boxStatus = box.status                   ?? ""
 
-            if company != lastCompany {
-                if lastCompany != nil { lines.append("") }
-                lines += ["## \(company)", ""]
-                lastCompany   = company
-                lastSelection = nil
-            }
-
-            if selTitle != lastSelection {
-                lines += ["### \(selTitle)（\(selCat)）", ""]
-                lastSelection = selTitle
-            }
-
-            lines += ["#### 【\(boxTitle)】ステータス: \(boxStatus)", ""]
+            var lines: [String] = [
+                "# 企業名: \(company)",
+                "- 選考ルート: \(selCat)",
+                "- 結果: \(boxStatus)",
+                "",
+            ]
 
             let questions = box.questionsArray
             if questions.isEmpty {
                 lines += ["※ 設問・回答データなし", ""]
             } else {
-                for (i, q) in questions.enumerated() {
+                for q in questions {
                     let qText  = q.questionText ?? "（設問テキストなし）"
                     let answer = (q.currentAnswer ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
-                    let maxLen = q.maxLength > 0 ? "（最大\(q.maxLength)字）" : ""
+                    let limit  = q.maxLength > 0 ? " (制限: \(q.maxLength)文字)" : ""
 
                     lines += [
-                        "**Q\(i + 1). \(qText)\(maxLen)**",
-                        "",
+                        "## 設問: \(qText)\(limit)",
                         answer.isEmpty ? "（回答なし）" : answer,
                         "",
                     ]
                 }
             }
 
-            lines += ["---", ""]
+            blocks.append(lines.joined(separator: "\n"))
         }
 
-        return lines.joined(separator: "\n")
+        return blocks.joined(separator: "---\n\n")
     }
 }
