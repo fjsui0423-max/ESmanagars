@@ -30,6 +30,7 @@ struct SettingsView: View {
         Form {
             notificationSection
             appLockSection
+            aiSection
             dataManagementSection
             securityNoteSection
             appInfoSection
@@ -140,6 +141,16 @@ struct SettingsView: View {
         } footer: {
             Text("有効にすると、アプリ起動時に Face ID / Touch ID による認証が必要になります。")
                 .font(.footnote)
+        }
+    }
+
+    private var aiSection: some View {
+        Section("AI連携") {
+            NavigationLink {
+                AIExportContainerView()
+            } label: {
+                Label("AIにESを学習させる", systemImage: "sparkles")
+            }
         }
     }
 

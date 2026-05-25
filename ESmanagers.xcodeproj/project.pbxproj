@@ -21,6 +21,7 @@
 		36B4B9EC63B0E69285BCB649 /* ESEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9037A73E5CA3D7B6FD69B1C /* ESEditorView.swift */; };
 		37C6B8EB71A74C9FC3CF94CD /* ESQuestion+CoreData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFD87B286FC5EEDB71A2514 /* ESQuestion+CoreData.swift */; };
 		408C3EEE5F6B4FB5883D940C /* ESVersion+CoreData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36FCF031D8A97D1E07E0D16D /* ESVersion+CoreData.swift */; };
+		40D7FCDEC00B706913275EED /* AIExportViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 367AD187C01783BD8807F26B /* AIExportViewModel.swift */; };
 		459C6721FA5BA02AB66132F9 /* ToastView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9565732EC5CA42728ED9CD7 /* ToastView.swift */; };
 		473B019DF623C46CF9742B0D /* PreviewData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C5F85D6C9851715B5C52A1F /* PreviewData.swift */; };
 		4CBEE47B4DCAE8951E72C00C /* BiometricAuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4BFF7C1DE79E20BE228A45A /* BiometricAuthManager.swift */; };
@@ -45,6 +46,7 @@
 		AEB1D9BCE5A35ACDF0A8DEB9 /* AptitudeTestCreateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB6377FF43F0B56751CFCF44 /* AptitudeTestCreateView.swift */; };
 		B0E36D6B6F8D7142C09EF8AD /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E6431EB83CC252FD6D562A1 /* NotificationManager.swift */; };
 		BA564EDBBD3EFD209C675FE8 /* InterviewCreateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F7DD61723ABECCF1D4AD250 /* InterviewCreateView.swift */; };
+		BA5F71E113CBE6C16286D046 /* AIExportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9208DBD812D4E528912219B6 /* AIExportView.swift */; };
 		BCB03C97A523353E898B6F30 /* CalendarTaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1DA0F532698FB0036F37B6C /* CalendarTaskView.swift */; };
 		C57E47A6FC9842CB4CC98C33 /* IndustryFolderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 101F9224A2A0D6F46F8BA6AC /* IndustryFolderView.swift */; };
 		D64DE7D2566CA296CF570ECB /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44C8417DAE9CDFAA67E0200A /* SettingsViewModel.swift */; };
@@ -67,6 +69,7 @@
 		2DB838C69BB81F09EAE2905B /* Selection+CoreData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Selection+CoreData.swift"; sourceTree = "<group>"; };
 		2DFD5278061BC7B7DAE39DC6 /* InterviewEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterviewEditView.swift; sourceTree = "<group>"; };
 		31263F65BAC20236C33318A8 /* AnalyticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsView.swift; sourceTree = "<group>"; };
+		367AD187C01783BD8807F26B /* AIExportViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIExportViewModel.swift; sourceTree = "<group>"; };
 		36FCF031D8A97D1E07E0D16D /* ESVersion+CoreData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ESVersion+CoreData.swift"; sourceTree = "<group>"; };
 		37B107A3088C97080992F9D3 /* CoreDataModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataModel.swift; sourceTree = "<group>"; };
 		39B29526F352AE5169753444 /* PersistenceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceController.swift; sourceTree = "<group>"; };
@@ -90,6 +93,7 @@
 		8017266F46A9FA922A005DDA /* TemplateEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemplateEditView.swift; sourceTree = "<group>"; };
 		898E25C36C0CBFEE2442E1EF /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		8C5F85D6C9851715B5C52A1F /* PreviewData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewData.swift; sourceTree = "<group>"; };
+		9208DBD812D4E528912219B6 /* AIExportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIExportView.swift; sourceTree = "<group>"; };
 		95423D6BFE2DB060321988DC /* Color+SystemColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+SystemColors.swift"; sourceTree = "<group>"; };
 		95BB8B7AFF278E89C758E7BB /* ESBoxDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ESBoxDetailView.swift; sourceTree = "<group>"; };
 		99B84C1DECC47658277E2D6F /* ESBox+CoreData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ESBox+CoreData.swift"; sourceTree = "<group>"; };
@@ -114,6 +118,14 @@
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
+		004FF6FC0F0AF38A2E9E7877 /* AIExport */ = {
+			isa = PBXGroup;
+			children = (
+				9208DBD812D4E528912219B6 /* AIExportView.swift */,
+			);
+			path = AIExport;
+			sourceTree = "<group>";
+		};
 		0384CFA8E48D6C21D75D7302 /* Calendar */ = {
 			isa = PBXGroup;
 			children = (
@@ -252,6 +264,7 @@
 		C034CA238869E981C579BD43 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
+				367AD187C01783BD8807F26B /* AIExportViewModel.swift */,
 				69BEB7C1969A5A0FA274ACFF /* AnalyticsViewModel.swift */,
 				B9EDACBAC6F7C5368490814B /* CalendarTaskViewModel.swift */,
 				73E85DC3CEAA3BF0B35E418F /* CompanyDetailViewModel.swift */,
@@ -267,6 +280,7 @@
 			isa = PBXGroup;
 			children = (
 				3FA3DC91808FB99FC6979AD3 /* MainTabView.swift */,
+				004FF6FC0F0AF38A2E9E7877 /* AIExport */,
 				B1EDEF3F59764FC075DD54CF /* Analytics */,
 				0384CFA8E48D6C21D75D7302 /* Calendar */,
 				6B937042434F66746D4D8064 /* CompanyDetail */,
@@ -374,6 +388,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BA5F71E113CBE6C16286D046 /* AIExportView.swift in Sources */,
+				40D7FCDEC00B706913275EED /* AIExportViewModel.swift in Sources */,
 				612ED5A823C902FB5DB2C121 /* AnalyticsView.swift in Sources */,
 				54C85E7720BD90897FEFA307 /* AnalyticsViewModel.swift in Sources */,
 				E117AE21664E02C05BED27B7 /* AptitudeTest+CoreData.swift in Sources */,
