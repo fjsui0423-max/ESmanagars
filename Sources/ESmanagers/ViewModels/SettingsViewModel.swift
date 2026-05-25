@@ -28,6 +28,10 @@ final class SettingsViewModel: ObservableObject {
     @Published var notificationDaysBefore: Int
     @Published var notificationHoursBefore: Int
 
+    @Published var isAppLockEnabled: Bool = UserDefaults.standard.bool(forKey: "isAppLockEnabled") {
+        didSet { UserDefaults.standard.set(isAppLockEnabled, forKey: "isAppLockEnabled") }
+    }
+
     private let context: NSManagedObjectContext
 
     init(context: NSManagedObjectContext) {

@@ -29,6 +29,7 @@ struct SettingsView: View {
     var body: some View {
         Form {
             notificationSection
+            appLockSection
             dataManagementSection
             securityNoteSection
             appInfoSection
@@ -119,6 +120,25 @@ struct SettingsView: View {
             Text("通知設定")
         } footer: {
             Text("面接の開始時刻を基準に、指定した時間前にリマインド通知を送信します。")
+                .font(.footnote)
+        }
+    }
+
+    private var appLockSection: some View {
+        Section {
+            Toggle(isOn: $viewModel.isAppLockEnabled) {
+                Label("アプリロック（Face ID / Touch ID）", systemImage: "faceid")
+            }
+            .disabled(!BiometricAuthManager.shared.isAvailable)
+            if !BiometricAuthManager.shared.isAvailable {
+                Text("このデバイスでは生体認証を利用できません")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
+        } header: {
+            Text("セキュリティ")
+        } footer: {
+            Text("有効にすると、アプリ起動時に Face ID / Touch ID による認証が必要になります。")
                 .font(.footnote)
         }
     }

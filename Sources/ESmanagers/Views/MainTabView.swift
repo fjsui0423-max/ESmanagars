@@ -1,9 +1,93 @@
 import SwiftUI
 
 struct MainTabView: View {
+    @AppStorage("isAppLockEnabled") private var isAppLockEnabled = false
+    @Environment(\.scenePhase) private var scenePhase
+
+    @State private var isUnlocked        = false
+    @State private var showPrivacyScreen = false
+    @State private var isAuthenticating  = false
+
     var body: some View {
+        ZStack {
+            tabContent
+                .opacity(showPrivacyScreen ? 0 : 1)
+
+            if showPrivacyScreen {
+                privacyScreen
+            }
+        }
+        .task {
+            if isAppLockEnabled {
+                showPrivacyScreen = true
+                await authenticate()
+            } else {
+                isUnlocked = true
+            }
+        }
+        .onChange(of: scenePhase) { phase in
+            switch phase {
+            case .background, .inactive:
+                if isAppLockEnabled { showPrivacyScreen = true }
+            case .active:
+                if isAppLockEnabled && !isUnlocked && !isAuthenticating {
+                    Task { await authenticate() }
+                }
+            @unknown default:
+                break
+            }
+        }
+    }
+
+    // MARK: - Privacy screen
+
+    private var privacyScreen: some View {
+        ZStack {
+            Color(.systemBackground).ignoresSafeArea()
+            VStack(spacing: 24) {
+                Image(systemName: "lock.fill")
+                    .font(.system(size: 56))
+                    .foregroundStyle(.secondary)
+                Text("ESmanagers")
+                    .font(.title2.weight(.semibold))
+                    .foregroundStyle(.primary)
+                if !isAuthenticating {
+                    Button {
+                        Task { await authenticate() }
+                    } label: {
+                        Label("認証する", systemImage: "faceid")
+                            .font(.body.weight(.medium))
+                            .padding(.horizontal, 24)
+                            .padding(.vertical, 10)
+                            .background(Color.accentColor.opacity(0.12))
+                            .foregroundStyle(Color.accentColor)
+                            .clipShape(Capsule())
+                    }
+                }
+            }
+        }
+        .transition(.opacity)
+    }
+
+    // MARK: - Auth
+
+    private func authenticate() async {
+        guard !isAuthenticating else { return }
+        isAuthenticating = true
+        let success = await BiometricAuthManager.shared.authenticate(
+            reason: "ESmanagersのデータにアクセスするために認証が必要です"
+        )
+        isAuthenticating = false
+        if success {
+            isUnlocked = true
+            withAnimation(.easeOut(duration: 0.2)) { showPrivacyScreen = false }
+        }
+    }
+
+    // MARK: - Tabs
+
+    private var tabContent: some View {
         TabView {
-            // MARK: ホーム
             NavigationStack {
                 HomeViewContainer()
             }
@@ -11,7 +95,6 @@ struct MainTabView: View {
                 Label("ホーム", systemImage: "house.fill")
             }
 
-            // MARK: カレンダー
             NavigationStack {
                 CalendarTaskContainerView()
             }
@@ -19,7 +102,6 @@ struct MainTabView: View {
                 Label("カレンダー", systemImage: "calendar")
             }
 
-            // MARK: テンプレート
             NavigationStack {
                 TemplateListContainerView()
             }
@@ -27,7 +109,6 @@ struct MainTabView: View {
                 Label("テンプレート", systemImage: "doc.text.fill")
             }
 
-            // MARK: 分析
             NavigationStack {
                 AnalyticsContainerView()
             }
@@ -35,7 +116,6 @@ struct MainTabView: View {
                 Label("分析", systemImage: "chart.bar.xaxis")
             }
 
-            // MARK: 設定
             NavigationStack {
                 SettingsContainerView()
             }
