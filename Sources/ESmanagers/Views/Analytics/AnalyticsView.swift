@@ -15,28 +15,28 @@ struct AnalyticsContainerView: View {
 struct AnalyticsView: View {
     @StateObject private var viewModel: AnalyticsViewModel
     @State private var showAptitudeDetail = false
+    @State private var isWatchingAd       = false
 
     init(context: NSManagedObjectContext) {
         _viewModel = StateObject(wrappedValue: AnalyticsViewModel(context: context))
     }
 
     var body: some View {
-        // LazyVStack + pinnedViews でフィルターバーをスティッキーにする
-        // → safeAreaInset と異なり初期表示時にカードが隠れない
-        ScrollView {
-            LazyVStack(spacing: 16, pinnedViews: .sectionHeaders) {
-                Section {
+        VStack(spacing: 0) {
+            filterStrip
+
+            ScrollView {
+                VStack(spacing: 16) {
                     contentItems
-                } header: {
-                    filterStrip
                 }
+                .padding(16)
+                .padding(.bottom, 20)
             }
-            .padding(.bottom, 20)
         }
         .background(Color.systemGroupedBackground.ignoresSafeArea())
         .navigationTitle("分析")
         #if os(iOS)
-        .navigationBarTitleDisplayMode(.large)
+        .navigationBarTitleDisplayMode(.inline)
         #endif
         .onAppear { viewModel.fetch() }
         .sheet(isPresented: $showAptitudeDetail) {
@@ -53,14 +53,34 @@ struct AnalyticsView: View {
     private var contentItems: some View {
         if viewModel.isNoData {
             emptyState
-                .padding(.horizontal, 16)
         } else {
             summaryCard
-                .padding(.horizontal, 16)
+            detailedSection
+        }
+    }
 
+    // MARK: - Detailed section (with lock overlay)
+
+    private var detailedSection: some View {
+        ZStack(alignment: .top) {
+            // 実際のカード群（ロック時はブラーの下に透けて見える）
+            detailedCards
+
+            // ロックオーバーレイ
+            if !viewModel.isUnlocked {
+                lockOverlay
+                    .transition(.opacity)
+            }
+        }
+        .animation(.spring(duration: 0.55, bounce: 0.1), value: viewModel.isUnlocked)
+    }
+
+    // MARK: - Detailed cards
+
+    private var detailedCards: some View {
+        VStack(spacing: 16) {
             if viewModel.esStats.total > 0 {
                 esStatsCard
-                    .padding(.horizontal, 16)
             }
 
             if viewModel.aptitudeStats.total > 0 {
@@ -74,18 +94,114 @@ struct AnalyticsView: View {
                         }
                 }
                 .buttonStyle(.plain)
-                .padding(.horizontal, 16)
             }
 
             if !viewModel.stageStats.isEmpty {
                 interviewSection
-                    .padding(.horizontal, 16)
                 legendCard
-                    .padding(.horizontal, 16)
             } else if viewModel.totalInterviews == 0 && !viewModel.isNoData {
                 noInterviewPlaceholder
-                    .padding(.horizontal, 16)
             }
+        }
+    }
+
+    // MARK: - Lock overlay
+
+    private var lockOverlay: some View {
+        ZStack(alignment: .top) {
+            Rectangle()
+                .fill(.ultraThinMaterial)
+
+            VStack(spacing: 0) {
+                Spacer().frame(height: 44)
+                lockCard
+                    .padding(.horizontal, 20)
+                Spacer().frame(height: 44)
+            }
+        }
+        .frame(minHeight: 440)
+        .allowsHitTesting(true)
+    }
+
+    private var lockCard: some View {
+        VStack(spacing: 22) {
+            // ロックアイコン
+            ZStack {
+                Circle()
+                    .fill(
+                        LinearGradient(
+                            colors: [.indigo, Color(red: 0.85, green: 0.18, blue: 0.55)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 80, height: 80)
+                Image(systemName: "lock.fill")
+                    .font(.system(size: 30, weight: .semibold))
+                    .foregroundStyle(.white)
+            }
+            .shadow(color: .indigo.opacity(0.4), radius: 14, x: 0, y: 6)
+
+            VStack(spacing: 8) {
+                Text("詳細分析をロック解除")
+                    .font(.title3.weight(.bold))
+                Text("動画広告（約30秒）を視聴すると\n24時間すべてのデータをご覧いただけます")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+
+            if isWatchingAd {
+                VStack(spacing: 10) {
+                    ProgressView()
+                        .progressViewStyle(.circular)
+                        .tint(.indigo)
+                        .scaleEffect(1.3)
+                    Text("広告を読み込み中...")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                .frame(height: 60)
+            } else {
+                rewardButton
+            }
+        }
+        .padding(.vertical, 30)
+        .padding(.horizontal, 24)
+        .background(Color.secondarySystemGroupedBackground)
+        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .shadow(color: .black.opacity(0.12), radius: 24, x: 0, y: 8)
+    }
+
+    private var rewardButton: some View {
+        Button {
+            isWatchingAd = true
+            Task { @MainActor in
+                try? await Task.sleep(for: .seconds(2))
+                withAnimation(.spring(duration: 0.55, bounce: 0.1)) {
+                    viewModel.lastAnalyticsUnlockedAt = Date().timeIntervalSince1970
+                    isWatchingAd = false
+                }
+            }
+        } label: {
+            HStack(spacing: 10) {
+                Image(systemName: "play.circle.fill")
+                    .font(.system(size: 20))
+                Text("動画を見て24時間ロック解除")
+                    .font(.subheadline.weight(.bold))
+            }
+            .foregroundStyle(.white)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 16)
+            .background(
+                LinearGradient(
+                    colors: [.indigo, Color(red: 0.85, green: 0.18, blue: 0.55)],
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+            .shadow(color: .indigo.opacity(0.35), radius: 10, x: 0, y: 5)
         }
     }
 
@@ -98,18 +214,17 @@ struct AnalyticsView: View {
             }
             .pickerStyle(.segmented)
 
-            Picker("形式", selection: $viewModel.interviewModeFilter) {
-                ForEach(AnalyticsViewModel.modeFilters, id: \.self) { mode in
-                    if mode == "オンライン" {
-                        Label(mode, systemImage: "video").tag(mode)
-                    } else if mode == "対面" {
-                        Label(mode, systemImage: "person.2").tag(mode)
-                    } else {
-                        Text(mode).tag(mode)
-                    }
+            HStack(spacing: 8) {
+                Label("面接", systemImage: "bubble.left.and.bubble.right.fill")
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(.secondary)
+                    .labelStyle(.titleAndIcon)
+
+                Picker("形式", selection: $viewModel.interviewModeFilter) {
+                    ForEach(AnalyticsViewModel.modeFilters, id: \.self) { Text($0) }
                 }
+                .pickerStyle(.segmented)
             }
-            .pickerStyle(.segmented)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
@@ -191,7 +306,6 @@ struct AnalyticsView: View {
                 .foregroundStyle(Color.blue)
 
             HStack(alignment: .top, spacing: 0) {
-                // Left panel — submission rate
                 VStack(alignment: .leading, spacing: 8) {
                     HStack {
                         Text("ES提出率")
@@ -234,7 +348,6 @@ struct AnalyticsView: View {
 
                 Divider().padding(.horizontal, 12)
 
-                // Right panel — pass rate
                 VStack(alignment: .leading, spacing: 8) {
                     HStack {
                         Text("通過率")

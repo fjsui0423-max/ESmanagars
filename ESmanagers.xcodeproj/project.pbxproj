@@ -39,6 +39,7 @@
 		6A6108220794CA13B8961812 /* InterviewEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DFD5278061BC7B7DAE39DC6 /* InterviewEditView.swift */; };
 		6A618E8BC5D092867BD1BE90 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 427AB5C21F6454DBB363482F /* Assets.xcassets */; };
 		76E82218E335E2B936CA3B8B /* TemplateViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A0345751B86041869E93FB /* TemplateViewModel.swift */; };
+		7E825DD46A4F7AF2AE5E55CC /* NotificationOffsetPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1782596D489BFD12A2324C28 /* NotificationOffsetPicker.swift */; };
 		981511E06F3E16AEDB57C109 /* KeychainManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6EE2B41E683507CC5013D50 /* KeychainManager.swift */; };
 		A989EE79D2F1216B773708A9 /* Selection+CoreData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB838C69BB81F09EAE2905B /* Selection+CoreData.swift */; };
 		AD9EC801A6C5F283753BF3BC /* Template+CoreData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C54F37C3F9804EACA4DCD50 /* Template+CoreData.swift */; };
@@ -65,6 +66,7 @@
 		03B0844A6366B4903BB1F92D /* CompanyDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompanyDetailView.swift; sourceTree = "<group>"; };
 		0F7DD61723ABECCF1D4AD250 /* InterviewCreateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterviewCreateView.swift; sourceTree = "<group>"; };
 		101F9224A2A0D6F46F8BA6AC /* IndustryFolderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IndustryFolderView.swift; sourceTree = "<group>"; };
+		1782596D489BFD12A2324C28 /* NotificationOffsetPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationOffsetPicker.swift; sourceTree = "<group>"; };
 		281AAF9AF9312E3173F49D8D /* Interview+CoreData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Interview+CoreData.swift"; sourceTree = "<group>"; };
 		2DB838C69BB81F09EAE2905B /* Selection+CoreData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Selection+CoreData.swift"; sourceTree = "<group>"; };
 		2DFD5278061BC7B7DAE39DC6 /* InterviewEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterviewEditView.swift; sourceTree = "<group>"; };
@@ -108,7 +110,7 @@
 		C6A0345751B86041869E93FB /* TemplateViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemplateViewModel.swift; sourceTree = "<group>"; };
 		CB6377FF43F0B56751CFCF44 /* AptitudeTestCreateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AptitudeTestCreateView.swift; sourceTree = "<group>"; };
 		CE380D82CD948D7B3C51F7EF /* CompanyEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompanyEditView.swift; sourceTree = "<group>"; };
-		D4FCE49F97AF5EE48F82932A /* ESmanagers.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = ESmanagers.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D4FCE49F97AF5EE48F82932A /* ESmanagers.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ESmanagers.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E08DAA99035DA6B5DB030F95 /* Industry+CoreData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Industry+CoreData.swift"; sourceTree = "<group>"; };
 		E8B0C2D3542B1E8A02AA5DE0 /* Company+CoreData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Company+CoreData.swift"; sourceTree = "<group>"; };
 		E9037A73E5CA3D7B6FD69B1C /* ESEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ESEditorView.swift; sourceTree = "<group>"; };
@@ -209,6 +211,7 @@
 				C2272AF2B200329969169D87 /* ESQuestionEditView.swift */,
 				0F7DD61723ABECCF1D4AD250 /* InterviewCreateView.swift */,
 				2DFD5278061BC7B7DAE39DC6 /* InterviewEditView.swift */,
+				1782596D489BFD12A2324C28 /* NotificationOffsetPicker.swift */,
 				A85AF24F5CDC3BA5D2AC5942 /* SelectionCreateView.swift */,
 			);
 			path = CompanyDetail;
@@ -350,8 +353,6 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1600;
-				TargetAttributes = {
-				};
 			};
 			buildConfigurationList = 62FE1394D3DDE160460C259C /* Build configuration list for PBXProject "ESmanagers" */;
 			developmentRegion = en;
@@ -427,6 +428,7 @@
 				981511E06F3E16AEDB57C109 /* KeychainManager.swift in Sources */,
 				631C5F59FB46D487150E4789 /* MainTabView.swift in Sources */,
 				B0E36D6B6F8D7142C09EF8AD /* NotificationManager.swift in Sources */,
+				7E825DD46A4F7AF2AE5E55CC /* NotificationOffsetPicker.swift in Sources */,
 				D6971557EC7D896119F4D8FC /* PersistenceController.swift in Sources */,
 				473B019DF623C46CF9742B0D /* PreviewData.swift in Sources */,
 				A989EE79D2F1216B773708A9 /* Selection+CoreData.swift in Sources */,
@@ -452,10 +454,11 @@
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = DX3PPTB9FX;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = ESmanagers;
-				INFOPLIST_KEY_NSFaceIDUsageDescription = "パスワードの表示・コピー時に本人確認のためFace IDを使用します";
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "アプリ内の機密な就活データやパスワードを保護するためにFace IDを使用します。";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -537,10 +540,11 @@
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = DX3PPTB9FX;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = ESmanagers;
-				INFOPLIST_KEY_NSFaceIDUsageDescription = "パスワードの表示・コピー時に本人確認のためFace IDを使用します";
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "アプリ内の機密な就活データやパスワードを保護するためにFace IDを使用します。";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";

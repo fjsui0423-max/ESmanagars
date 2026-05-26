@@ -3,13 +3,14 @@ import SwiftUI
 struct AptitudeTestCreateView: View {
     @Environment(\.dismiss) private var dismiss
 
-    let onSave: (String, String?, Date?, String) -> Void
+    let onSave: (String, String?, Date?, String, Set<DeadlineOffset>) -> Void
 
     @State private var selectedType = AptitudeTest.types[0]
     @State private var customType   = ""
     @State private var hasDeadline  = false
     @State private var deadline     = Date()
     @State private var status       = AptitudeTest.statuses[0]
+    @State private var notifOffsets: Set<DeadlineOffset> = [.oneDay]
 
     var body: some View {
         NavigationStack {
@@ -36,6 +37,10 @@ struct AptitudeTestCreateView: View {
                     }
                     .pickerStyle(.segmented)
                 }
+
+                if hasDeadline {
+                    DeadlineNotificationSection(selectedOffsets: $notifOffsets)
+                }
             }
             .navigationTitle("適性検査を追加")
             #if os(iOS)
@@ -48,7 +53,7 @@ struct AptitudeTestCreateView: View {
                 ToolbarItem(placement: savePlacement) {
                     Button("追加") {
                         let custom = selectedType == "カスタム" ? customType.trimmingCharacters(in: .whitespaces) : nil
-                        onSave(selectedType, custom, hasDeadline ? deadline : nil, status)
+                        onSave(selectedType, custom, hasDeadline ? deadline : nil, status, notifOffsets)
                         dismiss()
                     }
                     .fontWeight(.semibold)
@@ -77,8 +82,8 @@ struct AptitudeTestCreateView: View {
 
 #if os(iOS)
 #Preview {
-    AptitudeTestCreateView { type, custom, deadline, status in
-        print("type: \(type), custom: \(String(describing: custom)), status: \(status)")
+    AptitudeTestCreateView { type, custom, deadline, status, offsets in
+        print("type: \(type), custom: \(String(describing: custom)), status: \(status), offsets: \(offsets)")
     }
 }
 #endif

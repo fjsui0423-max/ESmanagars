@@ -25,8 +25,6 @@ final class SettingsViewModel: ObservableObject {
     // MARK: - Notification settings
 
     @Published var isNotificationEnabled: Bool
-    @Published var notificationDaysBefore: Int
-    @Published var notificationHoursBefore: Int
 
     @Published var isAppLockEnabled: Bool = UserDefaults.standard.bool(forKey: "isAppLockEnabled") {
         didSet { UserDefaults.standard.set(isAppLockEnabled, forKey: "isAppLockEnabled") }
@@ -37,18 +35,13 @@ final class SettingsViewModel: ObservableObject {
     init(context: NSManagedObjectContext) {
         self.context = context
         let d = UserDefaults.standard
-        isNotificationEnabled  = d.object(forKey: NotificationManager.Keys.isEnabled)    as? Bool ?? true
-        notificationDaysBefore  = d.object(forKey: NotificationManager.Keys.daysBefore)  as? Int  ?? 1
-        notificationHoursBefore = d.object(forKey: NotificationManager.Keys.hoursBefore) as? Int  ?? 1
+        isNotificationEnabled = d.object(forKey: NotificationManager.Keys.isEnabled) as? Bool ?? true
     }
 
     // MARK: - Notification update
 
     func onNotificationSettingChanged() {
-        let d = UserDefaults.standard
-        d.set(isNotificationEnabled,  forKey: NotificationManager.Keys.isEnabled)
-        d.set(notificationDaysBefore,  forKey: NotificationManager.Keys.daysBefore)
-        d.set(notificationHoursBefore, forKey: NotificationManager.Keys.hoursBefore)
+        UserDefaults.standard.set(isNotificationEnabled, forKey: NotificationManager.Keys.isEnabled)
         rescheduleNotifications()
     }
 

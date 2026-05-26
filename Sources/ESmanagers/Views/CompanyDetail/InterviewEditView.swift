@@ -3,17 +3,25 @@ import SwiftUI
 struct InterviewEditView: View {
     @Environment(\.dismiss) private var dismiss
 
-    let onSave: (String, Date, String) -> Void
+    let onSave: (String, Date, String, Set<InterviewOffset>) -> Void
 
-    @State private var stage:   String
-    @State private var startAt: Date
-    @State private var mode:    String
+    @State private var stage:        String
+    @State private var startAt:      Date
+    @State private var mode:         String
+    @State private var notifOffsets: Set<InterviewOffset>
 
-    init(interview: Interview, onSave: @escaping (String, Date, String) -> Void) {
+    init(interview: Interview, onSave: @escaping (String, Date, String, Set<InterviewOffset>) -> Void) {
         self.onSave = onSave
         _stage   = State(initialValue: interview.stage   ?? "1次面接")
         _startAt = State(initialValue: interview.startAt ?? Date())
         _mode    = State(initialValue: interview.mode    ?? "オンライン")
+        let saved: Set<InterviewOffset>
+        if let id = interview.id?.uuidString {
+            saved = NotificationManager.shared.savedInterviewOffsets(for: id)
+        } else {
+            saved = [.oneDay, .oneHour]
+        }
+        _notifOffsets = State(initialValue: saved)
     }
 
     var body: some View {
@@ -39,6 +47,8 @@ struct InterviewEditView: View {
                     }
                     .pickerStyle(.segmented)
                 }
+
+                InterviewNotificationSection(selectedOffsets: $notifOffsets)
             }
             .navigationTitle("面接を編集")
             #if os(iOS)
@@ -50,7 +60,7 @@ struct InterviewEditView: View {
                 }
                 ToolbarItem(placement: savePlacement) {
                     Button("保存") {
-                        onSave(stage, startAt, mode)
+                        onSave(stage, startAt, mode, notifOffsets)
                         dismiss()
                     }
                     .fontWeight(.semibold)

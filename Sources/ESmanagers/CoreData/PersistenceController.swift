@@ -22,10 +22,11 @@ final class PersistenceController: @unchecked Sendable {
         if inMemory {
             container.persistentStoreDescriptions.first?.url = URL(fileURLWithPath: "/dev/null")
         }
+        #if DEBUG
+        // Development: reset store on schema mismatch and retry (never runs in production)
         var storeError: Error?
         container.loadPersistentStores { desc, error in
             storeError = error
-            // スキーマ変更時は SQLite ファイルを削除して再試行（開発環境用）
             if let error, let url = desc.url {
                 print("⚠️ Core Data load failed (\(error)). Resetting store...")
                 let fm = FileManager.default
@@ -33,12 +34,16 @@ final class PersistenceController: @unchecked Sendable {
                       URL(fileURLWithPath: url.path + "-shm")].forEach { try? fm.removeItem(at: $0) }
             }
         }
-        // スキーマリセット後に再ロード
         if storeError != nil {
             container.loadPersistentStores { _, error in
                 if let error { fatalError("Core Data store recovery failed: \(error)") }
             }
         }
+        #else
+        container.loadPersistentStores { _, error in
+            if let error { fatalError("Core Data store failed to load: \(error)") }
+        }
+        #endif
         container.viewContext.automaticallyMergesChangesFromParent = true
         container.viewContext.mergePolicy = NSMergePolicy.mergeByPropertyObjectTrump
     }

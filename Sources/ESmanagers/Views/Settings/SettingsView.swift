@@ -34,6 +34,7 @@ struct SettingsView: View {
             dataManagementSection
             securityNoteSection
             appInfoSection
+            legalSection
         }
         .navigationTitle("設定")
         #if os(iOS)
@@ -93,34 +94,14 @@ struct SettingsView: View {
 
     private var notificationSection: some View {
         Section {
-            Toggle("面接リマインド通知", isOn: $viewModel.isNotificationEnabled)
+            Toggle("リマインド通知", isOn: $viewModel.isNotificationEnabled)
                 .onChange(of: viewModel.isNotificationEnabled) { _ in
                     viewModel.onNotificationSettingChanged()
                 }
-
-            Picker("事前通知（日数）", selection: $viewModel.notificationDaysBefore) {
-                ForEach(0...7, id: \.self) { days in
-                    Text(days == 0 ? "通知しない" : "\(days)日前").tag(days)
-                }
-            }
-            .disabled(!viewModel.isNotificationEnabled)
-            .onChange(of: viewModel.notificationDaysBefore) { _ in
-                viewModel.onNotificationSettingChanged()
-            }
-
-            Picker("直前通知（時間）", selection: $viewModel.notificationHoursBefore) {
-                ForEach(0...24, id: \.self) { hours in
-                    Text(hours == 0 ? "通知しない" : "\(hours)時間前").tag(hours)
-                }
-            }
-            .disabled(!viewModel.isNotificationEnabled)
-            .onChange(of: viewModel.notificationHoursBefore) { _ in
-                viewModel.onNotificationSettingChanged()
-            }
         } header: {
             Text("通知設定")
         } footer: {
-            Text("面接の開始時刻を基準に、指定した時間前にリマインド通知を送信します。")
+            Text("ES・適性検査の締切や面接の通知タイミングは、各タスクの作成・編集画面で個別に設定できます。")
                 .font(.footnote)
         }
     }
@@ -192,6 +173,20 @@ struct SettingsView: View {
         Section("アプリ情報") {
             LabeledContent("バージョン", value: appVersion)
             LabeledContent("ビルド",     value: buildNumber)
+        }
+    }
+
+    private var legalSection: some View {
+        Section("サポート・法的情報") {
+            Link(destination: URL(string: "https://example.com/privacy")!) {
+                Label("プライバシーポリシー", systemImage: "hand.raised.fill")
+            }
+            Link(destination: URL(string: "https://example.com/terms")!) {
+                Label("利用規約", systemImage: "doc.text.fill")
+            }
+            Link(destination: URL(string: "https://x.com/example_dev")!) {
+                Label("開発者に連絡（X / Twitter）", systemImage: "bubble.left.fill")
+            }
         }
     }
 

@@ -48,7 +48,7 @@ struct TemplateListView: View {
         }
     }
 
-    // MARK: - Subviews
+    // MARK: - Template list
 
     private var templateList: some View {
         List {
@@ -67,7 +67,13 @@ struct TemplateListView: View {
             }
         }
         .listStyle(.insetGrouped)
+        // バナー分のスクロール余白を自動確保しつつ固定表示
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            TemplateSquareAdView()
+        }
     }
+
+    // MARK: - Template row
 
     private func templateRow(_ t: Template) -> some View {
         VStack(alignment: .leading, spacing: 4) {
@@ -80,6 +86,8 @@ struct TemplateListView: View {
         }
         .padding(.vertical, 2)
     }
+
+    // MARK: - Empty state
 
     private var emptyState: some View {
         VStack(spacing: 16) {
@@ -111,6 +119,26 @@ struct TemplateListView: View {
         #else
         .automatic
         #endif
+    }
+}
+
+// MARK: - Banner Ad View
+
+private struct TemplateSquareAdView: View {
+    var body: some View {
+        HStack {
+            Spacer()
+            Color(UIColor.secondarySystemBackground)
+                .frame(width: 300, height: 250)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .overlay {
+                    Text("PR")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            Spacer()
+        }
+        .padding(.bottom, 16)
     }
 }
 

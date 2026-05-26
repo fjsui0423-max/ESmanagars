@@ -3,6 +3,10 @@ import CoreData
 
 struct IndustryDetailView: View {
     @ObservedObject var industry: Industry
+    @Environment(\.managedObjectContext) private var context
+
+    @State private var pendingDeleteCompany:     Company?
+    @State private var showDeleteCompanyConfirm = false
 
     private let columns = Array(repeating: GridItem(.flexible(), spacing: 16), count: 4)
 
@@ -18,6 +22,21 @@ struct IndustryDetailView: View {
                                 CompanyIconView(company: company)
                             }
                             .buttonStyle(.plain)
+                            .contextMenu {
+                                Button {
+                                    company.industry = nil
+                                    if context.hasChanges { try? context.save() }
+                                } label: {
+                                    Label("フォルダから出す", systemImage: "folder.badge.minus")
+                                }
+
+                                Button(role: .destructive) {
+                                    pendingDeleteCompany    = company
+                                    showDeleteCompanyConfirm = true
+                                } label: {
+                                    Label("この企業を削除", systemImage: "trash")
+                                }
+                            }
                         }
                     }
                     .padding(.horizontal, 16)
@@ -32,6 +51,20 @@ struct IndustryDetailView: View {
         .background(Color.systemGroupedBackground.ignoresSafeArea())
         .navigationDestination(for: Company.self) { company in
             CompanyDetailView(company: company)
+        }
+        .alert(
+            "企業を削除",
+            isPresented: $showDeleteCompanyConfirm,
+            presenting: pendingDeleteCompany
+        ) { company in
+            Button("削除", role: .destructive) {
+                context.delete(company)
+                try? context.save()
+                pendingDeleteCompany = nil
+            }
+            Button("キャンセル", role: .cancel) { pendingDeleteCompany = nil }
+        } message: { company in
+            Text("「\(company.name ?? "")」を削除します。関連するESデータもすべて削除されます。この操作は取り消せません。")
         }
     }
 

@@ -91,7 +91,11 @@ struct HomeView: View {
                 }
             }
             .padding(.horizontal, 16)
-            .padding(.vertical, 20)
+            .padding(.top, 20)
+            .padding(.bottom, 28) // バナー高さ分の余白
+        }
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            BannerAdView()
         }
         .navigationTitle("企業・業界一覧")
         #if os(iOS)
@@ -260,6 +264,21 @@ struct HomeView: View {
         #else
         .automatic
         #endif
+    }
+}
+
+// MARK: - Banner Ad View
+
+private struct BannerAdView: View {
+    var body: some View {
+        Color(UIColor.secondarySystemBackground)
+            .frame(height: 50)
+            .overlay(alignment: .top) { Divider() }
+            .overlay {
+                Text("PR")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
     }
 }
 

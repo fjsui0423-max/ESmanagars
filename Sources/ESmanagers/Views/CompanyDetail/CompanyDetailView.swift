@@ -50,34 +50,38 @@ struct CompanyDetailView: View {
             }
         }
         .sheet(isPresented: $showAddESBox) {
-            ESBoxCreateView { title, deadline in
+            ESBoxCreateView { title, deadline, offsets in
                 if let sel = targetSelection {
-                    viewModel.addESBox(to: sel, title: title, deadline: deadline, in: context)
+                    viewModel.addESBox(to: sel, title: title, deadline: deadline,
+                                       notifOffsets: offsets, in: context)
                 }
                 targetSelection = nil
             }
         }
         .sheet(isPresented: $showAddAptitudeTest) {
-            AptitudeTestCreateView { type, customType, deadline, status in
+            AptitudeTestCreateView { type, customType, deadline, status, offsets in
                 if let sel = targetSelection {
                     viewModel.addAptitudeTest(to: sel, type: type, customType: customType,
-                                              deadline: deadline, status: status, in: context)
+                                              deadline: deadline, status: status,
+                                              notifOffsets: offsets, in: context)
                 }
                 targetSelection = nil
             }
         }
         .sheet(isPresented: $showAddInterview) {
-            InterviewCreateView { stage, startAt, mode in
+            InterviewCreateView { stage, startAt, mode, offsets in
                 if let sel = targetSelection {
-                    viewModel.addInterview(to: sel, stage: stage, startAt: startAt, mode: mode, in: context)
+                    viewModel.addInterview(to: sel, stage: stage, startAt: startAt, mode: mode,
+                                          notifOffsets: offsets, in: context)
                 }
                 targetSelection = nil
             }
         }
         .sheet(isPresented: $showEditInterview) {
             if let interview = editingInterview {
-                InterviewEditView(interview: interview) { stage, startAt, mode in
-                    viewModel.updateInterview(interview, stage: stage, startAt: startAt, mode: mode, in: context)
+                InterviewEditView(interview: interview) { stage, startAt, mode, offsets in
+                    viewModel.updateInterview(interview, stage: stage, startAt: startAt, mode: mode,
+                                             notifOffsets: offsets, in: context)
                 }
             }
         }

@@ -3,11 +3,12 @@ import SwiftUI
 struct InterviewCreateView: View {
     @Environment(\.dismiss) private var dismiss
 
-    let onSave: (String, Date, String) -> Void
+    let onSave: (String, Date, String, Set<InterviewOffset>) -> Void
 
-    @State private var stage   = "1次面接"
-    @State private var startAt = Date()
-    @State private var mode    = "オンライン"
+    @State private var stage        = "1次面接"
+    @State private var startAt      = Date()
+    @State private var mode         = "オンライン"
+    @State private var notifOffsets: Set<InterviewOffset> = [.oneDay, .oneHour]
 
     static let stages: [String] = ["カジュアル面談", "1次面接", "2次面接", "3次面接", "最終面接"]
     static let modes:  [String] = ["オンライン", "対面"]
@@ -35,6 +36,8 @@ struct InterviewCreateView: View {
                     }
                     .pickerStyle(.segmented)
                 }
+
+                InterviewNotificationSection(selectedOffsets: $notifOffsets)
             }
             .navigationTitle("面接を追加")
             #if os(iOS)
@@ -46,7 +49,7 @@ struct InterviewCreateView: View {
                 }
                 ToolbarItem(placement: savePlacement) {
                     Button("保存") {
-                        onSave(stage, startAt, mode)
+                        onSave(stage, startAt, mode, notifOffsets)
                         dismiss()
                     }
                     .fontWeight(.semibold)
@@ -76,8 +79,8 @@ struct InterviewCreateView: View {
 
 #if os(iOS)
 #Preview {
-    InterviewCreateView { stage, date, mode in
-        print("stage: \(stage), date: \(date), mode: \(mode)")
+    InterviewCreateView { stage, date, mode, offsets in
+        print("stage: \(stage), date: \(date), mode: \(mode), offsets: \(offsets)")
     }
 }
 #endif

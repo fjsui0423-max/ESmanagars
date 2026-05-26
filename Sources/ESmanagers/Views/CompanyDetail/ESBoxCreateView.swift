@@ -3,21 +3,20 @@ import SwiftUI
 struct ESBoxCreateView: View {
     @Environment(\.dismiss) private var dismiss
 
-    let onSave: (String, Date?) -> Void
+    let onSave: (String, Date?, Set<DeadlineOffset>) -> Void
 
-    @State private var title       = ""
-    @State private var deadline    = Date()
-    @State private var hasDeadline = false
+    @State private var title        = ""
+    @State private var deadline     = Date()
+    @State private var hasDeadline  = false
+    @State private var notifOffsets: Set<DeadlineOffset> = [.oneDay]
 
     var body: some View {
         NavigationStack {
             Form {
-                // MARK: 選考フェーズ名
                 Section("選考フェーズ") {
                     TextField("例：サマーインターン", text: $title)
                 }
 
-                // MARK: 締切日
                 Section {
                     Toggle("締切日を設定する", isOn: $hasDeadline.animation())
                     if hasDeadline {
@@ -33,6 +32,10 @@ struct ESBoxCreateView: View {
                             .font(.caption)
                     }
                 }
+
+                if hasDeadline {
+                    DeadlineNotificationSection(selectedOffsets: $notifOffsets)
+                }
             }
             .navigationTitle("新規ES BOX作成")
             #if os(iOS)
@@ -44,7 +47,7 @@ struct ESBoxCreateView: View {
                 }
                 ToolbarItem(placement: savePlacement) {
                     Button("保存") {
-                        onSave(title, hasDeadline ? deadline : nil)
+                        onSave(title, hasDeadline ? deadline : nil, notifOffsets)
                         dismiss()
                     }
                     .fontWeight(.semibold)
@@ -75,8 +78,8 @@ struct ESBoxCreateView: View {
 
 #if os(iOS)
 #Preview {
-    ESBoxCreateView { title, deadline in
-        print("保存: \(title), \(String(describing: deadline))")
+    ESBoxCreateView { title, deadline, offsets in
+        print("保存: \(title), \(String(describing: deadline)), offsets: \(offsets)")
     }
 }
 #endif

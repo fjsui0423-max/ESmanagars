@@ -143,16 +143,31 @@ final class CompanyDetailViewModel: ObservableObject {
 
     // MARK: - ESBox
 
-    func addESBox(to selection: Selection, title: String, deadline: Date?, in context: NSManagedObjectContext) {
+    func addESBox(
+        to selection: Selection,
+        title: String,
+        deadline: Date?,
+        notifOffsets: Set<DeadlineOffset>,
+        in context: NSManagedObjectContext
+    ) {
         let trimmed = title.trimmingCharacters(in: .whitespaces)
         guard !trimmed.isEmpty else { return }
         let box = ESBox(context: context)
-        box.id         = UUID()
+        let id = UUID()
+        box.id         = id
         box.title      = trimmed
         box.status     = "未着手"
         box.deadlineAt = deadline
         box.selection  = selection
         try? context.save()
+
+        if let deadlineAt = deadline {
+            let companyName = selection.company?.name ?? "企業名不明"
+            NotificationManager.shared.scheduleDeadlineReminders(
+                id: id.uuidString, title: trimmed,
+                companyName: companyName, deadlineAt: deadlineAt, offsets: notifOffsets
+            )
+        }
         objectWillChange.send()
     }
 
@@ -162,16 +177,27 @@ final class CompanyDetailViewModel: ObservableObject {
         to selection: Selection,
         type: String, customType: String?,
         deadline: Date?, status: String,
+        notifOffsets: Set<DeadlineOffset>,
         in context: NSManagedObjectContext
     ) {
         let test = AptitudeTest(context: context)
-        test.id         = UUID()
+        let id = UUID()
+        test.id         = id
         test.type       = type
         test.customType = customType
         test.deadlineAt = deadline
         test.status     = status
         test.selection  = selection
         try? context.save()
+
+        if let deadlineAt = deadline {
+            let companyName = selection.company?.name ?? "企業名不明"
+            let displayType = customType.nilIfEmpty ?? type
+            NotificationManager.shared.scheduleDeadlineReminders(
+                id: id.uuidString, title: displayType,
+                companyName: companyName, deadlineAt: deadlineAt, offsets: notifOffsets
+            )
+        }
         objectWillChange.send()
     }
 
@@ -182,6 +208,9 @@ final class CompanyDetailViewModel: ObservableObject {
     }
 
     func deleteAptitudeTest(_ test: AptitudeTest, in context: NSManagedObjectContext) {
+        if let id = test.id?.uuidString {
+            NotificationManager.shared.cancelDeadlineReminders(id: id)
+        }
         context.delete(test)
         try? context.save()
         objectWillChange.send()
@@ -192,6 +221,7 @@ final class CompanyDetailViewModel: ObservableObject {
     func addInterview(
         to selection: Selection,
         stage: String, startAt: Date, mode: String,
+        notifOffsets: Set<InterviewOffset>,
         in context: NSManagedObjectContext
     ) {
         let interview = Interview(context: context)
@@ -202,7 +232,7 @@ final class CompanyDetailViewModel: ObservableObject {
         interview.status    = "予定"
         interview.selection = selection
         try? context.save()
-        NotificationManager.shared.scheduleReminders(for: interview)
+        NotificationManager.shared.scheduleInterviewReminders(for: interview, offsets: notifOffsets)
         objectWillChange.send()
     }
 
@@ -216,13 +246,14 @@ final class CompanyDetailViewModel: ObservableObject {
     func updateInterview(
         _ interview: Interview,
         stage: String, startAt: Date, mode: String,
+        notifOffsets: Set<InterviewOffset>,
         in context: NSManagedObjectContext
     ) {
         interview.stage   = stage
         interview.startAt = startAt
         interview.mode    = mode
         try? context.save()
-        NotificationManager.shared.scheduleReminders(for: interview)
+        NotificationManager.shared.scheduleInterviewReminders(for: interview, offsets: notifOffsets)
         objectWillChange.send()
     }
 

@@ -28,8 +28,7 @@ struct CompanyIconView: View {
                 .font(.system(size: 10, weight: .medium))
                 .foregroundStyle(.primary)
                 .lineLimit(1)
-                .minimumScaleFactor(0.7)
-                .multilineTextAlignment(.center)
+                .truncationMode(.tail)
                 .frame(width: iconSize)
         }
     }
