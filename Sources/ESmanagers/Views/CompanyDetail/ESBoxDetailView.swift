@@ -8,7 +8,8 @@ struct ESBoxDetailView: View {
 
     @FetchRequest private var questions: FetchedResults<ESQuestion>
 
-    @State private var showAddQuestion = false
+    @State private var showAddQuestion  = false
+    @State private var showEditESBox    = false
 
     private static let dateFormatter: DateFormatter = {
         let f = DateFormatter()
@@ -55,6 +56,14 @@ struct ESBoxDetailView: View {
                     Image(systemName: "plus")
                 }
             }
+            ToolbarItem(placement: editButtonPlacement) {
+                Button {
+                    showEditESBox = true
+                } label: {
+                    Image(systemName: "pencil")
+                        .fontWeight(.medium)
+                }
+            }
         }
         // ESQuestion → ESEditorContainerView への遷移先登録
         .navigationDestination(for: ESQuestion.self) { question in
@@ -63,6 +72,28 @@ struct ESBoxDetailView: View {
         .sheet(isPresented: $showAddQuestion) {
             ESQuestionCreateView { text, max in
                 addQuestion(text: text, maxLength: max)
+            }
+        }
+        // ES BOX 編集シート（タイトル・締切日を変更）
+        .sheet(isPresented: $showEditESBox) {
+            ESBoxEditView(esBox: esBox) { title, deadline, offsets in
+                let trimmed = title.trimmingCharacters(in: .whitespaces)
+                guard !trimmed.isEmpty else { return }
+                // 既存通知キャンセル
+                if let id = esBox.id?.uuidString {
+                    NotificationManager.shared.cancelDeadlineReminders(id: id)
+                }
+                esBox.title      = trimmed
+                esBox.deadlineAt = deadline
+                try? context.save()
+                // 新しい通知を登録
+                if let deadlineAt = deadline, let id = esBox.id {
+                    let companyName = esBox.selection?.company?.name ?? ""
+                    NotificationManager.shared.scheduleDeadlineReminders(
+                        id: id.uuidString, title: trimmed,
+                        companyName: companyName, deadlineAt: deadlineAt, offsets: offsets
+                    )
+                }
             }
         }
     }
@@ -86,6 +117,14 @@ struct ESBoxDetailView: View {
     }
 
     private var addButtonPlacement: ToolbarItemPlacement {
+        #if os(iOS)
+        .topBarTrailing
+        #else
+        .automatic
+        #endif
+    }
+
+    private var editButtonPlacement: ToolbarItemPlacement {
         #if os(iOS)
         .topBarTrailing
         #else

@@ -1,5 +1,6 @@
 import SwiftUI
 import CoreData
+import UIKit
 
 // MARK: - Container
 
@@ -175,12 +176,21 @@ struct AnalyticsView: View {
 
     private var rewardButton: some View {
         Button {
-            isWatchingAd = true
-            Task { @MainActor in
-                try? await Task.sleep(for: .seconds(2))
+            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+               let rootVC = windowScene.windows.first?.rootViewController {
+                isWatchingAd = true
+                AdMobRewardManager.shared.showRewardAd(from: rootVC) {
+                    Task { @MainActor in
+                        withAnimation(.spring(duration: 0.55, bounce: 0.1)) {
+                            viewModel.unlock()
+                            isWatchingAd = false
+                        }
+                    }
+                }
+            } else {
+                // rootVC 取得不可の場合はフォールバックとしてロック解除
                 withAnimation(.spring(duration: 0.55, bounce: 0.1)) {
-                    viewModel.lastAnalyticsUnlockedAt = Date().timeIntervalSince1970
-                    isWatchingAd = false
+                    viewModel.unlock()
                 }
             }
         } label: {
@@ -232,6 +242,11 @@ struct AnalyticsView: View {
         .overlay(alignment: .bottom) { Divider() }
     }
 
+    // MARK: - Offer green (内定・内定率専用カラー)
+
+    /// 内定・内定率を表示する箇所で使う鮮やかな緑
+    private let offerGreen = Color(red: 0.12, green: 0.74, blue: 0.38)
+
     // MARK: - Summary card
 
     private var summaryCard: some View {
@@ -249,7 +264,7 @@ struct AnalyticsView: View {
                 value: "\(viewModel.selectionSummary.achieved)",
                 unit: "件",
                 label: viewModel.summaryAchievedLabel,
-                color: viewModel.selectionSummary.achieved > 0 ? .green : .secondary
+                color: achievedColor
             )
 
             Divider().frame(height: 56).padding(.horizontal, 4)
@@ -260,14 +275,27 @@ struct AnalyticsView: View {
                     : "—",
                 unit: viewModel.selectionSummary.total > 0 ? "%" : "",
                 label: viewModel.summaryRateLabel,
-                color: rateColor(viewModel.selectionSummary.rate,
-                                 hasData: viewModel.selectionSummary.total > 0)
+                color: summaryRateColor
             )
         }
         .padding(.vertical, 20)
         .padding(.horizontal, 12)
         .background(Color.secondarySystemGroupedBackground)
         .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+    }
+
+    /// 「内定数 / 合格数 / 参加数」KPIのカラー
+    private var achievedColor: Color {
+        guard viewModel.selectionSummary.achieved > 0 else { return .secondary }
+        return viewModel.selectionCategoryFilter == "本選考" ? offerGreen : .green
+    }
+
+    /// 「内定率 / 合格率 / 参加率」KPIのカラー
+    private var summaryRateColor: Color {
+        guard viewModel.selectionSummary.total > 0 else { return .secondary }
+        // 本選考モードは「内定率」 → 常にofferGreenで統一
+        if viewModel.selectionCategoryFilter == "本選考" { return offerGreen }
+        return rateColor(viewModel.selectionSummary.rate, hasData: true)
     }
 
     private func kpiCell(value: String, unit: String, label: String, color: Color) -> some View {
@@ -291,7 +319,7 @@ struct AnalyticsView: View {
 
     private func rateColor(_ rate: Double, hasData: Bool) -> Color {
         guard hasData else { return .secondary }
-        if rate >= 0.5 { return .green }
+        if rate >= 0.5 { return offerGreen }
         if rate >= 0.25 { return .orange }
         return .red
     }

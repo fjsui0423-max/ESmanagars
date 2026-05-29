@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct IndustryFolderView: View {
-    let industry: Industry
+    @ObservedObject var industry: Industry
 
     private let iconSize: CGFloat = 68
     private let miniIconSize: CGFloat = 22
@@ -27,7 +27,8 @@ struct IndustryFolderView: View {
             Text(industry.name ?? "")
                 .font(.system(size: 10, weight: .medium))
                 .foregroundStyle(.primary)
-                .lineLimit(2)
+                .lineLimit(1)
+                .truncationMode(.tail)
                 .multilineTextAlignment(.center)
                 .frame(width: iconSize)
         }

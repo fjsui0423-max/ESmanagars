@@ -26,7 +26,7 @@ extension AptitudeTest {
         "SPI(WEB)", "SPI(テストセンター)",
         "GAB", "CAB",
         "GAB(テストセンター)", "CAB(テストセンター)",
-        "TGWEB", "カスタム"
+        "TGWEB", "玉手箱", "カスタム"
     ]
     static let statuses: [String] = ["未受験", "受験済み", "合格", "落選"]
 

@@ -1,0 +1,1259 @@
+{
+  "exportedAt": "2026-06-15T12:00:00Z",
+  "industries": [],
+  "standaloneCompanies": [
+    {
+      "id": "49c7b9c5-245e-4252-ab88-34cf4dc31c9f",
+      "name": "A社",
+      "myPageURL": null,
+      "loginID": null,
+      "selections": [
+        {
+          "id": "8d210c33-a0f9-4123-a3ab-50b75c62b888",
+          "category": "本選考",
+          "title": null,
+          "status": "落選",
+          "esBoxes": [
+            {
+              "id": "5079bcdd-bd45-4093-9309-8a01e5f979bc",
+              "title": "本選考ES",
+              "deadlineAt": "2026-04-05T23:59:00Z",
+              "status": "落選",
+              "questions": [
+                {
+                  "id": "a2169540-f685-412f-b4cc-25e52c613599",
+                  "questionText": "志望動機を教えてください。（400字以内）",
+                  "maxLength": 400,
+                  "currentAnswer": "貴社を志望する理由は3点あります。第一に、業界随一の技術力と実績。第二に、若手社員が裁量を持って挑戦できる社風。第三に、グローバルに事業を展開する成長性です。学生時代に培った〇〇の経験を活かし、貴社の発展に貢献したいと考えています。",
+                  "sortOrder": 0,
+                  "versions": []
+                },
+                {
+                  "id": "90a63b1c-abec-4501-8ecf-1a1cf2cc121e",
+                  "questionText": "学生時代に最も力を入れたことを教えてください。（300字以内）",
+                  "maxLength": 300,
+                  "currentAnswer": "ゼミでのフィールドワーク調査に最も注力しました。10名のチームリーダーとして、データ収集から分析・発表まで一貫して担当。意見の対立を調整しながら成果を出した経験から、傾聴力と課題解決力を養いました。",
+                  "sortOrder": 1,
+                  "versions": []
+                }
+              ]
+            }
+          ],
+          "aptitudeTests": [],
+          "interviews": []
+        }
+      ]
+    },
+    {
+      "id": "6aec0a75-d3c1-4fd9-8b71-055fe54b5cb5",
+      "name": "B社",
+      "myPageURL": null,
+      "loginID": null,
+      "selections": [
+        {
+          "id": "f8a8b77b-7b0b-4f3e-8759-daf977a7b8db",
+          "category": "本選考",
+          "title": null,
+          "status": "落選",
+          "esBoxes": [
+            {
+              "id": "6ff61f61-461e-467c-aebc-9f9b1436ca1b",
+              "title": "本選考ES",
+              "deadlineAt": "2026-05-04T23:59:00Z",
+              "status": "落選",
+              "questions": [
+                {
+                  "id": "adbcb031-4474-4026-9ed3-de107bfa5865",
+                  "questionText": "志望動機を教えてください。（400字以内）",
+                  "maxLength": 400,
+                  "currentAnswer": "貴社を志望する理由は3点あります。第一に、業界随一の技術力と実績。第二に、若手社員が裁量を持って挑戦できる社風。第三に、グローバルに事業を展開する成長性です。学生時代に培った〇〇の経験を活かし、貴社の発展に貢献したいと考えています。",
+                  "sortOrder": 0,
+                  "versions": []
+                },
+                {
+                  "id": "0e6207d7-f6dc-400c-a077-9ef95ffd5a18",
+                  "questionText": "学生時代に最も力を入れたことを教えてください。（300字以内）",
+                  "maxLength": 300,
+                  "currentAnswer": "ゼミでのフィールドワーク調査に最も注力しました。10名のチームリーダーとして、データ収集から分析・発表まで一貫して担当。意見の対立を調整しながら成果を出した経験から、傾聴力と課題解決力を養いました。",
+                  "sortOrder": 1,
+                  "versions": []
+                }
+              ]
+            }
+          ],
+          "aptitudeTests": [],
+          "interviews": []
+        }
+      ]
+    },
+    {
+      "id": "6382ae5a-41d9-46af-a272-3f8064a204f5",
+      "name": "C社",
+      "myPageURL": null,
+      "loginID": null,
+      "selections": [
+        {
+          "id": "cf740eb8-55d1-4313-9910-8dadeec3ff86",
+          "category": "本選考",
+          "title": null,
+          "status": "落選",
+          "esBoxes": [
+            {
+              "id": "02289a73-89d2-4e35-a9c4-a698830b11b1",
+              "title": "本選考ES",
+              "deadlineAt": "2026-04-05T23:59:00Z",
+              "status": "合格",
+              "questions": [
+                {
+                  "id": "f2a47d38-ff3c-4af4-bcea-8bfef4de8e57",
+                  "questionText": "志望動機を教えてください。（400字以内）",
+                  "maxLength": 400,
+                  "currentAnswer": "貴社を志望する理由は3点あります。第一に、業界随一の技術力と実績。第二に、若手社員が裁量を持って挑戦できる社風。第三に、グローバルに事業を展開する成長性です。学生時代に培った〇〇の経験を活かし、貴社の発展に貢献したいと考えています。",
+                  "sortOrder": 0,
+                  "versions": []
+                },
+                {
+                  "id": "99fa3546-a01b-4753-ab9c-4884e101689c",
+                  "questionText": "学生時代に最も力を入れたことを教えてください。（300字以内）",
+                  "maxLength": 300,
+                  "currentAnswer": "ゼミでのフィールドワーク調査に最も注力しました。10名のチームリーダーとして、データ収集から分析・発表まで一貫して担当。意見の対立を調整しながら成果を出した経験から、傾聴力と課題解決力を養いました。",
+                  "sortOrder": 1,
+                  "versions": []
+                }
+              ]
+            }
+          ],
+          "aptitudeTests": [
+            {
+              "id": "e3fb5eec-e476-487e-a20c-f138fdb9bb5c",
+              "type": "SPI(WEB)",
+              "customType": null,
+              "deadlineAt": "2026-04-05T23:59:00Z",
+              "status": "落選"
+            }
+          ],
+          "interviews": []
+        }
+      ]
+    },
+    {
+      "id": "efe80181-be7a-4fc7-935c-67207fcdf581",
+      "name": "D社",
+      "myPageURL": null,
+      "loginID": null,
+      "selections": [
+        {
+          "id": "955b771c-5d0a-4811-a2d2-fa3c449e94c6",
+          "category": "本選考",
+          "title": null,
+          "status": "落選",
+          "esBoxes": [
+            {
+              "id": "356ee531-173f-4255-a1d3-1facb684d36c",
+              "title": "本選考ES",
+              "deadlineAt": "2026-04-13T23:59:00Z",
+              "status": "合格",
+              "questions": [
+                {
+                  "id": "48e1fe73-8286-4ad3-b1e1-3a2b2d11b4e3",
+                  "questionText": "志望動機を教えてください。（400字以内）",
+                  "maxLength": 400,
+                  "currentAnswer": "貴社を志望する理由は3点あります。第一に、業界随一の技術力と実績。第二に、若手社員が裁量を持って挑戦できる社風。第三に、グローバルに事業を展開する成長性です。学生時代に培った〇〇の経験を活かし、貴社の発展に貢献したいと考えています。",
+                  "sortOrder": 0,
+                  "versions": []
+                },
+                {
+                  "id": "3f59ed6d-a2f2-4b9b-bd48-6b87c5f931c1",
+                  "questionText": "学生時代に最も力を入れたことを教えてください。（300字以内）",
+                  "maxLength": 300,
+                  "currentAnswer": "ゼミでのフィールドワーク調査に最も注力しました。10名のチームリーダーとして、データ収集から分析・発表まで一貫して担当。意見の対立を調整しながら成果を出した経験から、傾聴力と課題解決力を養いました。",
+                  "sortOrder": 1,
+                  "versions": []
+                }
+              ]
+            }
+          ],
+          "aptitudeTests": [
+            {
+              "id": "0caab466-dbb1-4bf5-b578-c28624961d33",
+              "type": "玉手箱",
+              "customType": null,
+              "deadlineAt": "2026-04-13T23:59:00Z",
+              "status": "落選"
+            }
+          ],
+          "interviews": []
+        }
+      ]
+    },
+    {
+      "id": "42ed95f6-ea34-4ec9-9f72-7225eb591fbd",
+      "name": "E社",
+      "myPageURL": null,
+      "loginID": null,
+      "selections": [
+        {
+          "id": "cd67f546-17ee-4781-8575-5a7ed3fb6e2a",
+          "category": "本選考",
+          "title": null,
+          "status": "落選",
+          "esBoxes": [
+            {
+              "id": "a61fc56c-fbaa-44bf-8ad6-589265acb34a",
+              "title": "本選考ES",
+              "deadlineAt": "2026-03-29T23:59:00Z",
+              "status": "合格",
+              "questions": [
+                {
+                  "id": "1e108dc4-def0-40b2-9e25-af56790fdcf5",
+                  "questionText": "志望動機を教えてください。（400字以内）",
+                  "maxLength": 400,
+                  "currentAnswer": "貴社を志望する理由は3点あります。第一に、業界随一の技術力と実績。第二に、若手社員が裁量を持って挑戦できる社風。第三に、グローバルに事業を展開する成長性です。学生時代に培った〇〇の経験を活かし、貴社の発展に貢献したいと考えています。",
+                  "sortOrder": 0,
+                  "versions": []
+                },
+                {
+                  "id": "b0893d99-3e4d-4e63-9aaa-e6d87201ac4a",
+                  "questionText": "学生時代に最も力を入れたことを教えてください。（300字以内）",
+                  "maxLength": 300,
+                  "currentAnswer": "ゼミでのフィールドワーク調査に最も注力しました。10名のチームリーダーとして、データ収集から分析・発表まで一貫して担当。意見の対立を調整しながら成果を出した経験から、傾聴力と課題解決力を養いました。",
+                  "sortOrder": 1,
+                  "versions": []
+                }
+              ]
+            }
+          ],
+          "aptitudeTests": [
+            {
+              "id": "97d5ccc5-dacf-42bd-b9c5-384a2108d037",
+              "type": "TGWEB",
+              "customType": null,
+              "deadlineAt": "2026-04-06T23:59:00Z",
+              "status": "合格"
+            }
+          ],
+          "interviews": [
+            {
+              "id": "982be96f-2d45-4a0c-ba51-6b2fedbb1669",
+              "stage": "1次面接",
+              "startAt": "2026-04-14T10:00:00Z",
+              "mode": "オンライン",
+              "status": "落選"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "34829894-51cc-4593-9855-8553091f0195",
+      "name": "F社",
+      "myPageURL": null,
+      "loginID": null,
+      "selections": [
+        {
+          "id": "8625856f-6884-43fd-9a93-20deaf3ec647",
+          "category": "本選考",
+          "title": null,
+          "status": "落選",
+          "esBoxes": [
+            {
+              "id": "e7b47399-1e85-433f-943c-332e59ea0232",
+              "title": "本選考ES",
+              "deadlineAt": "2026-04-12T23:59:00Z",
+              "status": "合格",
+              "questions": [
+                {
+                  "id": "de1abf41-8f5d-4bfb-9d5a-14f6ac97bc2b",
+                  "questionText": "志望動機を教えてください。（400字以内）",
+                  "maxLength": 400,
+                  "currentAnswer": "貴社を志望する理由は3点あります。第一に、業界随一の技術力と実績。第二に、若手社員が裁量を持って挑戦できる社風。第三に、グローバルに事業を展開する成長性です。学生時代に培った〇〇の経験を活かし、貴社の発展に貢献したいと考えています。",
+                  "sortOrder": 0,
+                  "versions": []
+                },
+                {
+                  "id": "13ac0b7a-34c4-4431-a8aa-7465f99a9963",
+                  "questionText": "学生時代に最も力を入れたことを教えてください。（300字以内）",
+                  "maxLength": 300,
+                  "currentAnswer": "ゼミでのフィールドワーク調査に最も注力しました。10名のチームリーダーとして、データ収集から分析・発表まで一貫して担当。意見の対立を調整しながら成果を出した経験から、傾聴力と課題解決力を養いました。",
+                  "sortOrder": 1,
+                  "versions": []
+                }
+              ]
+            }
+          ],
+          "aptitudeTests": [
+            {
+              "id": "db2041fc-1ef7-4430-ac54-66531e37f64f",
+              "type": "SPI(WEB)",
+              "customType": null,
+              "deadlineAt": "2026-04-19T23:59:00Z",
+              "status": "合格"
+            }
+          ],
+          "interviews": [
+            {
+              "id": "e5c04447-c476-463a-b294-01b01694fd14",
+              "stage": "1次面接",
+              "startAt": "2026-04-28T14:00:00Z",
+              "mode": "オンライン",
+              "status": "落選"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "14e7242c-708d-4ce4-836c-087835dc408d",
+      "name": "G社",
+      "myPageURL": null,
+      "loginID": null,
+      "selections": [
+        {
+          "id": "a77e9b00-adb8-4a3d-8d05-c15e3e9a01b5",
+          "category": "本選考",
+          "title": null,
+          "status": "落選",
+          "esBoxes": [
+            {
+              "id": "92953d39-6350-433a-bb23-655ca13d6ec0",
+              "title": "本選考ES",
+              "deadlineAt": "2026-04-06T23:59:00Z",
+              "status": "合格",
+              "questions": [
+                {
+                  "id": "beaae26c-7bc9-48dd-88c0-a2bb31a50495",
+                  "questionText": "志望動機を教えてください。（400字以内）",
+                  "maxLength": 400,
+                  "currentAnswer": "貴社を志望する理由は3点あります。第一に、業界随一の技術力と実績。第二に、若手社員が裁量を持って挑戦できる社風。第三に、グローバルに事業を展開する成長性です。学生時代に培った〇〇の経験を活かし、貴社の発展に貢献したいと考えています。",
+                  "sortOrder": 0,
+                  "versions": []
+                },
+                {
+                  "id": "8d3b2b1c-d333-4822-b8f9-626945ea5d5d",
+                  "questionText": "学生時代に最も力を入れたことを教えてください。（300字以内）",
+                  "maxLength": 300,
+                  "currentAnswer": "ゼミでのフィールドワーク調査に最も注力しました。10名のチームリーダーとして、データ収集から分析・発表まで一貫して担当。意見の対立を調整しながら成果を出した経験から、傾聴力と課題解決力を養いました。",
+                  "sortOrder": 1,
+                  "versions": []
+                }
+              ]
+            }
+          ],
+          "aptitudeTests": [
+            {
+              "id": "a5228923-09e6-4e1d-9a46-44df7bb22b0a",
+              "type": "SPI(WEB)",
+              "customType": null,
+              "deadlineAt": "2026-04-06T23:59:00Z",
+              "status": "合格"
+            }
+          ],
+          "interviews": [
+            {
+              "id": "983bc5a3-49b1-4110-9bc9-7e57408c706a",
+              "stage": "1次面接",
+              "startAt": "2026-04-15T10:00:00Z",
+              "mode": "オンライン",
+              "status": "通過"
+            },
+            {
+              "id": "66d7c3fe-f303-436f-9f9d-851b365c3a85",
+              "stage": "2次面接",
+              "startAt": "2026-04-22T10:00:00Z",
+              "mode": "オンライン",
+              "status": "落選"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "8f4db58d-5035-4a6b-9c79-92f7b84651a9",
+      "name": "H社",
+      "myPageURL": null,
+      "loginID": null,
+      "selections": [
+        {
+          "id": "7477715e-1f10-4622-92c2-2046e96d164b",
+          "category": "本選考",
+          "title": null,
+          "status": "落選",
+          "esBoxes": [
+            {
+              "id": "b5de1892-5d67-4576-a14d-7417b421f21b",
+              "title": "本選考ES",
+              "deadlineAt": "2026-04-19T23:59:00Z",
+              "status": "合格",
+              "questions": [
+                {
+                  "id": "8d01b011-68dc-41fe-b4b4-6da679a58a18",
+                  "questionText": "志望動機を教えてください。（400字以内）",
+                  "maxLength": 400,
+                  "currentAnswer": "貴社を志望する理由は3点あります。第一に、業界随一の技術力と実績。第二に、若手社員が裁量を持って挑戦できる社風。第三に、グローバルに事業を展開する成長性です。学生時代に培った〇〇の経験を活かし、貴社の発展に貢献したいと考えています。",
+                  "sortOrder": 0,
+                  "versions": []
+                },
+                {
+                  "id": "fba7878f-12ea-4810-b643-7a65b79be3a5",
+                  "questionText": "学生時代に最も力を入れたことを教えてください。（300字以内）",
+                  "maxLength": 300,
+                  "currentAnswer": "ゼミでのフィールドワーク調査に最も注力しました。10名のチームリーダーとして、データ収集から分析・発表まで一貫して担当。意見の対立を調整しながら成果を出した経験から、傾聴力と課題解決力を養いました。",
+                  "sortOrder": 1,
+                  "versions": []
+                }
+              ]
+            }
+          ],
+          "aptitudeTests": [
+            {
+              "id": "995a7508-94ee-42db-b316-04ff5db7f9d8",
+              "type": "TGWEB",
+              "customType": null,
+              "deadlineAt": "2026-04-19T23:59:00Z",
+              "status": "合格"
+            }
+          ],
+          "interviews": [
+            {
+              "id": "1edae3cc-f896-41dd-8251-a9e247388e9b",
+              "stage": "1次面接",
+              "startAt": "2026-04-28T10:00:00Z",
+              "mode": "オンライン",
+              "status": "通過"
+            },
+            {
+              "id": "389bb49d-0eb6-492a-8371-5290c2ed6a77",
+              "stage": "2次面接",
+              "startAt": "2026-05-07T14:00:00Z",
+              "mode": "オンライン",
+              "status": "落選"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "46c5fd4e-68f5-4ee5-a9bc-794e7a645fc6",
+      "name": "I社",
+      "myPageURL": null,
+      "loginID": null,
+      "selections": [
+        {
+          "id": "c03b9ce3-8508-4e64-99e3-2cb9dd60732e",
+          "category": "本選考",
+          "title": null,
+          "status": "落選",
+          "esBoxes": [
+            {
+              "id": "bb882476-2ea2-454a-b6d9-eb1c238148a4",
+              "title": "本選考ES",
+              "deadlineAt": "2026-04-06T23:59:00Z",
+              "status": "合格",
+              "questions": [
+                {
+                  "id": "c8d64dd9-9b90-4ea9-afc2-1f4d50a36978",
+                  "questionText": "志望動機を教えてください。（400字以内）",
+                  "maxLength": 400,
+                  "currentAnswer": "貴社を志望する理由は3点あります。第一に、業界随一の技術力と実績。第二に、若手社員が裁量を持って挑戦できる社風。第三に、グローバルに事業を展開する成長性です。学生時代に培った〇〇の経験を活かし、貴社の発展に貢献したいと考えています。",
+                  "sortOrder": 0,
+                  "versions": []
+                },
+                {
+                  "id": "10f26ad3-2623-40ed-b1ec-ba6631e336d6",
+                  "questionText": "学生時代に最も力を入れたことを教えてください。（300字以内）",
+                  "maxLength": 300,
+                  "currentAnswer": "ゼミでのフィールドワーク調査に最も注力しました。10名のチームリーダーとして、データ収集から分析・発表まで一貫して担当。意見の対立を調整しながら成果を出した経験から、傾聴力と課題解決力を養いました。",
+                  "sortOrder": 1,
+                  "versions": []
+                }
+              ]
+            }
+          ],
+          "aptitudeTests": [
+            {
+              "id": "252bc019-d756-4ae5-a012-f00f0b0c1749",
+              "type": "玉手箱",
+              "customType": null,
+              "deadlineAt": "2026-04-12T23:59:00Z",
+              "status": "合格"
+            }
+          ],
+          "interviews": [
+            {
+              "id": "5cd1ff47-5f91-4063-8fba-8d289bacda18",
+              "stage": "1次面接",
+              "startAt": "2026-04-17T14:00:00Z",
+              "mode": "オンライン",
+              "status": "通過"
+            },
+            {
+              "id": "f32d6949-cbb4-4f2f-877b-69f075c4595c",
+              "stage": "2次面接",
+              "startAt": "2026-04-24T10:00:00Z",
+              "mode": "オンライン",
+              "status": "落選"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "559e7a9b-46db-47c2-b21d-d5806ef42e3e",
+      "name": "J社",
+      "myPageURL": null,
+      "loginID": null,
+      "selections": [
+        {
+          "id": "23d64979-a15f-4243-ba88-8c72942d5cb3",
+          "category": "本選考",
+          "title": null,
+          "status": "落選",
+          "esBoxes": [
+            {
+              "id": "02a97a75-28c6-4a37-a11a-27cbe438bd14",
+              "title": "本選考ES",
+              "deadlineAt": "2026-04-13T23:59:00Z",
+              "status": "合格",
+              "questions": [
+                {
+                  "id": "57736389-4b4d-498d-bd47-8d489006d758",
+                  "questionText": "志望動機を教えてください。（400字以内）",
+                  "maxLength": 400,
+                  "currentAnswer": "貴社を志望する理由は3点あります。第一に、業界随一の技術力と実績。第二に、若手社員が裁量を持って挑戦できる社風。第三に、グローバルに事業を展開する成長性です。学生時代に培った〇〇の経験を活かし、貴社の発展に貢献したいと考えています。",
+                  "sortOrder": 0,
+                  "versions": []
+                },
+                {
+                  "id": "311d3493-714f-456d-b188-abae286b13f9",
+                  "questionText": "学生時代に最も力を入れたことを教えてください。（300字以内）",
+                  "maxLength": 300,
+                  "currentAnswer": "ゼミでのフィールドワーク調査に最も注力しました。10名のチームリーダーとして、データ収集から分析・発表まで一貫して担当。意見の対立を調整しながら成果を出した経験から、傾聴力と課題解決力を養いました。",
+                  "sortOrder": 1,
+                  "versions": []
+                }
+              ]
+            }
+          ],
+          "aptitudeTests": [
+            {
+              "id": "5c2b5fd8-9957-4804-8849-8a782a39d514",
+              "type": "SPI(WEB)",
+              "customType": null,
+              "deadlineAt": "2026-04-20T23:59:00Z",
+              "status": "合格"
+            }
+          ],
+          "interviews": [
+            {
+              "id": "4936acca-fe6a-40d3-9f49-baee73baf48c",
+              "stage": "1次面接",
+              "startAt": "2026-04-27T14:00:00Z",
+              "mode": "オンライン",
+              "status": "通過"
+            },
+            {
+              "id": "c1263f50-45e1-46c5-9761-e4a0ae3eed6d",
+              "stage": "2次面接",
+              "startAt": "2026-05-06T10:00:00Z",
+              "mode": "オンライン",
+              "status": "落選"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "1cfd92f2-e98e-4682-b17d-12bef55343e3",
+      "name": "K社",
+      "myPageURL": null,
+      "loginID": null,
+      "selections": [
+        {
+          "id": "27b20c10-11fa-40d5-a6ca-77ea9a9d4a64",
+          "category": "本選考",
+          "title": null,
+          "status": "落選",
+          "esBoxes": [
+            {
+              "id": "f1998ba6-ad60-4667-8cd8-acc5532cbf0f",
+              "title": "本選考ES",
+              "deadlineAt": "2026-04-20T23:59:00Z",
+              "status": "合格",
+              "questions": [
+                {
+                  "id": "6844e83a-85de-434f-9fb7-f9848d5890b7",
+                  "questionText": "志望動機を教えてください。（400字以内）",
+                  "maxLength": 400,
+                  "currentAnswer": "貴社を志望する理由は3点あります。第一に、業界随一の技術力と実績。第二に、若手社員が裁量を持って挑戦できる社風。第三に、グローバルに事業を展開する成長性です。学生時代に培った〇〇の経験を活かし、貴社の発展に貢献したいと考えています。",
+                  "sortOrder": 0,
+                  "versions": []
+                },
+                {
+                  "id": "a279ed7d-a691-4eef-9894-ba940e2ce4b5",
+                  "questionText": "学生時代に最も力を入れたことを教えてください。（300字以内）",
+                  "maxLength": 300,
+                  "currentAnswer": "ゼミでのフィールドワーク調査に最も注力しました。10名のチームリーダーとして、データ収集から分析・発表まで一貫して担当。意見の対立を調整しながら成果を出した経験から、傾聴力と課題解決力を養いました。",
+                  "sortOrder": 1,
+                  "versions": []
+                }
+              ]
+            }
+          ],
+          "aptitudeTests": [
+            {
+              "id": "7d19b6a1-b56c-4db9-a5db-eee9ada41e6e",
+              "type": "TGWEB",
+              "customType": null,
+              "deadlineAt": "2026-04-26T23:59:00Z",
+              "status": "合格"
+            }
+          ],
+          "interviews": [
+            {
+              "id": "06b7d7ca-130b-4611-92e5-c504ece0605b",
+              "stage": "1次面接",
+              "startAt": "2026-05-01T10:00:00Z",
+              "mode": "オンライン",
+              "status": "通過"
+            },
+            {
+              "id": "7fb98cd0-3989-4cca-ac1a-ba67137dea9e",
+              "stage": "2次面接",
+              "startAt": "2026-05-08T10:00:00Z",
+              "mode": "オンライン",
+              "status": "落選"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "e5e3953b-8fb7-4de1-ae96-eee31dbffb80",
+      "name": "L社",
+      "myPageURL": null,
+      "loginID": null,
+      "selections": [
+        {
+          "id": "da007e2e-8126-4193-ad2f-dd3e6c67ddde",
+          "category": "本選考",
+          "title": null,
+          "status": "落選",
+          "esBoxes": [
+            {
+              "id": "29f3710e-d9ae-41e5-ad96-a0f4f7e33f62",
+              "title": "本選考ES",
+              "deadlineAt": "2026-04-26T23:59:00Z",
+              "status": "合格",
+              "questions": [
+                {
+                  "id": "ef2b33bc-8f19-4355-ad4a-d0790b70f201",
+                  "questionText": "志望動機を教えてください。（400字以内）",
+                  "maxLength": 400,
+                  "currentAnswer": "貴社を志望する理由は3点あります。第一に、業界随一の技術力と実績。第二に、若手社員が裁量を持って挑戦できる社風。第三に、グローバルに事業を展開する成長性です。学生時代に培った〇〇の経験を活かし、貴社の発展に貢献したいと考えています。",
+                  "sortOrder": 0,
+                  "versions": []
+                },
+                {
+                  "id": "23f2521a-205a-4696-99be-49c5ebd650ad",
+                  "questionText": "学生時代に最も力を入れたことを教えてください。（300字以内）",
+                  "maxLength": 300,
+                  "currentAnswer": "ゼミでのフィールドワーク調査に最も注力しました。10名のチームリーダーとして、データ収集から分析・発表まで一貫して担当。意見の対立を調整しながら成果を出した経験から、傾聴力と課題解決力を養いました。",
+                  "sortOrder": 1,
+                  "versions": []
+                }
+              ]
+            }
+          ],
+          "aptitudeTests": [
+            {
+              "id": "cc319c4a-1e11-498f-a005-c985b70abb35",
+              "type": "SPI(WEB)",
+              "customType": null,
+              "deadlineAt": "2026-05-03T23:59:00Z",
+              "status": "合格"
+            }
+          ],
+          "interviews": [
+            {
+              "id": "5af19a69-8c0e-4a65-a59c-4c466263066c",
+              "stage": "1次面接",
+              "startAt": "2026-05-12T10:00:00Z",
+              "mode": "オンライン",
+              "status": "通過"
+            },
+            {
+              "id": "539f1a4f-3a00-4be3-806a-0bc577d30b80",
+              "stage": "2次面接",
+              "startAt": "2026-05-19T14:00:00Z",
+              "mode": "オンライン",
+              "status": "落選"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "9f7fd474-7a3e-4e21-8d3e-4ba3899c02ee",
+      "name": "M社",
+      "myPageURL": null,
+      "loginID": null,
+      "selections": [
+        {
+          "id": "25983f4e-5168-4c5e-9a67-77d441278127",
+          "category": "本選考",
+          "title": null,
+          "status": "落選",
+          "esBoxes": [
+            {
+              "id": "808e61f5-d6b2-4b40-8e28-81f96c15d873",
+              "title": "本選考ES",
+              "deadlineAt": "2026-05-03T23:59:00Z",
+              "status": "合格",
+              "questions": [
+                {
+                  "id": "a4f958e9-c90d-4fa2-af82-a900a3a64305",
+                  "questionText": "志望動機を教えてください。（400字以内）",
+                  "maxLength": 400,
+                  "currentAnswer": "貴社を志望する理由は3点あります。第一に、業界随一の技術力と実績。第二に、若手社員が裁量を持って挑戦できる社風。第三に、グローバルに事業を展開する成長性です。学生時代に培った〇〇の経験を活かし、貴社の発展に貢献したいと考えています。",
+                  "sortOrder": 0,
+                  "versions": []
+                },
+                {
+                  "id": "e52b63ed-6f63-4f9c-8841-745fcced4a0e",
+                  "questionText": "学生時代に最も力を入れたことを教えてください。（300字以内）",
+                  "maxLength": 300,
+                  "currentAnswer": "ゼミでのフィールドワーク調査に最も注力しました。10名のチームリーダーとして、データ収集から分析・発表まで一貫して担当。意見の対立を調整しながら成果を出した経験から、傾聴力と課題解決力を養いました。",
+                  "sortOrder": 1,
+                  "versions": []
+                }
+              ]
+            }
+          ],
+          "aptitudeTests": [
+            {
+              "id": "95d99ad9-afc8-4a42-b951-6dc8464200a1",
+              "type": "玉手箱",
+              "customType": null,
+              "deadlineAt": "2026-05-10T23:59:00Z",
+              "status": "合格"
+            }
+          ],
+          "interviews": [
+            {
+              "id": "9ef3eb53-a7aa-495c-9854-2b2febfc38de",
+              "stage": "1次面接",
+              "startAt": "2026-05-22T10:00:00Z",
+              "mode": "オンライン",
+              "status": "通過"
+            },
+            {
+              "id": "bb75d972-542c-42ef-aacf-f4fd07deac26",
+              "stage": "2次面接",
+              "startAt": "2026-05-29T10:00:00Z",
+              "mode": "オンライン",
+              "status": "落選"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "c8388fe6-a38b-415d-a835-3d6ca4a8e131",
+      "name": "N社",
+      "myPageURL": null,
+      "loginID": null,
+      "selections": [
+        {
+          "id": "68fc8153-ecd4-4ef3-a187-d650cce9b934",
+          "category": "本選考",
+          "title": null,
+          "status": "落選",
+          "esBoxes": [
+            {
+              "id": "819ce94a-2c31-428d-8ee9-99e2dd704925",
+              "title": "本選考ES",
+              "deadlineAt": "2026-05-04T23:59:00Z",
+              "status": "合格",
+              "questions": [
+                {
+                  "id": "9e4d2339-2a06-4573-9a70-610faf26e47c",
+                  "questionText": "志望動機を教えてください。（400字以内）",
+                  "maxLength": 400,
+                  "currentAnswer": "貴社を志望する理由は3点あります。第一に、業界随一の技術力と実績。第二に、若手社員が裁量を持って挑戦できる社風。第三に、グローバルに事業を展開する成長性です。学生時代に培った〇〇の経験を活かし、貴社の発展に貢献したいと考えています。",
+                  "sortOrder": 0,
+                  "versions": []
+                },
+                {
+                  "id": "c959d159-c3cd-426a-9efb-a531094a3d29",
+                  "questionText": "学生時代に最も力を入れたことを教えてください。（300字以内）",
+                  "maxLength": 300,
+                  "currentAnswer": "ゼミでのフィールドワーク調査に最も注力しました。10名のチームリーダーとして、データ収集から分析・発表まで一貫して担当。意見の対立を調整しながら成果を出した経験から、傾聴力と課題解決力を養いました。",
+                  "sortOrder": 1,
+                  "versions": []
+                }
+              ]
+            }
+          ],
+          "aptitudeTests": [
+            {
+              "id": "99d0cd89-7bf8-4e7f-9aec-b3d53e47f11a",
+              "type": "TGWEB",
+              "customType": null,
+              "deadlineAt": "2026-05-11T23:59:00Z",
+              "status": "合格"
+            }
+          ],
+          "interviews": [
+            {
+              "id": "bcbffea8-d6ad-41d6-8f19-5ab51f709319",
+              "stage": "1次面接",
+              "startAt": "2026-05-25T14:00:00Z",
+              "mode": "オンライン",
+              "status": "通過"
+            },
+            {
+              "id": "10999a14-3acc-4fa9-b8c5-bacc0eea1c28",
+              "stage": "2次面接",
+              "startAt": "2026-06-01T10:00:00Z",
+              "mode": "オンライン",
+              "status": "落選"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "1adbc223-1492-4c54-8150-28f3c9f13492",
+      "name": "O社",
+      "myPageURL": null,
+      "loginID": null,
+      "selections": [
+        {
+          "id": "1cb2bcff-52f9-4fb4-bdaf-d1a23371db29",
+          "category": "本選考",
+          "title": null,
+          "status": "落選",
+          "esBoxes": [
+            {
+              "id": "9f3e30b6-f56d-4956-ae27-34b8cba41325",
+              "title": "本選考ES",
+              "deadlineAt": "2026-03-29T23:59:00Z",
+              "status": "合格",
+              "questions": [
+                {
+                  "id": "a75f5e50-e157-4f13-9133-37579b095c1f",
+                  "questionText": "志望動機を教えてください。（400字以内）",
+                  "maxLength": 400,
+                  "currentAnswer": "貴社を志望する理由は3点あります。第一に、業界随一の技術力と実績。第二に、若手社員が裁量を持って挑戦できる社風。第三に、グローバルに事業を展開する成長性です。学生時代に培った〇〇の経験を活かし、貴社の発展に貢献したいと考えています。",
+                  "sortOrder": 0,
+                  "versions": []
+                },
+                {
+                  "id": "7960d1cd-92eb-401b-a971-38f2db4393a0",
+                  "questionText": "学生時代に最も力を入れたことを教えてください。（300字以内）",
+                  "maxLength": 300,
+                  "currentAnswer": "ゼミでのフィールドワーク調査に最も注力しました。10名のチームリーダーとして、データ収集から分析・発表まで一貫して担当。意見の対立を調整しながら成果を出した経験から、傾聴力と課題解決力を養いました。",
+                  "sortOrder": 1,
+                  "versions": []
+                }
+              ]
+            }
+          ],
+          "aptitudeTests": [
+            {
+              "id": "916751e3-fc31-4bc9-ae1d-939fb21d53a0",
+              "type": "SPI(WEB)",
+              "customType": null,
+              "deadlineAt": "2026-04-05T23:59:00Z",
+              "status": "合格"
+            }
+          ],
+          "interviews": [
+            {
+              "id": "3262c8ef-5301-4037-9e46-cf90ae499660",
+              "stage": "1次面接",
+              "startAt": "2026-04-16T10:00:00Z",
+              "mode": "オンライン",
+              "status": "通過"
+            },
+            {
+              "id": "05853916-de09-47f4-9bb1-fc92eb3ba156",
+              "stage": "2次面接",
+              "startAt": "2026-04-23T14:00:00Z",
+              "mode": "オンライン",
+              "status": "通過"
+            },
+            {
+              "id": "9a1169c8-e9cd-455c-9309-ddc80ab599b7",
+              "stage": "最終面接",
+              "startAt": "2026-05-07T10:00:00Z",
+              "mode": "対面",
+              "status": "落選"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "9fd70dd2-df8d-4ed2-8e08-681fed6781be",
+      "name": "P社",
+      "myPageURL": null,
+      "loginID": null,
+      "selections": [
+        {
+          "id": "23237d50-2f21-4fc1-ba32-b1017f2d5c90",
+          "category": "本選考",
+          "title": null,
+          "status": "落選",
+          "esBoxes": [
+            {
+              "id": "8963b25d-a340-49fe-b917-38f3ec5fa37b",
+              "title": "本選考ES",
+              "deadlineAt": "2026-04-12T23:59:00Z",
+              "status": "合格",
+              "questions": [
+                {
+                  "id": "e1e468e0-8f2a-4aa0-9fec-8748b1542998",
+                  "questionText": "志望動機を教えてください。（400字以内）",
+                  "maxLength": 400,
+                  "currentAnswer": "貴社を志望する理由は3点あります。第一に、業界随一の技術力と実績。第二に、若手社員が裁量を持って挑戦できる社風。第三に、グローバルに事業を展開する成長性です。学生時代に培った〇〇の経験を活かし、貴社の発展に貢献したいと考えています。",
+                  "sortOrder": 0,
+                  "versions": []
+                },
+                {
+                  "id": "9c7b0872-be02-48a0-acd5-474448a601f6",
+                  "questionText": "学生時代に最も力を入れたことを教えてください。（300字以内）",
+                  "maxLength": 300,
+                  "currentAnswer": "ゼミでのフィールドワーク調査に最も注力しました。10名のチームリーダーとして、データ収集から分析・発表まで一貫して担当。意見の対立を調整しながら成果を出した経験から、傾聴力と課題解決力を養いました。",
+                  "sortOrder": 1,
+                  "versions": []
+                }
+              ]
+            }
+          ],
+          "aptitudeTests": [
+            {
+              "id": "614619c9-8da1-4551-a8be-5a0f6d8a889e",
+              "type": "玉手箱",
+              "customType": null,
+              "deadlineAt": "2026-04-20T23:59:00Z",
+              "status": "合格"
+            }
+          ],
+          "interviews": [
+            {
+              "id": "11d4b49a-b05d-4d66-91b7-db034fd297ef",
+              "stage": "1次面接",
+              "startAt": "2026-04-29T10:00:00Z",
+              "mode": "オンライン",
+              "status": "通過"
+            },
+            {
+              "id": "40a744a0-4ec7-42aa-b30f-eeb8e03154f2",
+              "stage": "2次面接",
+              "startAt": "2026-05-08T14:00:00Z",
+              "mode": "オンライン",
+              "status": "通過"
+            },
+            {
+              "id": "dc7029f9-b85c-4ac9-b3c0-24c8d4c4bfc2",
+              "stage": "最終面接",
+              "startAt": "2026-05-21T10:00:00Z",
+              "mode": "対面",
+              "status": "落選"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "46cbf6aa-0c43-4ca2-9770-5973b713d4d8",
+      "name": "Q社",
+      "myPageURL": null,
+      "loginID": null,
+      "selections": [
+        {
+          "id": "3902d8a7-8f00-44fa-91b2-3604c8005e6a",
+          "category": "本選考",
+          "title": null,
+          "status": "落選",
+          "esBoxes": [
+            {
+              "id": "26e14dc7-f483-4e30-b30f-547fd3a2b855",
+              "title": "本選考ES",
+              "deadlineAt": "2026-04-26T23:59:00Z",
+              "status": "合格",
+              "questions": [
+                {
+                  "id": "090d0496-729a-4e98-b3e6-212205c78785",
+                  "questionText": "志望動機を教えてください。（400字以内）",
+                  "maxLength": 400,
+                  "currentAnswer": "貴社を志望する理由は3点あります。第一に、業界随一の技術力と実績。第二に、若手社員が裁量を持って挑戦できる社風。第三に、グローバルに事業を展開する成長性です。学生時代に培った〇〇の経験を活かし、貴社の発展に貢献したいと考えています。",
+                  "sortOrder": 0,
+                  "versions": []
+                },
+                {
+                  "id": "d8a5f68a-c614-4df9-ac96-ad1d7b7f7cdd",
+                  "questionText": "学生時代に最も力を入れたことを教えてください。（300字以内）",
+                  "maxLength": 300,
+                  "currentAnswer": "ゼミでのフィールドワーク調査に最も注力しました。10名のチームリーダーとして、データ収集から分析・発表まで一貫して担当。意見の対立を調整しながら成果を出した経験から、傾聴力と課題解決力を養いました。",
+                  "sortOrder": 1,
+                  "versions": []
+                }
+              ]
+            }
+          ],
+          "aptitudeTests": [
+            {
+              "id": "90ba7539-450e-401e-b71e-2357148fc3da",
+              "type": "SPI(WEB)",
+              "customType": null,
+              "deadlineAt": "2026-05-03T23:59:00Z",
+              "status": "合格"
+            }
+          ],
+          "interviews": [
+            {
+              "id": "2523b988-5f0a-4efa-8c20-286312af104b",
+              "stage": "1次面接",
+              "startAt": "2026-05-14T14:00:00Z",
+              "mode": "オンライン",
+              "status": "通過"
+            },
+            {
+              "id": "e2a32672-2572-4bf6-9b4b-bb499fa9f009",
+              "stage": "2次面接",
+              "startAt": "2026-05-22T14:00:00Z",
+              "mode": "オンライン",
+              "status": "通過"
+            },
+            {
+              "id": "cedb29a6-61b6-402f-a476-2548f1301dd3",
+              "stage": "最終面接",
+              "startAt": "2026-06-03T10:00:00Z",
+              "mode": "対面",
+              "status": "落選"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "78e37a62-ac48-4749-805b-b39377f9f7c4",
+      "name": "R社",
+      "myPageURL": null,
+      "loginID": null,
+      "selections": [
+        {
+          "id": "50d513da-31bd-482a-a7f6-667ac39f768d",
+          "category": "本選考",
+          "title": null,
+          "status": "内定",
+          "esBoxes": [
+            {
+              "id": "5c2d9d0a-49c4-48e2-ad31-0958d7b216cc",
+              "title": "本選考ES",
+              "deadlineAt": "2026-04-06T23:59:00Z",
+              "status": "合格",
+              "questions": [
+                {
+                  "id": "5cfbff6f-2c4e-4463-8b40-65a288454a4c",
+                  "questionText": "志望動機を教えてください。（400字以内）",
+                  "maxLength": 400,
+                  "currentAnswer": "貴社を志望する理由は3点あります。第一に、業界随一の技術力と実績。第二に、若手社員が裁量を持って挑戦できる社風。第三に、グローバルに事業を展開する成長性です。学生時代に培った〇〇の経験を活かし、貴社の発展に貢献したいと考えています。",
+                  "sortOrder": 0,
+                  "versions": []
+                },
+                {
+                  "id": "d5573ad3-9598-4ed9-bbf7-636082ea6720",
+                  "questionText": "学生時代に最も力を入れたことを教えてください。（300字以内）",
+                  "maxLength": 300,
+                  "currentAnswer": "ゼミでのフィールドワーク調査に最も注力しました。10名のチームリーダーとして、データ収集から分析・発表まで一貫して担当。意見の対立を調整しながら成果を出した経験から、傾聴力と課題解決力を養いました。",
+                  "sortOrder": 1,
+                  "versions": []
+                }
+              ]
+            }
+          ],
+          "aptitudeTests": [
+            {
+              "id": "6ebcb35c-c479-4628-b303-afb3333e1f42",
+              "type": "TGWEB",
+              "customType": null,
+              "deadlineAt": "2026-04-13T23:59:00Z",
+              "status": "合格"
+            }
+          ],
+          "interviews": [
+            {
+              "id": "7ecd6123-6fd2-4b7e-b071-7724fc30750c",
+              "stage": "1次面接",
+              "startAt": "2026-04-21T10:00:00Z",
+              "mode": "オンライン",
+              "status": "通過"
+            },
+            {
+              "id": "ba9467b6-14da-47bc-8de8-424c46bfa944",
+              "stage": "2次面接",
+              "startAt": "2026-04-28T14:00:00Z",
+              "mode": "オンライン",
+              "status": "通過"
+            },
+            {
+              "id": "aa9253e9-82c4-4859-bfff-463883f6f562",
+              "stage": "最終面接",
+              "startAt": "2026-05-11T10:00:00Z",
+              "mode": "対面",
+              "status": "通過"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "23fc1a47-891f-482e-a22a-26db16dcdb6f",
+      "name": "S社",
+      "myPageURL": null,
+      "loginID": null,
+      "selections": [
+        {
+          "id": "0fb06ad5-08e3-490e-a305-872feee22c29",
+          "category": "本選考",
+          "title": null,
+          "status": "内定",
+          "esBoxes": [
+            {
+              "id": "a929d185-cc15-4b1f-aa9d-2211729ca5be",
+              "title": "本選考ES",
+              "deadlineAt": "2026-04-19T23:59:00Z",
+              "status": "合格",
+              "questions": [
+                {
+                  "id": "dc0b6b65-a76b-4070-a5f1-8cf05caf12e9",
+                  "questionText": "志望動機を教えてください。（400字以内）",
+                  "maxLength": 400,
+                  "currentAnswer": "貴社を志望する理由は3点あります。第一に、業界随一の技術力と実績。第二に、若手社員が裁量を持って挑戦できる社風。第三に、グローバルに事業を展開する成長性です。学生時代に培った〇〇の経験を活かし、貴社の発展に貢献したいと考えています。",
+                  "sortOrder": 0,
+                  "versions": []
+                },
+                {
+                  "id": "2c5ba44c-bdca-452f-ba0e-8e23595f784d",
+                  "questionText": "学生時代に最も力を入れたことを教えてください。（300字以内）",
+                  "maxLength": 300,
+                  "currentAnswer": "ゼミでのフィールドワーク調査に最も注力しました。10名のチームリーダーとして、データ収集から分析・発表まで一貫して担当。意見の対立を調整しながら成果を出した経験から、傾聴力と課題解決力を養いました。",
+                  "sortOrder": 1,
+                  "versions": []
+                }
+              ]
+            }
+          ],
+          "aptitudeTests": [
+            {
+              "id": "133acecd-af6b-4b77-9067-c44002787550",
+              "type": "SPI(WEB)",
+              "customType": null,
+              "deadlineAt": "2026-04-26T23:59:00Z",
+              "status": "合格"
+            }
+          ],
+          "interviews": [
+            {
+              "id": "5bc92cf7-1d58-4c1f-8a11-babb17b33b52",
+              "stage": "1次面接",
+              "startAt": "2026-05-01T14:00:00Z",
+              "mode": "オンライン",
+              "status": "通過"
+            },
+            {
+              "id": "e5eacebd-0acd-44c3-b534-8b0d41c6bb9c",
+              "stage": "2次面接",
+              "startAt": "2026-05-12T14:00:00Z",
+              "mode": "オンライン",
+              "status": "通過"
+            },
+            {
+              "id": "e2eb0d92-f342-435f-a947-c84f7dd3bcd3",
+              "stage": "最終面接",
+              "startAt": "2026-05-25T10:00:00Z",
+              "mode": "対面",
+              "status": "通過"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "e4edc661-0cd1-4b72-ae18-2f80a22e5659",
+      "name": "T社",
+      "myPageURL": null,
+      "loginID": null,
+      "selections": [
+        {
+          "id": "99197bba-8cda-4678-9084-2f74995798d3",
+          "category": "本選考",
+          "title": null,
+          "status": "内定",
+          "esBoxes": [
+            {
+              "id": "5785e349-a00f-4c75-a637-8555c8fc359d",
+              "title": "本選考ES",
+              "deadlineAt": "2026-05-03T23:59:00Z",
+              "status": "合格",
+              "questions": [
+                {
+                  "id": "a08c0f7c-bf95-48e7-859c-f71c157949ae",
+                  "questionText": "志望動機を教えてください。（400字以内）",
+                  "maxLength": 400,
+                  "currentAnswer": "貴社を志望する理由は3点あります。第一に、業界随一の技術力と実績。第二に、若手社員が裁量を持って挑戦できる社風。第三に、グローバルに事業を展開する成長性です。学生時代に培った〇〇の経験を活かし、貴社の発展に貢献したいと考えています。",
+                  "sortOrder": 0,
+                  "versions": []
+                },
+                {
+                  "id": "39161e1a-f8ce-47fb-99fb-f7a7d5723077",
+                  "questionText": "学生時代に最も力を入れたことを教えてください。（300字以内）",
+                  "maxLength": 300,
+                  "currentAnswer": "ゼミでのフィールドワーク調査に最も注力しました。10名のチームリーダーとして、データ収集から分析・発表まで一貫して担当。意見の対立を調整しながら成果を出した経験から、傾聴力と課題解決力を養いました。",
+                  "sortOrder": 1,
+                  "versions": []
+                }
+              ]
+            }
+          ],
+          "aptitudeTests": [
+            {
+              "id": "a5506cae-cb4f-4e58-856e-bd23fdacc062",
+              "type": "玉手箱",
+              "customType": null,
+              "deadlineAt": "2026-05-10T23:59:00Z",
+              "status": "合格"
+            }
+          ],
+          "interviews": [
+            {
+              "id": "908e7dcf-99d1-4368-a82e-dc951fd7524d",
+              "stage": "1次面接",
+              "startAt": "2026-05-20T10:00:00Z",
+              "mode": "オンライン",
+              "status": "通過"
+            },
+            {
+              "id": "a5899aae-aa10-457c-b88c-8f721375f337",
+              "stage": "2次面接",
+              "startAt": "2026-05-28T14:00:00Z",
+              "mode": "オンライン",
+              "status": "通過"
+            },
+            {
+              "id": "da3a1806-31b0-493b-833f-799b4798df6a",
+              "stage": "最終面接",
+              "startAt": "2026-06-10T10:00:00Z",
+              "mode": "対面",
+              "status": "通過"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "templates": []
+}

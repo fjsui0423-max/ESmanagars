@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct CompanyIconView: View {
-    let company: Company
+    @ObservedObject var company: Company
 
     private let iconSize: CGFloat = 68
 

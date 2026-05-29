@@ -128,6 +128,14 @@ final class CompanyDetailViewModel: ObservableObject {
         objectWillChange.send()
     }
 
+    func updateSelection(_ selection: Selection, category: String, title: String,
+                         in context: NSManagedObjectContext) {
+        selection.category = category
+        selection.title    = title
+        try? context.save()
+        objectWillChange.send()
+    }
+
     func deleteSelection(_ selection: Selection, in context: NSManagedObjectContext) {
         selection.interviewsArray.forEach { NotificationManager.shared.cancelReminders(for: $0) }
         context.delete(selection)
@@ -201,9 +209,64 @@ final class CompanyDetailViewModel: ObservableObject {
         objectWillChange.send()
     }
 
+    func updateESBox(
+        _ esBox: ESBox,
+        title: String,
+        deadline: Date?,
+        notifOffsets: Set<DeadlineOffset>,
+        in context: NSManagedObjectContext
+    ) {
+        let trimmed = title.trimmingCharacters(in: .whitespaces)
+        guard !trimmed.isEmpty else { return }
+        // 既存通知をキャンセル
+        if let id = esBox.id?.uuidString {
+            NotificationManager.shared.cancelDeadlineReminders(id: id)
+        }
+        esBox.title      = trimmed
+        esBox.deadlineAt = deadline
+        try? context.save()
+        // 新しい通知を登録
+        if let deadlineAt = deadline, let id = esBox.id {
+            let companyName = esBox.selection?.company?.name ?? ""
+            NotificationManager.shared.scheduleDeadlineReminders(
+                id: id.uuidString, title: trimmed,
+                companyName: companyName, deadlineAt: deadlineAt, offsets: notifOffsets
+            )
+        }
+        objectWillChange.send()
+    }
+
     func updateAptitudeTestStatus(_ test: AptitudeTest, status: String, in context: NSManagedObjectContext) {
         test.status = status
         try? context.save()
+        objectWillChange.send()
+    }
+
+    func updateAptitudeTest(
+        _ test: AptitudeTest,
+        type: String, customType: String?,
+        deadline: Date?, status: String,
+        notifOffsets: Set<DeadlineOffset>,
+        in context: NSManagedObjectContext
+    ) {
+        // 既存通知をキャンセル
+        if let id = test.id?.uuidString {
+            NotificationManager.shared.cancelDeadlineReminders(id: id)
+        }
+        test.type       = type
+        test.customType = customType
+        test.deadlineAt = deadline
+        test.status     = status
+        try? context.save()
+        // 新しい通知を登録
+        if let deadlineAt = deadline, let id = test.id {
+            let companyName = test.selection?.company?.name ?? ""
+            let displayType = customType.nilIfEmpty ?? type
+            NotificationManager.shared.scheduleDeadlineReminders(
+                id: id.uuidString, title: displayType,
+                companyName: companyName, deadlineAt: deadlineAt, offsets: notifOffsets
+            )
+        }
         objectWillChange.send()
     }
 

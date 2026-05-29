@@ -81,20 +81,20 @@ struct HomeView: View {
     }
 
     private var mainContent: some View {
-        ScrollView {
-            LazyVGrid(columns: columns, spacing: 24) {
-                ForEach(industries) { industry in
-                    industryFolderItem(industry)
+        VStack(spacing: 0) {
+            ScrollView {
+                LazyVGrid(columns: columns, spacing: 24) {
+                    ForEach(industries) { industry in
+                        industryFolderItem(industry)
+                    }
+                    ForEach(standaloneCompanies) { company in
+                        companyGridItem(company)
+                    }
                 }
-                ForEach(standaloneCompanies) { company in
-                    companyGridItem(company)
-                }
+                .padding(.horizontal, 16)
+                .padding(.top, 20)
+                .padding(.bottom, 8)
             }
-            .padding(.horizontal, 16)
-            .padding(.top, 20)
-            .padding(.bottom, 28) // バナー高さ分の余白
-        }
-        .safeAreaInset(edge: .bottom, spacing: 0) {
             BannerAdView()
         }
         .navigationTitle("企業・業界一覧")
@@ -271,14 +271,19 @@ struct HomeView: View {
 
 private struct BannerAdView: View {
     var body: some View {
-        Color(UIColor.secondarySystemBackground)
-            .frame(height: 50)
-            .overlay(alignment: .top) { Divider() }
-            .overlay {
-                Text("PR")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+        VStack(spacing: 0) {
+            Divider()
+            VStack {
+                AdMobBannerView()
+                    .frame(width: 320, height: 50)
             }
+            .frame(maxWidth: .infinity)
+            .frame(height: 50)
+            .background(Color(UIColor.systemBackground))
+            // タブバーと広告の間に余白を確保（iOS 26 浮遊タブバー対策）
+            Color(UIColor.systemBackground)
+                .frame(height: 15)
+        }
     }
 }
 

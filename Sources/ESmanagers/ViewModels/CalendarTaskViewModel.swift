@@ -1,5 +1,6 @@
 import SwiftUI
 import CoreData
+import Combine
 
 @MainActor
 final class CalendarTaskViewModel: ObservableObject {
@@ -16,6 +17,7 @@ final class CalendarTaskViewModel: ObservableObject {
     private var allAptitudeTests: [AptitudeTest] = []
     private var allInterviews:    [Interview]    = []
     private let context: NSManagedObjectContext
+    private var cancellables = Set<AnyCancellable>()
     private let cal: Calendar = {
         var c = Calendar(identifier: .gregorian)
         c.locale = Locale(identifier: "ja_JP")
@@ -28,6 +30,13 @@ final class CalendarTaskViewModel: ObservableObject {
         self.selectedDate = initialDate
         self.currentMonth = initialDate
         fetch()
+
+        // Core Data の保存（企業名変更・フォルダ移動など）があるたびに再フェッチ
+        NotificationCenter.default
+            .publisher(for: .NSManagedObjectContextObjectsDidChange, object: context)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in self?.fetch() }
+            .store(in: &cancellables)
     }
 
     // MARK: - Data

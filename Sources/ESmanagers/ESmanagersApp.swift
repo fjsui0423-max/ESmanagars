@@ -1,9 +1,14 @@
 import SwiftUI
+import GoogleMobileAds
 
 @main
 struct ESmanagersApp: App {
     let persistence = PersistenceController.shared
     @Environment(\.scenePhase) private var scenePhase
+
+    init() {
+        GADMobileAds.sharedInstance().start(completionHandler: nil)
+    }
 
     var body: some Scene {
         WindowGroup {

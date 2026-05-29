@@ -13,8 +13,12 @@ struct CompanyDetailView: View {
     @State private var showAddESBox        = false
     @State private var showAddAptitudeTest = false
     @State private var showAddInterview    = false
-    @State private var editingInterview:   Interview? = nil
+    @State private var editingInterview:   Interview?    = nil
     @State private var showEditInterview   = false
+    // 編集シート
+    @State private var editingSelection:    Selection?    = nil
+    @State private var editingESBox:        ESBox?        = nil
+    @State private var editingAptitudeTest: AptitudeTest? = nil
 
     init(company: Company) {
         _viewModel = StateObject(wrappedValue: CompanyDetailViewModel(company: company))
@@ -83,6 +87,27 @@ struct CompanyDetailView: View {
                     viewModel.updateInterview(interview, stage: stage, startAt: startAt, mode: mode,
                                              notifOffsets: offsets, in: context)
                 }
+            }
+        }
+        // 選考編集
+        .sheet(item: $editingSelection) { sel in
+            SelectionEditView(selection: sel) { category, title in
+                viewModel.updateSelection(sel, category: category, title: title, in: context)
+            }
+        }
+        // ES BOX 編集
+        .sheet(item: $editingESBox) { box in
+            ESBoxEditView(esBox: box) { title, deadline, offsets in
+                viewModel.updateESBox(box, title: title, deadline: deadline,
+                                      notifOffsets: offsets, in: context)
+            }
+        }
+        // 適性検査編集
+        .sheet(item: $editingAptitudeTest) { test in
+            AptitudeTestEditView(test: test) { type, custom, deadline, status, offsets in
+                viewModel.updateAptitudeTest(test, type: type, customType: custom,
+                                             deadline: deadline, status: status,
+                                             notifOffsets: offsets, in: context)
             }
         }
     }
@@ -340,6 +365,15 @@ struct CompanyDetailView: View {
                             targetSelection = selection
                             showAddInterview = true
                         },
+                        onEditSelection: {
+                            editingSelection = selection
+                        },
+                        onEditESBox: { box in
+                            editingESBox = box
+                        },
+                        onEditAptitudeTest: { test in
+                            editingAptitudeTest = test
+                        },
                         onEditInterview: { interview in
                             editingInterview = interview
                             showEditInterview = true
@@ -394,6 +428,9 @@ struct SelectionCard: View {
     let onAddESBox:              () -> Void
     let onAddAptitudeTest:       () -> Void
     let onAddInterview:          () -> Void
+    let onEditSelection:         () -> Void
+    let onEditESBox:             (ESBox) -> Void
+    let onEditAptitudeTest:      (AptitudeTest) -> Void
     let onEditInterview:         (Interview) -> Void
     let onDeleteInterview:       (Interview) -> Void
     let onInterviewStatusChange: (Interview, String) -> Void
@@ -424,6 +461,11 @@ struct SelectionCard: View {
                     .buttonStyle(.plain)
                     .padding(.horizontal, 12)
                     .padding(.bottom, 4)
+                    .contextMenu {
+                        Button { onEditESBox(esBox) } label: {
+                            Label("ES BOX を編集", systemImage: "pencil")
+                        }
+                    }
                 }
             }
 
@@ -433,7 +475,8 @@ struct SelectionCard: View {
                     AptitudeTestRow(
                         test: test,
                         onStatusChange: { onAptitudeStatusChange(test, $0) },
-                        onDelete: { onDeleteAptitudeTest(test) }
+                        onEdit:         { onEditAptitudeTest(test) },
+                        onDelete:       { onDeleteAptitudeTest(test) }
                     )
                     .padding(.horizontal, 12)
                     .padding(.bottom, 4)
@@ -460,6 +503,10 @@ struct SelectionCard: View {
         .background(Color.secondarySystemGroupedBackground)
         .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
         .contextMenu {
+            Button(action: onEditSelection) {
+                Label("選考を編集", systemImage: "pencil")
+            }
+            Divider()
             Button(role: .destructive, action: onDeleteSelection) {
                 Label("この選考を削除", systemImage: "trash")
             }
@@ -483,6 +530,14 @@ struct SelectionCard: View {
                 .lineLimit(1)
 
             Spacer()
+
+            // 選考編集ボタン
+            Button(action: onEditSelection) {
+                Image(systemName: "pencil")
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(.secondary)
+            }
+            .buttonStyle(.plain)
 
             selectionStatusMenu
         }
@@ -618,7 +673,8 @@ struct ESBoxRow: View {
 struct AptitudeTestRow: View {
     @ObservedObject var test: AptitudeTest
     let onStatusChange: (String) -> Void
-    let onDelete: () -> Void
+    let onEdit:         () -> Void
+    let onDelete:       () -> Void
 
     private static let dateFormatter: DateFormatter = {
         let f = DateFormatter()
@@ -646,6 +702,14 @@ struct AptitudeTestRow: View {
 
             Spacer()
 
+            // 編集ボタン（InterviewCardと同スタイル）
+            Button(action: onEdit) {
+                Image(systemName: "pencil.circle")
+                    .font(.system(size: 20))
+                    .foregroundStyle(.secondary)
+            }
+            .buttonStyle(.plain)
+
             Menu {
                 ForEach(AptitudeTest.statuses, id: \.self) { s in
                     Button { onStatusChange(s) } label: {
@@ -671,6 +735,10 @@ struct AptitudeTestRow: View {
         .background(Color.tertiarySystemGroupedBackground)
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         .contextMenu {
+            Button(action: onEdit) {
+                Label("編集", systemImage: "pencil")
+            }
+            Divider()
             Button(role: .destructive, action: onDelete) {
                 Label("削除", systemImage: "trash")
             }

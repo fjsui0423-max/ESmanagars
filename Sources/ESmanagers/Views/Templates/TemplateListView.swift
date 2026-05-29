@@ -29,6 +29,10 @@ struct TemplateListView: View {
                 templateList
             }
         }
+        // 空状態・一覧状態どちらでも広告を表示する
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            TemplateSquareAdView()
+        }
         .navigationTitle("テンプレート")
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
@@ -67,10 +71,6 @@ struct TemplateListView: View {
             }
         }
         .listStyle(.insetGrouped)
-        // バナー分のスクロール余白を自動確保しつつ固定表示
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            TemplateSquareAdView()
-        }
     }
 
     // MARK: - Template row

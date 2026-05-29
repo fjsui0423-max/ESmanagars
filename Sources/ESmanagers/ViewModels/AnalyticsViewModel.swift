@@ -121,15 +121,14 @@ final class AnalyticsViewModel: ObservableObject {
 
     // MARK: - Unlock state (24-hour reward lock)
 
-    @Published var lastAnalyticsUnlockedAt: Double =
-        UserDefaults.standard.double(forKey: "lastAnalyticsUnlockedAt") {
-        didSet {
-            UserDefaults.standard.set(lastAnalyticsUnlockedAt, forKey: "lastAnalyticsUnlockedAt")
-        }
-    }
+    @AppStorage("lastAnalyticsUnlockedAt") var lastAnalyticsUnlockedAt: Double = 0
 
     var isUnlocked: Bool {
         Date().timeIntervalSince1970 - lastAnalyticsUnlockedAt < 86_400
+    }
+
+    func unlock() {
+        lastAnalyticsUnlockedAt = Date().timeIntervalSince1970
     }
 
     // MARK: - Computed outputs

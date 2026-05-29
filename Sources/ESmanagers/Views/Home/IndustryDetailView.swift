@@ -15,32 +15,36 @@ struct IndustryDetailView: View {
             if industry.companiesArray.isEmpty {
                 emptyState
             } else {
-                ScrollView {
-                    LazyVGrid(columns: columns, spacing: 24) {
-                        ForEach(industry.companiesArray) { company in
-                            NavigationLink(value: company) {
-                                CompanyIconView(company: company)
-                            }
-                            .buttonStyle(.plain)
-                            .contextMenu {
-                                Button {
-                                    company.industry = nil
-                                    if context.hasChanges { try? context.save() }
-                                } label: {
-                                    Label("フォルダから出す", systemImage: "folder.badge.minus")
+                VStack(spacing: 0) {
+                    ScrollView {
+                        LazyVGrid(columns: columns, spacing: 24) {
+                            ForEach(industry.companiesArray) { company in
+                                NavigationLink(value: company) {
+                                    CompanyIconView(company: company)
                                 }
+                                .buttonStyle(.plain)
+                                .contextMenu {
+                                    Button {
+                                        company.industry = nil
+                                        if context.hasChanges { try? context.save() }
+                                    } label: {
+                                        Label("フォルダから出す", systemImage: "folder.badge.minus")
+                                    }
 
-                                Button(role: .destructive) {
-                                    pendingDeleteCompany    = company
-                                    showDeleteCompanyConfirm = true
-                                } label: {
-                                    Label("この企業を削除", systemImage: "trash")
+                                    Button(role: .destructive) {
+                                        pendingDeleteCompany    = company
+                                        showDeleteCompanyConfirm = true
+                                    } label: {
+                                        Label("この企業を削除", systemImage: "trash")
+                                    }
                                 }
                             }
                         }
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 20)
                     }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 20)
+                    // バナー広告: VStack の最下部に固定（タブバーに被らない）
+                    IndustryBannerAdView()
                 }
             }
         }
@@ -65,6 +69,26 @@ struct IndustryDetailView: View {
             Button("キャンセル", role: .cancel) { pendingDeleteCompany = nil }
         } message: { company in
             Text("「\(company.name ?? "")」を削除します。関連するESデータもすべて削除されます。この操作は取り消せません。")
+        }
+    }
+
+    // MARK: - Banner ad
+
+    private struct IndustryBannerAdView: View {
+        var body: some View {
+            VStack(spacing: 0) {
+                Divider()
+                VStack {
+                    AdMobBannerView()
+                        .frame(width: 320, height: 50)
+                }
+                .frame(maxWidth: .infinity)
+                .frame(height: 50)
+                .background(Color(UIColor.systemBackground))
+                // タブバーと広告の間に余白を確保（iOS 26 浮遊タブバー対策）
+                Color(UIColor.systemBackground)
+                    .frame(height: 12)
+            }
         }
     }
 
