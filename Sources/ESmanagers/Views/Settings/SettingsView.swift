@@ -22,6 +22,9 @@ struct SettingsView: View {
     @State private var showImportConfirm  = false
     @State private var pendingImportURL:  URL?
 
+    // TODO: 本番リリース時に削除
+    @AppStorage("lastAnalyticsUnlockedAt") private var lastAnalyticsUnlockedAt: Double = 0
+
     init(context: NSManagedObjectContext) {
         _viewModel = StateObject(wrappedValue: SettingsViewModel(context: context))
     }
@@ -35,6 +38,8 @@ struct SettingsView: View {
             securityNoteSection
             appInfoSection
             legalSection
+            // TODO: 本番リリース時に削除
+            debugSection
         }
         .navigationTitle("設定")
         #if os(iOS)
@@ -187,6 +192,24 @@ struct SettingsView: View {
             Link(destination: URL(string: "https://x.com/example_dev")!) {
                 Label("開発者に連絡（X / Twitter）", systemImage: "bubble.left.fill")
             }
+        }
+    }
+
+    // TODO: 本番リリース時に削除
+    private var debugSection: some View {
+        Section {
+            Button(action: {
+                // 時間を0（1970年）にリセットすることで、即座にロック状態に戻す
+                lastAnalyticsUnlockedAt = 0
+            }) {
+                HStack {
+                    Image(systemName: "lock.fill")
+                    Text("【テスト用】分析機能を即時ロック")
+                }
+                .foregroundColor(.red)
+            }
+        } header: {
+            Text("デバッグ（テスト用）")
         }
     }
 

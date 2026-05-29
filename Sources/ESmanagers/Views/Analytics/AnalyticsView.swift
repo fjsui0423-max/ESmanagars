@@ -14,9 +14,9 @@ struct AnalyticsContainerView: View {
 // MARK: - Main view
 
 struct AnalyticsView: View {
-    @StateObject private var viewModel: AnalyticsViewModel
+    @StateObject    private var viewModel:  AnalyticsViewModel
+    @ObservedObject private var adManager = AdMobRewardManager.shared
     @State private var showAptitudeDetail = false
-    @State private var isWatchingAd       = false
 
     init(context: NSManagedObjectContext) {
         _viewModel = StateObject(wrappedValue: AnalyticsViewModel(context: context))
@@ -152,20 +152,7 @@ struct AnalyticsView: View {
                     .multilineTextAlignment(.center)
             }
 
-            if isWatchingAd {
-                VStack(spacing: 10) {
-                    ProgressView()
-                        .progressViewStyle(.circular)
-                        .tint(.indigo)
-                        .scaleEffect(1.3)
-                    Text("広告を読み込み中...")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-                .frame(height: 60)
-            } else {
-                rewardButton
-            }
+            rewardButton
         }
         .padding(.vertical, 30)
         .padding(.horizontal, 24)
@@ -174,44 +161,75 @@ struct AnalyticsView: View {
         .shadow(color: .black.opacity(0.12), radius: 24, x: 0, y: 8)
     }
 
+    @ViewBuilder
     private var rewardButton: some View {
-        Button {
-            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-               let rootVC = windowScene.windows.first?.rootViewController {
-                isWatchingAd = true
-                AdMobRewardManager.shared.showRewardAd(from: rootVC) {
+        let gradient = LinearGradient(
+            colors: [.indigo, Color(red: 0.85, green: 0.18, blue: 0.55)],
+            startPoint: .leading, endPoint: .trailing
+        )
+
+        if adManager.isLoading {
+            // ── 状態1: ロード中（操作不可）──────────────────────────
+            Button {} label: {
+                HStack(spacing: 10) {
+                    ProgressView()
+                        .progressViewStyle(.circular)
+                        .tint(.white)
+                        .scaleEffect(0.9)
+                    Text("読み込み中...")
+                        .font(.subheadline.weight(.bold))
+                }
+                .foregroundStyle(.white)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 16)
+                .background(gradient.opacity(0.55))
+                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+            }
+            .disabled(true)
+
+        } else if adManager.isAdLoaded {
+            // ── 状態2: 広告準備完了 ──────────────────────────────────
+            Button {
+                AdMobRewardManager.shared.showRewardAd {
+                    // ★ 動画視聴完了（Google から報酬付与）時のみここに到達 ★
                     Task { @MainActor in
                         withAnimation(.spring(duration: 0.55, bounce: 0.1)) {
                             viewModel.unlock()
-                            isWatchingAd = false
                         }
                     }
                 }
-            } else {
-                // rootVC 取得不可の場合はフォールバックとしてロック解除
-                withAnimation(.spring(duration: 0.55, bounce: 0.1)) {
-                    viewModel.unlock()
+            } label: {
+                HStack(spacing: 10) {
+                    Image(systemName: "play.circle.fill")
+                        .font(.system(size: 20))
+                    Text("動画を見て開放する")
+                        .font(.subheadline.weight(.bold))
                 }
+                .foregroundStyle(.white)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 16)
+                .background(gradient)
+                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                .shadow(color: .indigo.opacity(0.35), radius: 10, x: 0, y: 5)
             }
-        } label: {
-            HStack(spacing: 10) {
-                Image(systemName: "play.circle.fill")
-                    .font(.system(size: 20))
-                Text("動画を見て24時間ロック解除")
-                    .font(.subheadline.weight(.bold))
+
+        } else {
+            // ── 状態3: ロード失敗・未ロード（再試行）────────────────────
+            Button {
+                AdMobRewardManager.shared.loadRewardAd()
+            } label: {
+                HStack(spacing: 10) {
+                    Image(systemName: "arrow.clockwise.circle.fill")
+                        .font(.system(size: 20))
+                    Text("広告を再読み込みする")
+                        .font(.subheadline.weight(.bold))
+                }
+                .foregroundStyle(.white)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 16)
+                .background(Color.secondary)
+                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
             }
-            .foregroundStyle(.white)
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 16)
-            .background(
-                LinearGradient(
-                    colors: [.indigo, Color(red: 0.85, green: 0.18, blue: 0.55)],
-                    startPoint: .leading,
-                    endPoint: .trailing
-                )
-            )
-            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-            .shadow(color: .indigo.opacity(0.35), radius: 10, x: 0, y: 5)
         }
     }
 

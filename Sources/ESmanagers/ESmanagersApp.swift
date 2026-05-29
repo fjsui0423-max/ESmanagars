@@ -7,7 +7,11 @@ struct ESmanagersApp: App {
     @Environment(\.scenePhase) private var scenePhase
 
     init() {
-        GADMobileAds.sharedInstance().start(completionHandler: nil)
+        // GADMobileAds の初期化が完了してから広告をロードする。
+        // ここが抜けると GAD 未初期化のままロードが走り、isLoading が永久に true になる。
+        GADMobileAds.sharedInstance().start { _ in
+            AdMobRewardManager.shared.loadRewardAd()
+        }
     }
 
     var body: some Scene {
