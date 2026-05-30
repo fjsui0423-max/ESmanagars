@@ -43,10 +43,10 @@
 		6A618E8BC5D092867BD1BE90 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 427AB5C21F6454DBB363482F /* Assets.xcassets */; };
 		73D27011AC4095E3B55BD232 /* AdMobBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C1C66DD0C69A14FE8379F67 /* AdMobBannerView.swift */; };
 		76E82218E335E2B936CA3B8B /* TemplateViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A0345751B86041869E93FB /* TemplateViewModel.swift */; };
-		7861DF146CA9D80F683CC605 /* AnalyticsDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92A23C7EEAF9780B41FC6F00 /* AnalyticsDetailView.swift */; };
 		7E825DD46A4F7AF2AE5E55CC /* NotificationOffsetPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1782596D489BFD12A2324C28 /* NotificationOffsetPicker.swift */; };
 		981511E06F3E16AEDB57C109 /* KeychainManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6EE2B41E683507CC5013D50 /* KeychainManager.swift */; };
 		982D46D8A6F272B7A75E9801 /* AdMobLargeBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2E4AB788A3B67ACD5DF95E2 /* AdMobLargeBannerView.swift */; };
+		9F308212E5EAEE6F05A8EC42 /* AnalyticsPhaseDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FD9C2A6845471D0EF0EB202 /* AnalyticsPhaseDetailView.swift */; };
 		A989EE79D2F1216B773708A9 /* Selection+CoreData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB838C69BB81F09EAE2905B /* Selection+CoreData.swift */; };
 		AB1F1019583A18D1F1EF9863 /* SelectionEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42D810393AF7827CEC2437BE /* SelectionEditView.swift */; };
 		AD9EC801A6C5F283753BF3BC /* Template+CoreData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C54F37C3F9804EACA4DCD50 /* Template+CoreData.swift */; };
@@ -75,6 +75,7 @@
 		0F7DD61723ABECCF1D4AD250 /* InterviewCreateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterviewCreateView.swift; sourceTree = "<group>"; };
 		101F9224A2A0D6F46F8BA6AC /* IndustryFolderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IndustryFolderView.swift; sourceTree = "<group>"; };
 		1782596D489BFD12A2324C28 /* NotificationOffsetPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationOffsetPicker.swift; sourceTree = "<group>"; };
+		1FD9C2A6845471D0EF0EB202 /* AnalyticsPhaseDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsPhaseDetailView.swift; sourceTree = "<group>"; };
 		237DDD7EA2576BBE23354C4A /* AdMobRewardManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdMobRewardManager.swift; sourceTree = "<group>"; };
 		281AAF9AF9312E3173F49D8D /* Interview+CoreData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Interview+CoreData.swift"; sourceTree = "<group>"; };
 		2DB838C69BB81F09EAE2905B /* Selection+CoreData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Selection+CoreData.swift"; sourceTree = "<group>"; };
@@ -108,7 +109,6 @@
 		8C1C66DD0C69A14FE8379F67 /* AdMobBannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdMobBannerView.swift; sourceTree = "<group>"; };
 		8C5F85D6C9851715B5C52A1F /* PreviewData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewData.swift; sourceTree = "<group>"; };
 		9208DBD812D4E528912219B6 /* AIExportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIExportView.swift; sourceTree = "<group>"; };
-		92A23C7EEAF9780B41FC6F00 /* AnalyticsDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsDetailView.swift; sourceTree = "<group>"; };
 		95423D6BFE2DB060321988DC /* Color+SystemColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+SystemColors.swift"; sourceTree = "<group>"; };
 		95BB8B7AFF278E89C758E7BB /* ESBoxDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ESBoxDetailView.swift; sourceTree = "<group>"; };
 		99B84C1DECC47658277E2D6F /* ESBox+CoreData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ESBox+CoreData.swift"; sourceTree = "<group>"; };
@@ -291,7 +291,7 @@
 		B1EDEF3F59764FC075DD54CF /* Analytics */ = {
 			isa = PBXGroup;
 			children = (
-				92A23C7EEAF9780B41FC6F00 /* AnalyticsDetailView.swift */,
+				1FD9C2A6845471D0EF0EB202 /* AnalyticsPhaseDetailView.swift */,
 				31263F65BAC20236C33318A8 /* AnalyticsView.swift */,
 			);
 			path = Analytics;
@@ -434,7 +434,7 @@
 				73D27011AC4095E3B55BD232 /* AdMobBannerView.swift in Sources */,
 				982D46D8A6F272B7A75E9801 /* AdMobLargeBannerView.swift in Sources */,
 				D4879467F660D14CEBF410AF /* AdMobRewardManager.swift in Sources */,
-				7861DF146CA9D80F683CC605 /* AnalyticsDetailView.swift in Sources */,
+				9F308212E5EAEE6F05A8EC42 /* AnalyticsPhaseDetailView.swift in Sources */,
 				612ED5A823C902FB5DB2C121 /* AnalyticsView.swift in Sources */,
 				54C85E7720BD90897FEFA307 /* AnalyticsViewModel.swift in Sources */,
 				E117AE21664E02C05BED27B7 /* AptitudeTest+CoreData.swift in Sources */,

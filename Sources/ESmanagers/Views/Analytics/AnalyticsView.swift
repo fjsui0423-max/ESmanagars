@@ -43,7 +43,8 @@ struct AnalyticsView: View {
         .sheet(isPresented: $showAptitudeDetail) {
             AptitudeDetailAnalyticsView(
                 stats:     viewModel.aptitudeStats,
-                typeStats: viewModel.aptitudeTypeStats
+                typeStats: viewModel.aptitudeTypeStats,
+                viewModel: viewModel
             )
         }
     }
@@ -81,11 +82,19 @@ struct AnalyticsView: View {
     private var detailedCards: some View {
         VStack(spacing: 16) {
             if viewModel.esStats.total > 0 {
-                esStatsCard
+                NavigationLink {
+                    AnalyticsPhaseDetailView(phase: .es, viewModel: viewModel)
+                } label: {
+                    esStatsCard
+                }
+                .buttonStyle(.plain)
             }
 
             if viewModel.aptitudeStats.total > 0 {
-                aptitudeStatsCard
+                Button { showAptitudeDetail = true } label: {
+                    aptitudeStatsCard
+                }
+                .buttonStyle(.plain)
             }
 
             if !viewModel.stageStats.isEmpty {
@@ -411,8 +420,8 @@ struct AnalyticsView: View {
                             .foregroundStyle(Color.green)
 
                         HStack(spacing: 6) {
-                            if s.passed > 0 { linkBadge(s.passed, "合格", .green, phase: .es, status: "合格") }
-                            if s.failed > 0 { linkBadge(s.failed, "落選", .red,   phase: .es, status: "落選") }
+                            if s.passed > 0 { countBadge(s.passed, "合格", .green) }
+                            if s.failed > 0 { countBadge(s.failed, "落選", .red) }
                         }
                     } else {
                         Capsule()
@@ -430,6 +439,13 @@ struct AnalyticsView: View {
                     }
                 }
                 .frame(maxWidth: .infinity)
+            }
+
+            HStack {
+                Spacer()
+                Text("タップして詳細を表示")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
         }
         .padding(16)
@@ -470,18 +486,18 @@ struct AnalyticsView: View {
             .frame(height: 22)
 
             HStack(spacing: 8) {
-                if s.untaken > 0 { linkBadge(s.untaken, "未受験",  .secondary, phase: .aptitude, status: "未受験") }
-                if s.taken   > 0 { linkBadge(s.taken,   "受験済み", .blue,      phase: .aptitude, status: "受験済み") }
-                if s.passed  > 0 { linkBadge(s.passed,  "合格",    .green,     phase: .aptitude, status: "合格") }
-                if s.failed  > 0 { linkBadge(s.failed,  "落選",    .red,       phase: .aptitude, status: "落選") }
+                if s.untaken > 0 { countBadge(s.untaken, "未受験",  .secondary) }
+                if s.taken   > 0 { countBadge(s.taken,   "受験済み", .blue) }
+                if s.passed  > 0 { countBadge(s.passed,  "合格",    .green) }
+                if s.failed  > 0 { countBadge(s.failed,  "落選",    .red) }
             }
 
-            Button { showAptitudeDetail = true } label: {
-                Text("タップして種類別詳細を見る")
-                    .font(.caption2)
-                    .foregroundStyle(.tertiary)
+            HStack {
+                Spacer()
+                Text("タップして詳細を表示")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
-            .buttonStyle(.plain)
         }
     }
 
@@ -544,7 +560,15 @@ struct AnalyticsView: View {
             }
 
             ForEach(viewModel.stageStats) { stats in
-                stageRow(stats)
+                NavigationLink {
+                    AnalyticsPhaseDetailView(
+                        phase:     .interview(stage: stats.stage),
+                        viewModel: viewModel
+                    )
+                } label: {
+                    stageRow(stats)
+                }
+                .buttonStyle(.plain)
             }
         }
     }
@@ -587,14 +611,21 @@ struct AnalyticsView: View {
 
             if stats.passed > 0 || stats.failed > 0 || stats.withdrawn > 0 {
                 HStack(spacing: 8) {
-                    if stats.passed    > 0 { linkBadge(stats.passed,    "通過", .green,  phase: .interview(stage: stats.stage), status: "通過") }
-                    if stats.failed    > 0 { linkBadge(stats.failed,    "落選", .red,    phase: .interview(stage: stats.stage), status: "落選") }
-                    if stats.withdrawn > 0 { linkBadge(stats.withdrawn, "辞退", .orange, phase: .interview(stage: stats.stage), status: "辞退") }
+                    if stats.passed    > 0 { countBadge(stats.passed,    "通過", .green) }
+                    if stats.failed    > 0 { countBadge(stats.failed,    "落選", .red) }
+                    if stats.withdrawn > 0 { countBadge(stats.withdrawn, "辞退", .orange) }
                 }
             }
 
             if stats.scheduled > 0 {
                 Text("※ 予定: \(stats.scheduled)件")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            HStack {
+                Spacer()
+                Text("タップして詳細を表示")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -684,33 +715,6 @@ struct AnalyticsView: View {
         }
     }
 
-    /// countBadge を NavigationLink でラップしてタップで企業一覧へ遷移
-    private func linkBadge(
-        _ count: Int,
-        _ label: String,
-        _ color: Color,
-        phase:  AnalyticsPhase,
-        status: String
-    ) -> some View {
-        let detailTitle = titleFor(phase: phase, status: status)
-        return NavigationLink {
-            AnalyticsDetailView(
-                title:     detailTitle,
-                companies: viewModel.getCompanies(for: phase, status: status)
-            )
-        } label: {
-            countBadge(count, label, color)
-        }
-        .buttonStyle(.plain)
-    }
-
-    private func titleFor(phase: AnalyticsPhase, status: String) -> String {
-        switch phase {
-        case .es:                        return "ES - \(status)"
-        case .aptitude:                  return "適性検査 - \(status)"
-        case .interview(let stage):      return "\(stage) - \(status)"
-        }
-    }
 }
 
 // MARK: - Aptitude Detail View
@@ -719,6 +723,7 @@ struct AptitudeDetailAnalyticsView: View {
     @Environment(\.dismiss) private var dismiss
     let stats:     AptitudeStatsData
     let typeStats: [AptitudeTypeStats]
+    @ObservedObject var viewModel: AnalyticsViewModel
 
     var body: some View {
         NavigationStack {
@@ -768,36 +773,47 @@ struct AptitudeDetailAnalyticsView: View {
     private var typeSection: some View {
         Section("種類別") {
             ForEach(typeStats) { ts in
-                VStack(alignment: .leading, spacing: 8) {
-                    HStack {
-                        Text(ts.typeName)
-                            .font(.subheadline.weight(.semibold))
-                        Spacer()
-                        Text("\(ts.total)件")
-                            .font(.caption.weight(.medium))
-                            .foregroundStyle(.secondary)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 3)
-                            .background(Color.secondary.opacity(0.1))
-                            .clipShape(Capsule())
-                    }
-
-                    HStack(spacing: 8) {
-                        if ts.untaken > 0 { typeBadge(ts.untaken, "未受験",  .secondary) }
-                        if ts.taken   > 0 { typeBadge(ts.taken,   "受験済み", .blue) }
-                        if ts.passed  > 0 { typeBadge(ts.passed,  "合格",    .green) }
-                        if ts.failed  > 0 { typeBadge(ts.failed,  "落選",    .red) }
-                    }
-
-                    if let rate = ts.passRate {
-                        Text("合格率: \(Int(rate * 100))%")
-                            .font(.caption.weight(.medium))
-                            .foregroundStyle(rate >= 0.5 ? .green : rate >= 0.25 ? .orange : .red)
-                    }
+                NavigationLink {
+                    AnalyticsPhaseDetailView(
+                        phase:     .aptitude(type: ts.typeName),
+                        viewModel: viewModel
+                    )
+                } label: {
+                    typeRow(ts)
                 }
-                .padding(.vertical, 4)
             }
         }
+    }
+
+    private func typeRow(_ ts: AptitudeTypeStats) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text(ts.typeName)
+                    .font(.subheadline.weight(.semibold))
+                Spacer()
+                Text("\(ts.total)件")
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 3)
+                    .background(Color.secondary.opacity(0.1))
+                    .clipShape(Capsule())
+            }
+
+            HStack(spacing: 8) {
+                if ts.untaken > 0 { typeBadge(ts.untaken, "未受験",  .secondary) }
+                if ts.taken   > 0 { typeBadge(ts.taken,   "受験済み", .blue) }
+                if ts.passed  > 0 { typeBadge(ts.passed,  "合格",    .green) }
+                if ts.failed  > 0 { typeBadge(ts.failed,  "落選",    .red) }
+            }
+
+            if let rate = ts.passRate {
+                Text("合格率: \(Int(rate * 100))%")
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(rate >= 0.5 ? .green : rate >= 0.25 ? .orange : .red)
+            }
+        }
+        .padding(.vertical, 4)
     }
 
     // MARK: - Helpers

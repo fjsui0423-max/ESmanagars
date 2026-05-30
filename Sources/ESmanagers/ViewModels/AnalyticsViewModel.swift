@@ -110,7 +110,7 @@ struct StageStats: Identifiable {
 enum AnalyticsPhase: Hashable {
     case es
     case interview(stage: String)
-    case aptitude
+    case aptitude(type: String?)   // nil = 全種類, non-nil = 種類指定
 }
 
 // MARK: - ViewModel
@@ -300,8 +300,10 @@ final class AnalyticsViewModel: ObservableObject {
 
     // MARK: - Company lookup
 
-    /// 指定フェーズ・ステータスに合致する選考の Company を重複なし・名前昇順で返す
-    func getCompanies(for phase: AnalyticsPhase, status: String) -> [Company] {
+    /// フェーズ別の合否企業リストを返す（重複排除・名前昇順）
+    /// - passed : ES=合格, 面接=通過, 適性検査=合格
+    /// - failed : ES=落選, 面接=落選, 適性検査=落選
+    func getCompanyResults(for phase: AnalyticsPhase) -> (passed: [Company], failed: [Company]) {
         // 現在のカテゴリフィルタを反映した Selection の ObjectID セット
         let filteredSels: [Selection]
         switch selectionCategoryFilter {
@@ -311,41 +313,53 @@ final class AnalyticsViewModel: ObservableObject {
         }
         let selIDs = Set(filteredSels.map { $0.objectID })
 
-        var seenIDs: Set<NSManagedObjectID> = []
-        var result:  [Company] = []
+        var passedIDs: Set<NSManagedObjectID> = []
+        var failedIDs: Set<NSManagedObjectID> = []
+        var passedArr: [Company] = []
+        var failedArr: [Company] = []
 
-        func add(_ company: Company?) {
-            guard let c = company else { return }
-            if seenIDs.insert(c.objectID).inserted { result.append(c) }
+        func addPassed(_ company: Company?) {
+            guard let c = company, passedIDs.insert(c.objectID).inserted else { return }
+            passedArr.append(c)
+        }
+        func addFailed(_ company: Company?) {
+            guard let c = company, failedIDs.insert(c.objectID).inserted else { return }
+            failedArr.append(c)
         }
 
         switch phase {
         case .es:
             let boxes = allBoxes.filter {
                 guard let sid = $0.selection?.objectID else { return false }
-                return selIDs.contains(sid) && $0.status == status
+                return selIDs.contains(sid)
             }
-            boxes.forEach { add($0.selection?.company) }
+            boxes.filter { $0.status == "合格" }.forEach { addPassed($0.selection?.company) }
+            boxes.filter { $0.status == "落選" }.forEach { addFailed($0.selection?.company) }
 
-        case .aptitude:
+        case .aptitude(let type):
             let tests = allAptitudeTests.filter {
                 guard let sid = $0.selection?.objectID else { return false }
-                return selIDs.contains(sid) && $0.status == status
+                guard selIDs.contains(sid) else { return false }
+                if let t = type { return $0.displayType == t }
+                return true
             }
-            tests.forEach { add($0.selection?.company) }
+            tests.filter { $0.status == "合格" }.forEach { addPassed($0.selection?.company) }
+            tests.filter { $0.status == "落選" }.forEach { addFailed($0.selection?.company) }
 
         case .interview(let stage):
             var interviews = allInterviews.filter {
                 guard let sid = $0.selection?.objectID else { return false }
-                return selIDs.contains(sid) && $0.stage == stage && $0.status == status
+                return selIDs.contains(sid) && $0.stage == stage
             }
             if interviewModeFilter != "全て" {
                 interviews = interviews.filter { $0.mode == interviewModeFilter }
             }
-            interviews.forEach { add($0.selection?.company) }
+            interviews.filter { $0.status == "通過" }.forEach { addPassed($0.selection?.company) }
+            interviews.filter { $0.status == "落選" }.forEach { addFailed($0.selection?.company) }
         }
 
-        return result.sorted { ($0.name ?? "") < ($1.name ?? "") }
+        let sort: (Company, Company) -> Bool = { ($0.name ?? "") < ($1.name ?? "") }
+        return (passed: passedArr.sorted(by: sort), failed: failedArr.sorted(by: sort))
     }
 
     // MARK: - Private
