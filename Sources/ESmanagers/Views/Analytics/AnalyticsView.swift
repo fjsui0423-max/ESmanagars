@@ -85,16 +85,7 @@ struct AnalyticsView: View {
             }
 
             if viewModel.aptitudeStats.total > 0 {
-                Button { showAptitudeDetail = true } label: {
-                    aptitudeStatsCard
-                        .overlay(alignment: .topTrailing) {
-                            Image(systemName: "chevron.right")
-                                .font(.caption.weight(.bold))
-                                .foregroundStyle(.tertiary)
-                                .padding(16)
-                        }
-                }
-                .buttonStyle(.plain)
+                aptitudeStatsCard
             }
 
             if !viewModel.stageStats.isEmpty {
@@ -420,8 +411,8 @@ struct AnalyticsView: View {
                             .foregroundStyle(Color.green)
 
                         HStack(spacing: 6) {
-                            if s.passed > 0 { countBadge(s.passed, "合格", .green) }
-                            if s.failed > 0 { countBadge(s.failed, "落選", .red) }
+                            if s.passed > 0 { linkBadge(s.passed, "合格", .green, phase: .es, status: "合格") }
+                            if s.failed > 0 { linkBadge(s.failed, "落選", .red,   phase: .es, status: "落選") }
                         }
                     } else {
                         Capsule()
@@ -479,15 +470,18 @@ struct AnalyticsView: View {
             .frame(height: 22)
 
             HStack(spacing: 8) {
-                if s.untaken > 0 { countBadge(s.untaken, "未受験",  .secondary) }
-                if s.taken   > 0 { countBadge(s.taken,   "受験済み", .blue) }
-                if s.passed  > 0 { countBadge(s.passed,  "合格",    .green) }
-                if s.failed  > 0 { countBadge(s.failed,  "落選",    .red) }
+                if s.untaken > 0 { linkBadge(s.untaken, "未受験",  .secondary, phase: .aptitude, status: "未受験") }
+                if s.taken   > 0 { linkBadge(s.taken,   "受験済み", .blue,      phase: .aptitude, status: "受験済み") }
+                if s.passed  > 0 { linkBadge(s.passed,  "合格",    .green,     phase: .aptitude, status: "合格") }
+                if s.failed  > 0 { linkBadge(s.failed,  "落選",    .red,       phase: .aptitude, status: "落選") }
             }
 
-            Text("タップして種類別詳細を見る")
-                .font(.caption2)
-                .foregroundStyle(.tertiary)
+            Button { showAptitudeDetail = true } label: {
+                Text("タップして種類別詳細を見る")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+            }
+            .buttonStyle(.plain)
         }
     }
 
@@ -593,9 +587,9 @@ struct AnalyticsView: View {
 
             if stats.passed > 0 || stats.failed > 0 || stats.withdrawn > 0 {
                 HStack(spacing: 8) {
-                    if stats.passed    > 0 { countBadge(stats.passed,    "通過", .green) }
-                    if stats.failed    > 0 { countBadge(stats.failed,    "落選", .red) }
-                    if stats.withdrawn > 0 { countBadge(stats.withdrawn, "辞退", .orange) }
+                    if stats.passed    > 0 { linkBadge(stats.passed,    "通過", .green,  phase: .interview(stage: stats.stage), status: "通過") }
+                    if stats.failed    > 0 { linkBadge(stats.failed,    "落選", .red,    phase: .interview(stage: stats.stage), status: "落選") }
+                    if stats.withdrawn > 0 { linkBadge(stats.withdrawn, "辞退", .orange, phase: .interview(stage: stats.stage), status: "辞退") }
                 }
             }
 
@@ -687,6 +681,34 @@ struct AnalyticsView: View {
             Text("\(label) \(count)件")
                 .font(.caption.weight(.medium))
                 .foregroundStyle(.secondary)
+        }
+    }
+
+    /// countBadge を NavigationLink でラップしてタップで企業一覧へ遷移
+    private func linkBadge(
+        _ count: Int,
+        _ label: String,
+        _ color: Color,
+        phase:  AnalyticsPhase,
+        status: String
+    ) -> some View {
+        let detailTitle = titleFor(phase: phase, status: status)
+        return NavigationLink {
+            AnalyticsDetailView(
+                title:     detailTitle,
+                companies: viewModel.getCompanies(for: phase, status: status)
+            )
+        } label: {
+            countBadge(count, label, color)
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func titleFor(phase: AnalyticsPhase, status: String) -> String {
+        switch phase {
+        case .es:                        return "ES - \(status)"
+        case .aptitude:                  return "適性検査 - \(status)"
+        case .interview(let stage):      return "\(stage) - \(status)"
         }
     }
 }

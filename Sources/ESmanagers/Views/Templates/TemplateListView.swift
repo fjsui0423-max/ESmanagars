@@ -29,10 +29,6 @@ struct TemplateListView: View {
                 templateList
             }
         }
-        // 空状態・一覧状態どちらでも広告を表示する
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            TemplateSquareAdView()
-        }
         .navigationTitle("テンプレート")
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
@@ -56,7 +52,10 @@ struct TemplateListView: View {
 
     private var templateList: some View {
         List {
-            ForEach(viewModel.allCategories, id: \.self) { category in
+            // インフィード広告: カテゴリの「間」に挟む（index == 0 の直後、以降3つおき）
+            ForEach(Array(viewModel.allCategories.enumerated()), id: \.element) { index, category in
+
+                // ① 通常のテンプレートカテゴリセクション
                 Section(header: Text(category)) {
                     ForEach(viewModel.groupedTemplates[category] ?? []) { template in
                         Button { editingTemplate = template } label: {
@@ -68,7 +67,27 @@ struct TemplateListView: View {
                         viewModel.delete(category: category, at: offsets)
                     }
                 }
+
+                // ② インフィード広告セクション（最初のカテゴリ直後、以降3つおき）
+                if index == 0 || (index > 0 && index % 3 == 0) {
+                    Section {
+                        HStack {
+                            Spacer()
+                            AdMobLargeBannerView()
+                                .frame(width: 300, height: 250)
+                            Spacer()
+                        }
+                        .listRowBackground(Color.clear)
+                        .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
+                    }
+                }
             }
+
+            // ★ リスト最下部の安全余白（タブバー・下部バナーへの被りを防ぐ）
+            Color.clear
+                .frame(height: 100)
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
         }
         .listStyle(.insetGrouped)
     }
@@ -119,26 +138,6 @@ struct TemplateListView: View {
         #else
         .automatic
         #endif
-    }
-}
-
-// MARK: - Banner Ad View
-
-private struct TemplateSquareAdView: View {
-    var body: some View {
-        HStack {
-            Spacer()
-            Color(UIColor.secondarySystemBackground)
-                .frame(width: 300, height: 250)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-                .overlay {
-                    Text("PR")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-            Spacer()
-        }
-        .padding(.bottom, 16)
     }
 }
 

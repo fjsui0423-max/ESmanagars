@@ -105,6 +105,14 @@ struct StageStats: Identifiable {
     }
 }
 
+// MARK: - Analytics Phase
+
+enum AnalyticsPhase: Hashable {
+    case es
+    case interview(stage: String)
+    case aptitude
+}
+
 // MARK: - ViewModel
 
 @MainActor
@@ -288,6 +296,56 @@ final class AnalyticsViewModel: ObservableObject {
                 )
             }
             .sorted { $0.total > $1.total }
+    }
+
+    // MARK: - Company lookup
+
+    /// 指定フェーズ・ステータスに合致する選考の Company を重複なし・名前昇順で返す
+    func getCompanies(for phase: AnalyticsPhase, status: String) -> [Company] {
+        // 現在のカテゴリフィルタを反映した Selection の ObjectID セット
+        let filteredSels: [Selection]
+        switch selectionCategoryFilter {
+        case "インターン": filteredSels = allSelections.filter { $0.category == "インターン" }
+        case "本選考":    filteredSels = allSelections.filter { $0.category == "本選考" }
+        default:         filteredSels = allSelections
+        }
+        let selIDs = Set(filteredSels.map { $0.objectID })
+
+        var seenIDs: Set<NSManagedObjectID> = []
+        var result:  [Company] = []
+
+        func add(_ company: Company?) {
+            guard let c = company else { return }
+            if seenIDs.insert(c.objectID).inserted { result.append(c) }
+        }
+
+        switch phase {
+        case .es:
+            let boxes = allBoxes.filter {
+                guard let sid = $0.selection?.objectID else { return false }
+                return selIDs.contains(sid) && $0.status == status
+            }
+            boxes.forEach { add($0.selection?.company) }
+
+        case .aptitude:
+            let tests = allAptitudeTests.filter {
+                guard let sid = $0.selection?.objectID else { return false }
+                return selIDs.contains(sid) && $0.status == status
+            }
+            tests.forEach { add($0.selection?.company) }
+
+        case .interview(let stage):
+            var interviews = allInterviews.filter {
+                guard let sid = $0.selection?.objectID else { return false }
+                return selIDs.contains(sid) && $0.stage == stage && $0.status == status
+            }
+            if interviewModeFilter != "全て" {
+                interviews = interviews.filter { $0.mode == interviewModeFilter }
+            }
+            interviews.forEach { add($0.selection?.company) }
+        }
+
+        return result.sorted { ($0.name ?? "") < ($1.name ?? "") }
     }
 
     // MARK: - Private

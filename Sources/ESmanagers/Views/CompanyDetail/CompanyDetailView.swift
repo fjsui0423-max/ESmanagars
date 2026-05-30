@@ -7,24 +7,168 @@ struct CompanyDetailView: View {
 
     @StateObject private var viewModel: CompanyDetailViewModel
 
-    @State private var showEditSheet       = false
-    @State private var targetSelection:    Selection? = nil
-    @State private var showAddSelection    = false
-    @State private var showAddESBox        = false
-    @State private var showAddAptitudeTest = false
-    @State private var showAddInterview    = false
-    @State private var editingInterview:   Interview?    = nil
-    @State private var showEditInterview   = false
-    // 編集シート
+    // MARK: - Sheet presentation states
+    @State private var showEditSheet        = false
+    @State private var targetSelection:     Selection? = nil
+    @State private var showAddSelection     = false
+    @State private var showAddESBox         = false
+    @State private var showAddAptitudeTest  = false
+    @State private var showAddInterview     = false
+
+    // MARK: - Edit sheet states (.sheet(item:) パターン統一)
     @State private var editingSelection:    Selection?    = nil
     @State private var editingESBox:        ESBox?        = nil
     @State private var editingAptitudeTest: AptitudeTest? = nil
+    @State private var editingInterview:    Interview?    = nil   // (3) showEditInterview 廃止
+
+    // MARK: - Deletion confirmation states (4) ─ 誤削除防止
+    @State private var selectionToDelete:          Selection?    = nil
+    @State private var esBoxToDelete:              ESBox?        = nil
+    @State private var aptitudeTestToDelete:       AptitudeTest? = nil
+    @State private var interviewToDelete:          Interview?    = nil
+    @State private var showDeleteSelectionAlert    = false
+    @State private var showDeleteESBoxAlert        = false
+    @State private var showDeleteAptitudeTestAlert = false
+    @State private var showDeleteInterviewAlert    = false
 
     init(company: Company) {
         _viewModel = StateObject(wrappedValue: CompanyDetailViewModel(company: company))
     }
 
+    // MARK: - Body
+    // モディファイアを3段階に分割（Swift型推論タイムアウト対策）
+
     var body: some View {
+        withDeleteAlerts
+    }
+
+    // ── 段階3: 削除確認アラート × 4 ──────────────────────────────
+
+    private var withDeleteAlerts: some View {
+        withEditSheets
+            .alert("選考を削除",
+                   isPresented: $showDeleteSelectionAlert,
+                   presenting: selectionToDelete) { sel in
+                Button("削除", role: .destructive) {
+                    viewModel.deleteSelection(sel, in: context)
+                    selectionToDelete = nil
+                }
+                Button("キャンセル", role: .cancel) { selectionToDelete = nil }
+            } message: { sel in
+                Text("「\(sel.title ?? "")」を削除します。関連するES・適性検査・面接もすべて削除されます。この操作は取り消せません。")
+            }
+            .alert("ES BOX を削除",
+                   isPresented: $showDeleteESBoxAlert,
+                   presenting: esBoxToDelete) { box in
+                Button("削除", role: .destructive) {
+                    if let id = box.id?.uuidString {
+                        NotificationManager.shared.cancelDeadlineReminders(id: id)
+                    }
+                    context.delete(box)
+                    if context.hasChanges { try? context.save() }
+                    esBoxToDelete = nil
+                }
+                Button("キャンセル", role: .cancel) { esBoxToDelete = nil }
+            } message: { box in
+                Text("「\(box.title ?? "")」を削除します。この操作は取り消せません。")
+            }
+            .alert("適性検査を削除",
+                   isPresented: $showDeleteAptitudeTestAlert,
+                   presenting: aptitudeTestToDelete) { test in
+                Button("削除", role: .destructive) {
+                    viewModel.deleteAptitudeTest(test, in: context)
+                    aptitudeTestToDelete = nil
+                }
+                Button("キャンセル", role: .cancel) { aptitudeTestToDelete = nil }
+            } message: { _ in
+                Text("この適性検査を削除します。この操作は取り消せません。")
+            }
+            .alert("面接を削除",
+                   isPresented: $showDeleteInterviewAlert,
+                   presenting: interviewToDelete) { interview in
+                Button("削除", role: .destructive) {
+                    viewModel.deleteInterview(interview, in: context)
+                    interviewToDelete = nil
+                }
+                Button("キャンセル", role: .cancel) { interviewToDelete = nil }
+            } message: { interview in
+                Text("「\(interview.stage ?? "面接")」を削除します。この操作は取り消せません。")
+            }
+    }
+
+    // ── 段階2: 編集シート × 4（item ベース） ─────────────────────
+
+    private var withEditSheets: some View {
+        withAddSheets
+            .sheet(item: $editingInterview) { interview in
+                InterviewEditView(interview: interview) { stage, startAt, mode, offsets in
+                    viewModel.updateInterview(interview, stage: stage, startAt: startAt,
+                                             mode: mode, notifOffsets: offsets, in: context)
+                }
+            }
+            .sheet(item: $editingSelection) { sel in
+                SelectionEditView(selection: sel) { category, title in
+                    viewModel.updateSelection(sel, category: category, title: title, in: context)
+                }
+            }
+            .sheet(item: $editingESBox) { box in
+                ESBoxEditView(esBox: box) { title, deadline, offsets in
+                    viewModel.updateESBox(box, title: title, deadline: deadline,
+                                          notifOffsets: offsets, in: context)
+                }
+            }
+            .sheet(item: $editingAptitudeTest) { test in
+                AptitudeTestEditView(test: test) { type, custom, deadline, status, offsets in
+                    viewModel.updateAptitudeTest(test, type: type, customType: custom,
+                                                 deadline: deadline, status: status,
+                                                 notifOffsets: offsets, in: context)
+                }
+            }
+    }
+
+    // ── 段階1: 追加シート × 5 + ナビゲーション設定 ──────────────
+
+    private var withAddSheets: some View {
+        navigationBase
+            .sheet(isPresented: $showEditSheet, onDismiss: { viewModel.refreshCompanyData() }) {
+                CompanyEditView(company: viewModel.company)
+                    .environment(\.managedObjectContext, context)
+            }
+            .sheet(isPresented: $showAddSelection) {
+                SelectionCreateView { category, title in
+                    viewModel.addSelection(category: category, title: title, in: context)
+                }
+            }
+            .sheet(isPresented: $showAddESBox, onDismiss: { targetSelection = nil }) {
+                ESBoxCreateView { title, deadline, offsets in
+                    if let sel = targetSelection {
+                        viewModel.addESBox(to: sel, title: title, deadline: deadline,
+                                           notifOffsets: offsets, in: context)
+                    }
+                }
+            }
+            .sheet(isPresented: $showAddAptitudeTest, onDismiss: { targetSelection = nil }) {
+                AptitudeTestCreateView { type, customType, deadline, status, offsets in
+                    if let sel = targetSelection {
+                        viewModel.addAptitudeTest(to: sel, type: type, customType: customType,
+                                                  deadline: deadline, status: status,
+                                                  notifOffsets: offsets, in: context)
+                    }
+                }
+            }
+            .sheet(isPresented: $showAddInterview, onDismiss: { targetSelection = nil }) {
+                InterviewCreateView { stage, startAt, mode, offsets in
+                    if let sel = targetSelection {
+                        viewModel.addInterview(to: sel, stage: stage, startAt: startAt,
+                                              mode: mode, notifOffsets: offsets, in: context)
+                    }
+                }
+            }
+    }
+
+    // ── 段階0: ベース + ナビゲーション ──────────────────────────
+
+    private var navigationBase: some View {
         ZStack(alignment: .bottom) {
             scrollContent
             toastOverlay
@@ -43,72 +187,6 @@ struct CompanyDetailView: View {
         }
         .navigationDestination(for: ESBox.self) { esBox in
             ESBoxDetailView(esBox: esBox)
-        }
-        .sheet(isPresented: $showEditSheet, onDismiss: { viewModel.refreshCompanyData() }) {
-            CompanyEditView(company: viewModel.company)
-                .environment(\.managedObjectContext, context)
-        }
-        .sheet(isPresented: $showAddSelection) {
-            SelectionCreateView { category, title in
-                viewModel.addSelection(category: category, title: title, in: context)
-            }
-        }
-        .sheet(isPresented: $showAddESBox) {
-            ESBoxCreateView { title, deadline, offsets in
-                if let sel = targetSelection {
-                    viewModel.addESBox(to: sel, title: title, deadline: deadline,
-                                       notifOffsets: offsets, in: context)
-                }
-                targetSelection = nil
-            }
-        }
-        .sheet(isPresented: $showAddAptitudeTest) {
-            AptitudeTestCreateView { type, customType, deadline, status, offsets in
-                if let sel = targetSelection {
-                    viewModel.addAptitudeTest(to: sel, type: type, customType: customType,
-                                              deadline: deadline, status: status,
-                                              notifOffsets: offsets, in: context)
-                }
-                targetSelection = nil
-            }
-        }
-        .sheet(isPresented: $showAddInterview) {
-            InterviewCreateView { stage, startAt, mode, offsets in
-                if let sel = targetSelection {
-                    viewModel.addInterview(to: sel, stage: stage, startAt: startAt, mode: mode,
-                                          notifOffsets: offsets, in: context)
-                }
-                targetSelection = nil
-            }
-        }
-        .sheet(isPresented: $showEditInterview) {
-            if let interview = editingInterview {
-                InterviewEditView(interview: interview) { stage, startAt, mode, offsets in
-                    viewModel.updateInterview(interview, stage: stage, startAt: startAt, mode: mode,
-                                             notifOffsets: offsets, in: context)
-                }
-            }
-        }
-        // 選考編集
-        .sheet(item: $editingSelection) { sel in
-            SelectionEditView(selection: sel) { category, title in
-                viewModel.updateSelection(sel, category: category, title: title, in: context)
-            }
-        }
-        // ES BOX 編集
-        .sheet(item: $editingESBox) { box in
-            ESBoxEditView(esBox: box) { title, deadline, offsets in
-                viewModel.updateESBox(box, title: title, deadline: deadline,
-                                      notifOffsets: offsets, in: context)
-            }
-        }
-        // 適性検査編集
-        .sheet(item: $editingAptitudeTest) { test in
-            AptitudeTestEditView(test: test) { type, custom, deadline, status, offsets in
-                viewModel.updateAptitudeTest(test, type: type, customType: custom,
-                                             deadline: deadline, status: status,
-                                             notifOffsets: offsets, in: context)
-            }
         }
     }
 
@@ -365,25 +443,42 @@ struct CompanyDetailView: View {
                             targetSelection = selection
                             showAddInterview = true
                         },
-                        onEditSelection: {
-                            editingSelection = selection
+                        onEditSelection:  { editingSelection = selection },
+                        onEditESBox:      { editingESBox = $0 },
+                        onEditAptitudeTest: { editingAptitudeTest = $0 },
+                        onEditInterview:  { editingInterview = $0 },   // (3)
+                        // (1) ES BOX 削除 → 確認アラート経由
+                        onDeleteESBox: { box in
+                            esBoxToDelete = box
+                            showDeleteESBoxAlert = true
                         },
-                        onEditESBox: { box in
-                            editingESBox = box
+                        // (4) 各削除 → 確認アラート経由
+                        onDeleteAptitudeTest: { test in
+                            aptitudeTestToDelete = test
+                            showDeleteAptitudeTestAlert = true
                         },
-                        onEditAptitudeTest: { test in
-                            editingAptitudeTest = test
+                        onDeleteInterview: { interview in
+                            interviewToDelete = interview
+                            showDeleteInterviewAlert = true
                         },
-                        onEditInterview: { interview in
-                            editingInterview = interview
-                            showEditInterview = true
+                        onDeleteSelection: {
+                            selectionToDelete = selection
+                            showDeleteSelectionAlert = true
                         },
-                        onDeleteInterview: { viewModel.deleteInterview($0, in: context) },
-                        onInterviewStatusChange: { viewModel.updateInterviewStatus($0, status: $1, in: context) },
-                        onAptitudeStatusChange: { viewModel.updateAptitudeTestStatus($0, status: $1, in: context) },
-                        onDeleteAptitudeTest: { viewModel.deleteAptitudeTest($0, in: context) },
-                        onSelectionStatusChange: { viewModel.updateSelectionStatus(selection, status: $0, in: context) },
-                        onDeleteSelection: { viewModel.deleteSelection(selection, in: context) }
+                        onInterviewStatusChange: {
+                            viewModel.updateInterviewStatus($0, status: $1, in: context)
+                        },
+                        onAptitudeStatusChange: {
+                            viewModel.updateAptitudeTestStatus($0, status: $1, in: context)
+                        },
+                        // (2) ES BOX ステータス変更（ViewModel に専用メソッドなしのため直接更新）
+                        onESBoxStatusChange: { box, status in
+                            box.status = status
+                            if context.hasChanges { try? context.save() }
+                        },
+                        onSelectionStatusChange: {
+                            viewModel.updateSelectionStatus(selection, status: $0, in: context)
+                        }
                     )
                 }
             }
@@ -432,12 +527,14 @@ struct SelectionCard: View {
     let onEditESBox:             (ESBox) -> Void
     let onEditAptitudeTest:      (AptitudeTest) -> Void
     let onEditInterview:         (Interview) -> Void
+    let onDeleteESBox:           (ESBox) -> Void      // (1) 新規
+    let onDeleteAptitudeTest:    (AptitudeTest) -> Void
     let onDeleteInterview:       (Interview) -> Void
+    let onDeleteSelection:       () -> Void
     let onInterviewStatusChange: (Interview, String) -> Void
     let onAptitudeStatusChange:  (AptitudeTest, String) -> Void
-    let onDeleteAptitudeTest:    (AptitudeTest) -> Void
+    let onESBoxStatusChange:     (ESBox, String) -> Void  // (2) 新規
     let onSelectionStatusChange: (String) -> Void
-    let onDeleteSelection:       () -> Void
 
     var body: some View {
         VStack(spacing: 0) {
@@ -452,28 +549,30 @@ struct SelectionCard: View {
                 Divider().padding(.horizontal, 16)
             }
 
+            // ── ES BOX ──
             if !boxes.isEmpty {
                 itemSectionLabel("ES BOX", color: .blue)
                 ForEach(boxes) { esBox in
                     NavigationLink(value: esBox) {
-                        ESBoxRow(esBox: esBox)
+                        ESBoxRow(
+                            esBox:          esBox,
+                            onStatusChange: { onESBoxStatusChange(esBox, $0) },
+                            onEdit:         { onEditESBox(esBox) },
+                            onDelete:       { onDeleteESBox(esBox) }
+                        )
                     }
                     .buttonStyle(.plain)
                     .padding(.horizontal, 12)
                     .padding(.bottom, 4)
-                    .contextMenu {
-                        Button { onEditESBox(esBox) } label: {
-                            Label("ES BOX を編集", systemImage: "pencil")
-                        }
-                    }
                 }
             }
 
+            // ── 適性検査 ──
             if !aptitudes.isEmpty {
                 itemSectionLabel("適性検査", color: .orange)
                 ForEach(aptitudes) { test in
                     AptitudeTestRow(
-                        test: test,
+                        test:           test,
                         onStatusChange: { onAptitudeStatusChange(test, $0) },
                         onEdit:         { onEditAptitudeTest(test) },
                         onDelete:       { onDeleteAptitudeTest(test) }
@@ -483,6 +582,7 @@ struct SelectionCard: View {
                 }
             }
 
+            // ── 面接 ──
             if !interviews.isEmpty {
                 itemSectionLabel("面接", color: .red)
                 ForEach(interviews, id: \.objectID) { interview in
@@ -531,7 +631,6 @@ struct SelectionCard: View {
 
             Spacer()
 
-            // 選考編集ボタン
             Button(action: onEditSelection) {
                 Image(systemName: "pencil")
                     .font(.system(size: 13, weight: .semibold))
@@ -592,9 +691,9 @@ struct SelectionCard: View {
 
     private var addButtonsRow: some View {
         HStack(spacing: 8) {
-            chipButton("ES", systemImage: "doc.text", color: .blue, action: onAddESBox)
+            chipButton("ES",   systemImage: "doc.text",     color: .blue,   action: onAddESBox)
             chipButton("適性検査", systemImage: "checkmark.circle", color: .orange, action: onAddAptitudeTest)
-            chipButton("面接", systemImage: "person.2", color: .red, action: onAddInterview)
+            chipButton("面接", systemImage: "person.2",     color: .red,    action: onAddInterview)
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 10)
@@ -617,10 +716,18 @@ struct SelectionCard: View {
     }
 }
 
-// MARK: - ES Box Row (inside SelectionCard)
+// MARK: - ES Box Row
 
 struct ESBoxRow: View {
     @ObservedObject var esBox: ESBox
+
+    // (1)(2) 新規コールバック
+    let onStatusChange: (String) -> Void
+    let onEdit:         () -> Void
+    let onDelete:       () -> Void
+
+    // (2) ES BOX が取り得るステータス一覧
+    private static let statuses = ["未着手", "進行中", "提出済み", "提出遅れ", "合格", "落選"]
 
     private static let dateFormatter: DateFormatter = {
         let f = DateFormatter()
@@ -649,13 +756,26 @@ struct ESBoxRow: View {
 
             Spacer()
 
-            Text(status)
-                .font(.caption.weight(.semibold))
+            // (2) ステータスクイック変更 Menu（AptitudeTestRow と同スタイル）
+            Menu {
+                ForEach(Self.statuses, id: \.self) { s in
+                    Button { onStatusChange(s) } label: {
+                        if s == status { Label(s, systemImage: "checkmark") }
+                        else { Text(s) }
+                    }
+                }
+            } label: {
+                HStack(spacing: 4) {
+                    Text(status).font(.caption.weight(.semibold))
+                    Image(systemName: "chevron.up.chevron.down")
+                        .font(.system(size: 8, weight: .bold))
+                }
                 .padding(.horizontal, 8)
                 .padding(.vertical, 4)
                 .background(status.esBoxStatusColor.opacity(0.12))
                 .foregroundStyle(status.esBoxStatusColor)
                 .clipShape(Capsule())
+            }
 
             Image(systemName: "chevron.right")
                 .font(.caption.weight(.semibold))
@@ -665,6 +785,16 @@ struct ESBoxRow: View {
         .padding(.horizontal, 12)
         .background(Color.tertiarySystemGroupedBackground)
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        // (1) コンテキストメニュー: 編集 + 削除
+        .contextMenu {
+            Button(action: onEdit) {
+                Label("ES BOX を編集", systemImage: "pencil")
+            }
+            Divider()
+            Button(role: .destructive, action: onDelete) {
+                Label("ES BOX を削除", systemImage: "trash")
+            }
+        }
     }
 }
 
@@ -702,7 +832,6 @@ struct AptitudeTestRow: View {
 
             Spacer()
 
-            // 編集ボタン（InterviewCardと同スタイル）
             Button(action: onEdit) {
                 Image(systemName: "pencil.circle")
                     .font(.system(size: 20))
@@ -825,7 +954,7 @@ struct InterviewCard: View {
         .background(Color.tertiarySystemGroupedBackground)
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         .contextMenu {
-            Button { onEdit() } label: { Label("編集", systemImage: "pencil") }
+            Button(action: onEdit) { Label("編集", systemImage: "pencil") }
             Divider()
             Button(role: .destructive, action: onDelete) {
                 Label("削除", systemImage: "trash")
