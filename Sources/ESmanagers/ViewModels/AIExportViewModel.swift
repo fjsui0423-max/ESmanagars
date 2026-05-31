@@ -6,26 +6,25 @@ final class AIExportViewModel: ObservableObject {
 
     // MARK: - Published state
 
-    @Published var onlyPassed:  Bool   = true
-    @Published var isExporting: Bool   = false
+    @Published var onlyPassed:   Bool   = true
+    @Published var isExporting:  Bool   = false
     @Published var errorMessage: String?
 
     private let context: NSManagedObjectContext
 
-    // MARK: - Value-type relay structs（CoreData オブジェクトをバックグラウンドに渡すための中継）
+    // MARK: - Codable + Sendable export structs
 
-    private struct MappedBox: Sendable {
-        let company:   String
-        let title:     String
-        let category:  String
-        let status:    String
-        let questions: [MappedQuestion]
+    private struct ExportData: Codable, Sendable {
+        let company:           String
+        let selectionCategory: String
+        let result:            String
+        let questions:         [ExportQuestion]
     }
 
-    private struct MappedQuestion: Sendable {
-        let text:   String
-        let answer: String
-        let limit:  Int16
+    private struct ExportQuestion: Codable, Sendable {
+        let question: String
+        let answer:   String
+        let limit:    Int16?   // nil = 制限なし
     }
 
     // MARK: - AI Prompt
@@ -33,7 +32,7 @@ final class AIExportViewModel: ObservableObject {
     let aiPrompt: String = """
     あなたはプロのキャリアコンサルタントであり、私の専属のエントリーシート（ES）作成アシスタントです。
 
-    添付したテキストファイルには、私が過去に作成し、実際の企業の選考に提出したESの設問と回答の履歴データがまとめられています。
+    添付したJSONファイルには、私が過去に作成し、実際の企業の選考に提出したESの設問と回答の履歴データがまとめられています。
 
     まずはこの添付ファイルを注意深く読み込み、私の「経験（学生時代に力を入れたことなど）」「強み」「価値観」、および「文章のトーンや構成力」を深く学習・分析してください。
 
@@ -49,7 +48,7 @@ final class AIExportViewModel: ObservableObject {
         self.context = context
     }
 
-    // MARK: - File generation（非同期・スレッドセーフ）
+    // MARK: - File generation（非同期・スレッドセーフ・JSON出力）
 
     func generateESDataFile() async -> URL? {
         isExporting = true
@@ -58,17 +57,20 @@ final class AIExportViewModel: ObservableObject {
         // UI を一度描画させるための短いスリープ
         try? await Task.sleep(nanoseconds: 100_000_000)
 
-        // ① メインスレッドで CoreData を読み取り、値型にマッピング
-        let mappedBoxes = fetchAndMapBoxes()
-        let fileName = onlyPassed ? "My_ES_Data_Passed.md" : "My_ES_Data_All.md"
+        // ① メインスレッドで CoreData を読み取り、Codable 値型にマッピング
+        let exportItems = fetchAndMapBoxes()
+        let fileName    = onlyPassed ? "My_ES_Data_Passed.json" : "My_ES_Data_All.json"
 
-        // ② バックグラウンドでファイル文字列を構築して書き出す
+        // ② バックグラウンドで JSON エンコード → ファイル書き出し
         let result: Result<URL, Error> = await Task.detached(priority: .userInitiated) {
-            let markdown = Self.buildMarkdown(from: mappedBoxes)
+            let encoder = JSONEncoder()
+            encoder.outputFormatting = [.prettyPrinted, .withoutEscapingSlashes]
+
             let url = FileManager.default.temporaryDirectory
                 .appendingPathComponent(fileName)
             do {
-                try markdown.write(to: url, atomically: true, encoding: .utf8)
+                let data = try encoder.encode(exportItems)
+                try data.write(to: url, options: .atomic)
                 return .success(url)
             } catch {
                 return .failure(error)
@@ -86,7 +88,7 @@ final class AIExportViewModel: ObservableObject {
 
     // MARK: - Private: fetch + map（必ずメインスレッドで呼ぶこと）
 
-    private func fetchAndMapBoxes() -> [MappedBox] {
+    private func fetchAndMapBoxes() -> [ExportData] {
         guard let all = try? context.fetch(ESBox.fetchRequest()) else { return [] }
 
         let filtered: [ESBox]
@@ -101,62 +103,35 @@ final class AIExportViewModel: ObservableObject {
             filtered = all.filter { submitted.contains($0.status ?? "") }
         }
 
-        return filtered.map { box in
-            MappedBox(
-                company:   box.selection?.company?.name ?? "不明",
-                title:     box.selection?.title         ?? "",
-                category:  box.selection?.category      ?? "",
-                status:    box.status                   ?? "",
-                questions: box.questionsArray.map { q in
-                    MappedQuestion(
-                        text:   q.questionText  ?? "（設問テキストなし）",
-                        answer: q.currentAnswer ?? "",
-                        limit:  q.maxLength
-                    )
-                }
+        // 企業名 → 選考タイトルの順でソート
+        let sorted = filtered.sorted {
+            let c0 = $0.selection?.company?.name ?? ""
+            let c1 = $1.selection?.company?.name ?? ""
+            guard c0 == c1 else { return c0 < c1 }
+            return ($0.selection?.title ?? "") < ($1.selection?.title ?? "")
+        }
+
+        return sorted.compactMap { box -> ExportData? in
+            // 回答済みの設問のみ抽出（空回答は除外してトークンを節約）
+            let questions: [ExportQuestion] = box.questionsArray.compactMap { q in
+                let answer = (q.currentAnswer ?? "")
+                    .trimmingCharacters(in: .whitespacesAndNewlines)
+                guard !answer.isEmpty else { return nil }
+                return ExportQuestion(
+                    question: q.questionText ?? "（設問テキストなし）",
+                    answer:   answer,
+                    limit:    q.maxLength > 0 ? q.maxLength : nil
+                )
+            }
+            // 設問がひとつもないBoxは出力しない
+            guard !questions.isEmpty else { return nil }
+
+            return ExportData(
+                company:           box.selection?.company?.name ?? "不明",
+                selectionCategory: box.selection?.category      ?? "",
+                result:            box.status                   ?? "",
+                questions:         questions
             )
         }
-    }
-
-    // MARK: - Private: Markdown 構築（static → Task.detached から安全に呼べる）
-
-    private nonisolated static func buildMarkdown(from boxes: [MappedBox]) -> String {
-        guard !boxes.isEmpty else {
-            return "※ 条件に合うESデータがありませんでした。"
-        }
-
-        let sorted = boxes.sorted {
-            guard $0.company == $1.company else { return $0.company < $1.company }
-            return $0.title < $1.title
-        }
-
-        var blocks: [String] = []
-
-        for box in sorted {
-            var lines: [String] = [
-                "# 企業名: \(box.company)",
-                "- 選考ルート: \(box.category)",
-                "- 結果: \(box.status)",
-                "",
-            ]
-
-            if box.questions.isEmpty {
-                lines += ["※ 設問・回答データなし", ""]
-            } else {
-                for q in box.questions {
-                    let answer = q.answer.trimmingCharacters(in: .whitespacesAndNewlines)
-                    let limit  = q.limit > 0 ? " (制限: \(q.limit)文字)" : ""
-                    lines += [
-                        "## 設問: \(q.text)\(limit)",
-                        answer.isEmpty ? "（回答なし）" : answer,
-                        "",
-                    ]
-                }
-            }
-
-            blocks.append(lines.joined(separator: "\n"))
-        }
-
-        return blocks.joined(separator: "---\n\n")
     }
 }

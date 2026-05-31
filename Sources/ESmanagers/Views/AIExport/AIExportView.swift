@@ -204,7 +204,7 @@ struct AIExportView: View {
                             .progressViewStyle(.circular)
                             .tint(.accentColor)
                             .scaleEffect(0.9)
-                        Text("データを出力中...")
+                        Text("JSONデータを出力中...")
                             .font(.body.weight(.semibold))
                     }
                     .frame(maxWidth: .infinity, alignment: .center)
