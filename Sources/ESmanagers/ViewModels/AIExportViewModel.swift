@@ -4,12 +4,29 @@ import SwiftUI
 @MainActor
 final class AIExportViewModel: ObservableObject {
 
-    // MARK: - Filter state
+    // MARK: - Published state
 
-    @Published var onlyPassed: Bool = true
+    @Published var onlyPassed:  Bool   = true
+    @Published var isExporting: Bool   = false
     @Published var errorMessage: String?
 
     private let context: NSManagedObjectContext
+
+    // MARK: - Value-type relay structs（CoreData オブジェクトをバックグラウンドに渡すための中継）
+
+    private struct MappedBox: Sendable {
+        let company:   String
+        let title:     String
+        let category:  String
+        let status:    String
+        let questions: [MappedQuestion]
+    }
+
+    private struct MappedQuestion: Sendable {
+        let text:   String
+        let answer: String
+        let limit:  Int16
+    }
 
     // MARK: - AI Prompt
 
@@ -32,74 +49,105 @@ final class AIExportViewModel: ObservableObject {
         self.context = context
     }
 
-    // MARK: - File generation
+    // MARK: - File generation（非同期・スレッドセーフ）
 
-    func generateESDataFile() -> URL? {
-        let boxes    = fetchBoxes()
-        let markdown = buildMarkdown(from: boxes)
+    func generateESDataFile() async -> URL? {
+        isExporting = true
+        defer { isExporting = false }
+
+        // UI を一度描画させるための短いスリープ
+        try? await Task.sleep(nanoseconds: 100_000_000)
+
+        // ① メインスレッドで CoreData を読み取り、値型にマッピング
+        let mappedBoxes = fetchAndMapBoxes()
         let fileName = onlyPassed ? "My_ES_Data_Passed.md" : "My_ES_Data_All.md"
-        let url      = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
-        do {
-            try markdown.write(to: url, atomically: true, encoding: .utf8)
+
+        // ② バックグラウンドでファイル文字列を構築して書き出す
+        let result: Result<URL, Error> = await Task.detached(priority: .userInitiated) {
+            let markdown = Self.buildMarkdown(from: mappedBoxes)
+            let url = FileManager.default.temporaryDirectory
+                .appendingPathComponent(fileName)
+            do {
+                try markdown.write(to: url, atomically: true, encoding: .utf8)
+                return .success(url)
+            } catch {
+                return .failure(error)
+            }
+        }.value
+
+        switch result {
+        case .success(let url):
             return url
-        } catch {
+        case .failure(let error):
             errorMessage = "ファイルの生成に失敗しました: \(error.localizedDescription)"
             return nil
         }
     }
 
-    // MARK: - Private
+    // MARK: - Private: fetch + map（必ずメインスレッドで呼ぶこと）
 
-    private func fetchBoxes() -> [ESBox] {
+    private func fetchAndMapBoxes() -> [MappedBox] {
         guard let all = try? context.fetch(ESBox.fetchRequest()) else { return [] }
+
+        let filtered: [ESBox]
         if onlyPassed {
-            return all.filter {
+            filtered = all.filter {
                 $0.status == "合格"
                     || $0.selection?.status == "内定"
                     || $0.selection?.status == "インターン参加"
             }
+        } else {
+            let submitted: Set<String> = ["提出済み", "合格", "落選", "提出遅れ"]
+            filtered = all.filter { submitted.contains($0.status ?? "") }
         }
-        let submitted: Set<String> = ["提出済み", "合格", "落選", "提出遅れ"]
-        return all.filter { submitted.contains($0.status ?? "") }
+
+        return filtered.map { box in
+            MappedBox(
+                company:   box.selection?.company?.name ?? "不明",
+                title:     box.selection?.title         ?? "",
+                category:  box.selection?.category      ?? "",
+                status:    box.status                   ?? "",
+                questions: box.questionsArray.map { q in
+                    MappedQuestion(
+                        text:   q.questionText  ?? "（設問テキストなし）",
+                        answer: q.currentAnswer ?? "",
+                        limit:  q.maxLength
+                    )
+                }
+            )
+        }
     }
 
-    private func buildMarkdown(from boxes: [ESBox]) -> String {
+    // MARK: - Private: Markdown 構築（static → Task.detached から安全に呼べる）
+
+    private nonisolated static func buildMarkdown(from boxes: [MappedBox]) -> String {
         guard !boxes.isEmpty else {
             return "※ 条件に合うESデータがありませんでした。"
         }
 
         let sorted = boxes.sorted {
-            let c0 = $0.selection?.company?.name ?? ""
-            let c1 = $1.selection?.company?.name ?? ""
-            guard c0 == c1 else { return c0 < c1 }
-            return ($0.selection?.title ?? "") < ($1.selection?.title ?? "")
+            guard $0.company == $1.company else { return $0.company < $1.company }
+            return $0.title < $1.title
         }
 
         var blocks: [String] = []
 
         for box in sorted {
-            let company   = box.selection?.company?.name ?? "不明"
-            let selCat    = box.selection?.category      ?? ""
-            let boxStatus = box.status                   ?? ""
-
             var lines: [String] = [
-                "# 企業名: \(company)",
-                "- 選考ルート: \(selCat)",
-                "- 結果: \(boxStatus)",
+                "# 企業名: \(box.company)",
+                "- 選考ルート: \(box.category)",
+                "- 結果: \(box.status)",
                 "",
             ]
 
-            let questions = box.questionsArray
-            if questions.isEmpty {
+            if box.questions.isEmpty {
                 lines += ["※ 設問・回答データなし", ""]
             } else {
-                for q in questions {
-                    let qText  = q.questionText ?? "（設問テキストなし）"
-                    let answer = (q.currentAnswer ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
-                    let limit  = q.maxLength > 0 ? " (制限: \(q.maxLength)文字)" : ""
-
+                for q in box.questions {
+                    let answer = q.answer.trimmingCharacters(in: .whitespacesAndNewlines)
+                    let limit  = q.limit > 0 ? " (制限: \(q.limit)文字)" : ""
                     lines += [
-                        "## 設問: \(qText)\(limit)",
+                        "## 設問: \(q.text)\(limit)",
                         answer.isEmpty ? "（回答なし）" : answer,
                         "",
                     ]

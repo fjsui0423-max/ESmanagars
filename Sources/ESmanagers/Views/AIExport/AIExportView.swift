@@ -192,14 +192,30 @@ struct AIExportView: View {
     private var exportSection: some View {
         Section {
             Button {
-                guard let url = viewModel.generateESDataFile() else { return }
-                shareURL = url
-                showShare = true
+                Task {
+                    guard let url = await viewModel.generateESDataFile() else { return }
+                    shareURL = url
+                    showShare = true
+                }
             } label: {
-                Label("ESデータをファイル出力する", systemImage: "square.and.arrow.up")
-                    .font(.body.weight(.semibold))
+                if viewModel.isExporting {
+                    HStack(spacing: 8) {
+                        ProgressView()
+                            .progressViewStyle(.circular)
+                            .tint(.accentColor)
+                            .scaleEffect(0.9)
+                        Text("データを出力中...")
+                            .font(.body.weight(.semibold))
+                    }
                     .frame(maxWidth: .infinity, alignment: .center)
+                } else {
+                    Label("ESデータをファイル出力する", systemImage: "square.and.arrow.up")
+                        .font(.body.weight(.semibold))
+                        .frame(maxWidth: .infinity, alignment: .center)
+                }
             }
+            .disabled(viewModel.isExporting)
+            .animation(.easeInOut(duration: 0.15), value: viewModel.isExporting)
         } header: {
             Text("エクスポート")
         } footer: {

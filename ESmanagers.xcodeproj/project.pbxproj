@@ -125,7 +125,7 @@
 		CB6377FF43F0B56751CFCF44 /* AptitudeTestCreateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AptitudeTestCreateView.swift; sourceTree = "<group>"; };
 		CE380D82CD948D7B3C51F7EF /* CompanyEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompanyEditView.swift; sourceTree = "<group>"; };
 		D2E4AB788A3B67ACD5DF95E2 /* AdMobLargeBannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdMobLargeBannerView.swift; sourceTree = "<group>"; };
-		D4FCE49F97AF5EE48F82932A /* ESmanagers.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = ESmanagers.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D4FCE49F97AF5EE48F82932A /* ESmanagers.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ESmanagers.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E08DAA99035DA6B5DB030F95 /* Industry+CoreData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Industry+CoreData.swift"; sourceTree = "<group>"; };
 		E8B0C2D3542B1E8A02AA5DE0 /* Company+CoreData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Company+CoreData.swift"; sourceTree = "<group>"; };
 		E9037A73E5CA3D7B6FD69B1C /* ESEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ESEditorView.swift; sourceTree = "<group>"; };
@@ -388,8 +388,6 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1600;
-				TargetAttributes = {
-				};
 			};
 			buildConfigurationList = 62FE1394D3DDE160460C259C /* Build configuration list for PBXProject "ESmanagers" */;
 			developmentRegion = en;
@@ -501,6 +499,7 @@
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = DX3PPTB9FX;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = Sources/ESmanagers/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
@@ -580,6 +579,7 @@
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = DX3PPTB9FX;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = Sources/ESmanagers/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
